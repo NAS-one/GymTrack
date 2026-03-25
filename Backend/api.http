@@ -1,0 +1,287 @@
+### ============================================================================
+### CONFIGURACIÓN GLOBAL Y HEALTH CHECK
+### ============================================================================
+
+### Verificar estado del servidor
+GET http://localhost:3000/
+
+### ============================================================================
+### FASE 1: AUTH & LOGIN (Identidad)
+### ============================================================================
+
+### 1. Registrar un ADMINISTRADOR (Usuario Inicial)
+POST http://localhost:3000/auth/register
+Content-Type: application/json
+
+{
+  "username": "SuperAdmin",
+  "email": "admin@gymtrack.com",
+  "password": "adminPassword123",
+  "role": "administrador"
+}
+
+### 2. Registrar un ENTRENADOR
+POST http://localhost:3000/auth/register
+Content-Type: application/json
+
+{
+  "username": "CoachMike",
+  "email": "mike@gymtrack.com",
+  "password": "fitLifeForever",
+  "role": "entrenador"
+}
+
+### 3. Registrar un CLIENTE
+POST http://localhost:3000/auth/register
+Content-Type: application/json
+
+{
+  "username": "ClienteFit",
+  "email": "cliente@gymtrack.com",
+  "password": "clientePass123",
+  "role": "cliente"
+}
+
+### 4. INICIAR SESIÓN (Obtener Token)
+# Copia el 'token' de la respuesta para usarlo en rutas protegidas futuras
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+  "username": "SuperAdmin",
+  "password": "adminPassword123"
+}
+
+### ============================================================================
+### FASE 2: PERFILES OPERATIVOS (Detalles de Usuarios)
+### ============================================================================
+
+### --- GESTIÓN DE ADMINISTRADORES ---
+
+### Crear Perfil de Administrador
+POST http://localhost:3000/administradores
+Content-Type: application/json
+
+{
+  "username": "AdminGerente",
+  "email": "gerente@gymtrack.com",
+  "password": "adminSecretPass",
+  "nombre": "Carlos El Jefe",
+  "cargo": "Gerente General"
+}
+
+### Listar Administradores
+GET http://localhost:3000/administradores
+
+### --- GESTIÓN DE ENTRENADORES ---
+
+### Crear Perfil de Entrenador
+POST http://localhost:3000/entrenadores
+Content-Type: application/json
+
+{
+  "username": "CoachRoberto",
+  "email": "roberto@gymtrack.com",
+  "password": "123456",
+  "rut": "11.222.333-K",
+  "nombre": "Roberto Carlos",
+  "especialidad": "Hipertrofia",
+  "telefono": "+56911111111"
+}
+
+### --- GESTIÓN DE CLIENTES ---
+
+### Crear Perfil de Cliente
+# OJO: Guarda el ID que te devuelva esto, lo usarás mucho.
+POST http://localhost:3000/clientes
+Content-Type: application/json
+
+{
+  "username": "VictorCliente",
+  "email": "victor@gymtrack.com",
+  "password": "123456",
+  "rut": "21.439.160-8",
+  "nombre": "Victor Gym",
+  "objetivo": "Ganar fuerza",
+  "direccion": "Av. Siempre Viva 123"
+}
+
+### Listar Clientes
+GET http://localhost:3000/clientes
+
+### Actualizar Cliente (Asignar Entrenador)
+# Reemplaza los UUIDs con los reales
+PATCH http://localhost:3000/clientes/<ID_CLIENTE_REAL>
+Content-Type: application/json
+
+{
+  "objetivo": "Definición muscular extrema",
+  "id_entrenador": "<ID_ENTRENADOR_REAL>"
+}
+
+### ============================================================================
+### FASE 3: GESTIÓN COMERCIAL (Dinero y Contratos)
+### ============================================================================
+
+### Crear Membresía
+POST http://localhost:3000/membresias
+Content-Type: application/json
+
+{
+  "id_cliente": "<ID_CLIENTE_REAL>",
+  "tipo_plan": "Mensual"
+}
+
+### Registrar Pago (Activa la Membresía)
+POST http://localhost:3000/pagos
+Content-Type: application/json
+
+{
+  "monto": 29.990,
+  "metodo_pago": "Efectivo",
+  "id_membresia": "<ID_MEMBRESIA_REAL>",
+  "id_administrador": "<ID_ADMIN_REAL>"
+}
+
+### Ver Historial de Pagos
+GET http://localhost:3000/pagos
+
+### ============================================================================
+### FASE 4: CORE DE ENTRENAMIENTO (El Servicio)
+### ============================================================================
+
+### --- EJERCICIOS ---
+
+### Crear Ejercicio
+POST http://localhost:3000/ejercicios
+Content-Type: application/json
+
+{
+  "nombre": "Press Militar con Barra",
+  "grupo_muscular": "Hombros",
+  "url_video": "https://youtube.com/watch?v=demo",
+  "descripcion": "Espalda recta, empuje vertical."
+}
+
+### Listar Ejercicios (Para obtener IDs)
+GET http://localhost:3000/ejercicios
+
+### --- RUTINAS ---
+
+### Crear Rutina Completa (Header + Detalles)
+POST http://localhost:3000/rutinas
+Content-Type: application/json
+
+{
+  "nombre": "Plan de Fuerza - Fase 1",
+  "id_cliente": "<ID_CLIENTE_REAL>",
+  "id_entrenador": "<ID_ENTRENADOR_REAL>",
+  "detalles": [
+    {
+      "id_ejercicio": "<ID_EJERCICIO_REAL_1>",
+      "dia": "Lunes",
+      "series": 4,
+      "repeticiones": "10-12",
+      "carga_proyectada": "20kg"
+    },
+    {
+      "id_ejercicio": "<ID_EJERCICIO_REAL_2>",
+      "dia": "Lunes",
+      "series": 3,
+      "repeticiones": "15"
+    }
+  ]
+}
+
+### Ver Rutina Activa del Cliente
+GET http://localhost:3000/rutinas/active/<ID_CLIENTE_REAL>
+
+### ============================================================================
+### FASE 5: TRACKING & ANALYTICS (App Móvil)
+### ============================================================================
+
+### --- ASISTENCIA ---
+
+### Simular Escaneo QR (Acceso Correcto)
+POST http://localhost:3000/asistencia
+Content-Type: application/json
+
+{
+  "token_qr": "{\"id_cliente\": \"<ID_CLIENTE_REAL>\", \"expires_at\": \"2030-01-01T10:00:00.000Z\"}"
+}
+
+### Simular Escaneo QR (Acceso Expirado)
+POST http://localhost:3000/asistencia
+Content-Type: application/json
+
+{
+  "token_qr": "{\"id_cliente\": \"<ID_CLIENTE_REAL>\", \"expires_at\": \"2020-01-01T10:00:00.000Z\"}"
+}
+
+### --- MEDIDAS FÍSICAS ---
+
+### Registrar Peso y Medidas
+POST http://localhost:3000/medidas
+Content-Type: application/json
+
+{
+  "id_cliente": "<ID_CLIENTE_REAL>",
+  "peso": 81.5,
+  "altura": 1.78,
+  "porcentaje_grasa": 18.2,
+  "circunferencia_cintura": 84.0
+}
+
+### Ver Evolución
+GET http://localhost:3000/medidas/cliente/<ID_CLIENTE_REAL>
+
+### --- PROGRESO DE ENTRENAMIENTO ---
+
+### Registrar Serie Completada
+POST http://localhost:3000/progreso
+Content-Type: application/json
+
+{
+  "id_cliente": "<ID_CLIENTE_REAL>",
+  "id_ejercicio": "<ID_EJERCICIO_REAL>",
+  "id_rutina": "<ID_RUTINA_REAL_OPCIONAL>", 
+  "series_reales": 4,
+  "reps_reales": 12,
+  "carga_real": "45kg",
+  "rpe": 9,
+  "comentarios": "Subí 5kg respecto a la semana pasada"
+}
+
+### Ver Bitácora
+GET http://localhost:3000/progreso/cliente/<ID_CLIENTE_REAL>
+
+### ============================================================================
+### FASE 6: GESTIÓN DE ACTIVOS Y REPORTES
+### ============================================================================
+
+### Registrar Máquina
+POST http://localhost:3000/maquinas
+Content-Type: application/json
+
+{
+  "nombre": "Trotadora Matrix T50",
+  "marca": "Matrix",
+  "codigo_serie": "MX-2024-999",
+  "estado": "operativa",
+  "id_administrador": "<ID_ADMIN_REAL>"
+}
+
+### Generar Reporte Mensual
+POST http://localhost:3000/reportes
+Content-Type: application/json
+
+{
+  "titulo": "Cierre Financiero Marzo",
+  "tipo": "financiero",
+  "id_administrador": "<ID_ADMIN_REAL>",
+  "contenido": {
+    "ingresos": 1500000,
+    "gastos": 200000,
+    "neto": 1300000
+  }
+}
