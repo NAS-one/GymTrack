@@ -36,6 +36,18 @@ Incluye autenticación, manejo de sesiones, validaciones y consumo de API.
 npm init -y
 
 ```
+
+Antes de ejecutar el proyecto, asegúrate de tener instalado:
+
+- Node.js (incluye npm)
+- PostgreSQL
+
+Verificar instalación:
+```bash
+node -v
+npm -v
+```
+
 2. Instalar dependencias:
 
 ```bash
