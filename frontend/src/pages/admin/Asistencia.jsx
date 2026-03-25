@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import axios from '../api/axios';
+import axios from '../../api/axios';
 import { Search, FilterX, MousePointerClick, CheckCircle2, XCircle, User, Briefcase, Dumbbell, Filter } from 'lucide-react';
 
 export function Asistencia() {
@@ -226,8 +226,8 @@ export function Asistencia() {
                                             </td>
                                             <td className="p-4 text-center">
                                                 <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] uppercase font-bold border ${log.tipo_usuario === 'cliente' ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' :
-                                                        log.tipo_usuario === 'entrenador' ? 'bg-orange-500/10 text-orange-400 border-orange-500/20' :
-                                                            'bg-purple-500/10 text-purple-400 border-purple-500/20'
+                                                    log.tipo_usuario === 'entrenador' ? 'bg-orange-500/10 text-orange-400 border-orange-500/20' :
+                                                        'bg-purple-500/10 text-purple-400 border-purple-500/20'
                                                     }`}>
                                                     {getTypeIcon(log.tipo_usuario)} {log.tipo_usuario}
                                                 </span>

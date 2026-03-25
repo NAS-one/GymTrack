@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import axios from '../api/axios';
+import axios from '../../api/axios';
 import {
     Search, Plus, Users, Mail, Phone, Dumbbell,
     Edit, Trash2, Trophy, Eye, Briefcase, Sparkles,
@@ -7,10 +7,10 @@ import {
 } from 'lucide-react';
 
 // Importación de Modales
-import { TrainerModal } from '../components/Entrenadores/TrainerModal';
-import { TrainerDetailModal } from '../components/Entrenadores/TrainerDetailModal';
-import { StaffModal } from '../components/Staff/StaffModal';
-import { StaffDetailModal } from '../components/Staff/StaffDetailModal';
+import { TrainerModal } from '../../components/admin/Entrenadores/TrainerModal';
+import { TrainerDetailModal } from '../../components/admin/Entrenadores/TrainerDetailModal';
+import { StaffModal } from '../../components/admin/Staff/StaffModal';
+import { StaffDetailModal } from '../../components/admin/Staff/StaffDetailModal';
 
 export function Equipo() {
     // --- ESTADOS ---

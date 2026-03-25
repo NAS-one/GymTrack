@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import axios from '../api/axios';
+import axios from '../../api/axios';
 import { Search, Plus, Calendar, Dumbbell, Edit, Trash2, Filter, ArrowUpDown, XCircle, Users } from 'lucide-react';
-import { ClientModal } from '../components/Clientes/ClientModal';
-import { ClientDetailModal } from '../components/Clientes/ClientDetailModal';
-import { useConfirm } from '../contexts/ConfirmContext';
+import { ClientModal } from '../../components/admin/Clientes/ClientModal';
+import { ClientDetailModal } from '../../components/admin/Clientes/ClientDetailModal';
+import { useConfirm } from '../../contexts/ConfirmContext';
 // 👇 Importamos toast
 import { toast } from 'sonner';
 

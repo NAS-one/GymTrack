@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import axios from '../api/axios';
+import axios from '../../api/axios';
 import { ScanBarcode, CheckCircle, XCircle, Calendar, User, Briefcase, Dumbbell } from 'lucide-react';
 
 export function Acceso() {
@@ -112,8 +112,8 @@ export function Acceso() {
         {/* ESTADO 3: RESULTADO */}
         {lastAccess && (
           <div className={`w-full max-w-xl p-8 rounded-3xl border-4 shadow-[0_0_50px_rgba(0,0,0,0.5)] transform transition-all scale-100 flex flex-col items-center text-center gap-6 ${lastAccess.type === 'success'
-              ? 'bg-green-900/20 border-green-500 shadow-green-500/10'
-              : 'bg-red-900/20 border-red-500 shadow-red-500/10'
+            ? 'bg-green-900/20 border-green-500 shadow-green-500/10'
+            : 'bg-red-900/20 border-red-500 shadow-red-500/10'
             }`}>
 
             {/* ICONO GIGANTE */}

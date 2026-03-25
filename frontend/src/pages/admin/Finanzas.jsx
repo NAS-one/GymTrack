@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
-import axios from '../api/axios';
+import axios from '../../api/axios';
 import { Search, Download, Calendar, DollarSign, CreditCard, Wallet, FilterX } from 'lucide-react';
 
 export function Finanzas() {
@@ -266,8 +266,8 @@ export function Finanzas() {
                                         </td>
                                         <td className="p-4">
                                             <span className={`text-[10px] font-bold px-2 py-1 rounded-full border uppercase tracking-wider ${t.metodo_pago === 'Efectivo'
-                                                    ? 'bg-green-500/10 text-green-400 border-green-500/20'
-                                                    : 'bg-purple-500/10 text-purple-400 border-purple-500/20'
+                                                ? 'bg-green-500/10 text-green-400 border-green-500/20'
+                                                : 'bg-purple-500/10 text-purple-400 border-purple-500/20'
                                                 }`}>
                                                 {t.metodo_pago}
                                             </span>

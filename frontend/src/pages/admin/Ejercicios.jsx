@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import axios from '../api/axios';
+import axios from '../../api/axios';
 import { Plus, Search, Edit, Trash2, Dumbbell, Youtube, Play } from 'lucide-react';
-import { ExerciseModal } from '../components/Ejercicios/ExerciseModal';
+import { ExerciseModal } from '../../components/admin/Ejercicios/ExerciseModal';
 
 const MUSCLE_GROUPS = ['Todos', 'Pecho', 'Espalda', 'Piernas', 'Hombros', 'Bíceps', 'Tríceps', 'Abdominales', 'Cardio'];
 
@@ -10,7 +10,7 @@ export function Ejercicios() {
   const [loading, setLoading] = useState(true);
   const [filterGroup, setFilterGroup] = useState('Todos');
   const [searchTerm, setSearchTerm] = useState("");
-  
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedExercise, setSelectedExercise] = useState(null);
 
@@ -47,7 +47,7 @@ export function Ejercicios() {
 
   return (
     <div className="space-y-6 animate-fade-in-up pb-10">
-      
+
       {/* HEADER */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
@@ -62,17 +62,16 @@ export function Ejercicios() {
       {/* BARRA DE FILTROS (CHIPS) */}
       <div className="flex gap-2 overflow-x-auto pb-2 custom-scrollbar">
         {MUSCLE_GROUPS.map(group => (
-            <button 
-                key={group}
-                onClick={() => setFilterGroup(group)}
-                className={`px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all border ${
-                    filterGroup === group 
-                    ? 'bg-white text-black border-white' 
-                    : 'bg-black/40 text-gym-gray border-white/10 hover:border-white/30 hover:text-white'
-                }`}
-            >
-                {group}
-            </button>
+          <button
+            key={group}
+            onClick={() => setFilterGroup(group)}
+            className={`px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all border ${filterGroup === group
+              ? 'bg-white text-black border-white'
+              : 'bg-black/40 text-gym-gray border-white/10 hover:border-white/30 hover:text-white'
+              }`}
+          >
+            {group}
+          </button>
         ))}
       </div>
 
@@ -89,40 +88,40 @@ export function Ejercicios() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {filtered.map((ex) => (
             <div key={ex.id} className="bg-gym-card border border-white/5 rounded-2xl p-4 hover:border-white/20 transition-all group flex flex-col">
-                
-                {/* Header Card */}
-                <div className="flex justify-between items-start mb-3">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-zinc-800 to-black border border-white/5 flex items-center justify-center text-gym-orange shadow-inner">
-                            <Dumbbell size={20}/>
-                        </div>
-                        <div>
-                            <h3 className="font-bold text-white text-sm line-clamp-1">{ex.nombre}</h3>
-                            <span className="text-[10px] text-zinc-400 uppercase tracking-wider">{ex.grupo_muscular}</span>
-                        </div>
-                    </div>
+
+              {/* Header Card */}
+              <div className="flex justify-between items-start mb-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-zinc-800 to-black border border-white/5 flex items-center justify-center text-gym-orange shadow-inner">
+                    <Dumbbell size={20} />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-white text-sm line-clamp-1">{ex.nombre}</h3>
+                    <span className="text-[10px] text-zinc-400 uppercase tracking-wider">{ex.grupo_muscular}</span>
+                  </div>
                 </div>
+              </div>
 
-                {/* Descripción Corta */}
-                <p className="text-xs text-zinc-500 line-clamp-2 mb-4 flex-1">
-                    {ex.descripcion || 'Sin descripción detallada.'}
-                </p>
+              {/* Descripción Corta */}
+              <p className="text-xs text-zinc-500 line-clamp-2 mb-4 flex-1">
+                {ex.descripcion || 'Sin descripción detallada.'}
+              </p>
 
-                {/* Footer y Acciones */}
-                <div className="flex justify-between items-center pt-3 border-t border-white/5">
-                    {ex.url_video ? (
-                        <a href={ex.url_video} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 transition-colors">
-                            <Youtube size={14}/> Ver Video
-                        </a>
-                    ) : (
-                        <span className="text-[10px] text-zinc-600 italic">Sin video</span>
-                    )}
+              {/* Footer y Acciones */}
+              <div className="flex justify-between items-center pt-3 border-t border-white/5">
+                {ex.url_video ? (
+                  <a href={ex.url_video} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 transition-colors">
+                    <Youtube size={14} /> Ver Video
+                  </a>
+                ) : (
+                  <span className="text-[10px] text-zinc-600 italic">Sin video</span>
+                )}
 
-                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onClick={() => { setSelectedExercise(ex); setIsModalOpen(true); }} className="p-1.5 text-zinc-400 hover:text-white hover:bg-white/10 rounded-lg"><Edit size={14}/></button>
-                        <button onClick={() => handleDelete(ex.id)} className="p-1.5 text-zinc-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg"><Trash2 size={14}/></button>
-                    </div>
+                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button onClick={() => { setSelectedExercise(ex); setIsModalOpen(true); }} className="p-1.5 text-zinc-400 hover:text-white hover:bg-white/10 rounded-lg"><Edit size={14} /></button>
+                  <button onClick={() => handleDelete(ex.id)} className="p-1.5 text-zinc-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg"><Trash2 size={14} /></button>
                 </div>
+              </div>
             </div>
           ))}
         </div>

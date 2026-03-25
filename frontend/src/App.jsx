@@ -4,22 +4,22 @@ import { ConfirmProvider } from './contexts/ConfirmContext';
 import { AuthProvider } from './contexts/AuthProvider';
 
 // Guardián y Layouts
-import { ProtectedRoute } from './routes/ProtectedRoute'; // <-- Verifica tu ruta
-import { AdminLayout } from './layouts/AdminLayout'; // <-- Actualizado
-import { ClientLayout } from './layouts/ClientLayout'; // <-- Nuevo
+import { ProtectedRoute } from './routes/ProtectedRoute';
+import { AdminLayout } from './layouts/AdminLayout';
+import { ClientLayout } from './layouts/ClientLayout';
 // import { TrainerLayout } from './layouts/TrainerLayout'; 
 
-// Páginas (Mantenemos tus imports actuales)
-import { Login } from './pages/Login';
-import { Dashboard } from './pages/Dashboard';
-import { Clientes } from './pages/Clientes';
-import { Planes } from './pages/Planes';
-import { Finanzas } from './pages/Finanzas';
-import { Inventario } from './pages/Inventario';
-import { Ejercicios } from './pages/Ejercicios';
-import { Acceso } from './pages/Acceso';
-import { Asistencia } from './pages/Asistencia';
-import { Equipo } from './pages/Equipo';
+// Páginas
+import { Login } from './pages/auth/Login';
+import { Dashboard } from './pages/admin/Dashboard';
+import { Clientes } from './pages/admin/Clientes';
+import { Planes } from './pages/admin/Planes';
+import { Finanzas } from './pages/admin/Finanzas';
+import { Inventario } from './pages/admin/Inventario';
+import { Ejercicios } from './pages/admin/Ejercicios';
+import { Acceso } from './pages/admin/Acceso';
+import { Asistencia } from './pages/admin/Asistencia';
+import { Equipo } from './pages/admin/Equipo';
 
 function App() {
   return (

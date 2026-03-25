@@ -1,16 +1,16 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from '../api/axios';
+import axios from '../../api/axios';
 import { Users, DollarSign, Activity, AlertCircle } from 'lucide-react';
 
 // Componentes
-import { StatCard } from '../components/Dashboard/StatCard';
-import { TrendsChart } from '../components/Dashboard/TrendsChart';
-import { PeakHoursChart } from '../components/Dashboard/PeakHoursChart';
-import { LiveFeed } from '../components/Dashboard/Livefeed';
-import { OpportunityRadar } from '../components/Dashboard/OpportunityRadar';
-import { StaffTimeline } from '../components/Dashboard/StaffTimeline';
-import { formatMoney } from '../utils/format';
+import { StatCard } from '../../components/admin/Dashboard/StatCard';
+import { TrendsChart } from '../../components/admin/Dashboard/TrendsChart';
+import { PeakHoursChart } from '../../components/admin/Dashboard/PeakHoursChart';
+import { LiveFeed } from '../../components/admin/Dashboard/Livefeed';
+import { OpportunityRadar } from '../../components/admin/Dashboard/OpportunityRadar';
+import { StaffTimeline } from '../../components/admin/Dashboard/StaffTimeline';
+import { formatMoney } from '../../utils/format';
 
 export function Dashboard() {
   const [stats, setStats] = useState(null);
