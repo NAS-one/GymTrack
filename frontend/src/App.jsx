@@ -20,6 +20,7 @@ import { Ejercicios } from './pages/admin/Ejercicios';
 import { Acceso } from './pages/admin/Acceso';
 import { Asistencia } from './pages/admin/Asistencia';
 import { Equipo } from './pages/admin/Equipo';
+import { Reportes } from './pages/admin/Reportes';
 
 function App() {
   return (
@@ -43,6 +44,7 @@ function App() {
                 <Route path="/asistencia-historial" element={<Asistencia />} />
                 <Route path="/finanzas" element={<Finanzas />} />
                 <Route path="/inventario" element={<Inventario />} />
+                <Route path="/reportes" element={<Reportes />} />
                 <Route path="/ejercicios" element={<Ejercicios />} />
                 <Route path="/acceso" element={<Acceso />} />
               </Route>

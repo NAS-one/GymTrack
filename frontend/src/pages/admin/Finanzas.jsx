@@ -1,26 +1,53 @@
 import { useEffect, useState, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import axios from '../../api/axios';
-import { Search, Download, Calendar, DollarSign, CreditCard, Wallet, FilterX } from 'lucide-react';
+import { toast } from 'sonner';
+import { Search, Download, Calendar, DollarSign, CreditCard, Wallet, FilterX, Activity, FileSpreadsheet, Landmark, TrendingUp, Files } from 'lucide-react';
 
 export function Finanzas() {
     const [transactions, setTransactions] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [searchParams, setSearchParams] = useSearchParams();
 
-    // Filtros
+    // Filtros Locales
     const [searchTerm, setSearchTerm] = useState('');
+    const [paymentMethod, setPaymentMethod] = useState('all');
+
+    // Fechas de Filtro
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth() + 1;
+
     const [dateStart, setDateStart] = useState('');
     const [dateEnd, setDateEnd] = useState('');
-    const [paymentMethod, setPaymentMethod] = useState('all');
 
     useEffect(() => {
         fetchData();
     }, []);
 
+    //  MOTOR DE REDIRECCIÓN    
+    useEffect(() => {
+        const yearParam = searchParams.get('year');
+        const monthParam = searchParams.get('month');
+
+        if (yearParam && monthParam) {
+            const y = parseInt(yearParam, 10);
+            const m = parseInt(monthParam, 10);
+
+            if (!isNaN(y) && !isNaN(m)) {
+                const paddedMonth = String(m).padStart(2, '0');
+                const lastDay = new Date(y, m, 0).getDate();
+
+                setDateStart(`${y}-${paddedMonth}-01`);
+                setDateEnd(`${y}-${paddedMonth}-${lastDay}`);
+            }
+        }
+    }, [searchParams]);
+
     const fetchData = async () => {
         try {
             setLoading(true);
             const res = await axios.get('/pagos');
-            // Normalización segura: Soporte para { body: [...] } o [...] directo
             let data = res.data.body || res.data;
             if (data.body) data = data.body;
 
@@ -33,273 +60,321 @@ export function Finanzas() {
         }
     };
 
-    // --- LÓGICA DE FILTRADO ---
+    // --- LÓGICA DE FILTRADO FLUIDO ---
     const filteredData = useMemo(() => {
         return transactions.filter(t => {
-            // 1. Filtro Texto (Cliente o Plan)
             const term = searchTerm.toLowerCase();
             const matchesSearch =
                 (t.nombre_cliente || '').toLowerCase().includes(term) ||
                 (t.rut_cliente || '').toLowerCase().includes(term) ||
                 (t.nombre_plan || '').toLowerCase().includes(term);
 
-            // 2. Filtro Método
             const matchesMethod = paymentMethod === 'all' || t.metodo_pago === paymentMethod;
 
-            // 3. Filtro Fecha (Normalizada a medianoche)
             let matchesDate = true;
             if (t.fecha_pago) {
                 const tDate = new Date(t.fecha_pago).setHours(0, 0, 0, 0);
-                if (dateStart) matchesDate = matchesDate && tDate >= new Date(dateStart).setHours(0, 0, 0, 0);
-                if (dateEnd) matchesDate = matchesDate && tDate <= new Date(dateEnd).setHours(0, 0, 0, 0);
+                if (dateStart) matchesDate = matchesDate && tDate >= new Date(`${dateStart}T00:00:00`).setHours(0, 0, 0, 0);
+                if (dateEnd) matchesDate = matchesDate && tDate <= new Date(`${dateEnd}T23:59:59`).setHours(0, 0, 0, 0);
             }
 
             return matchesSearch && matchesMethod && matchesDate;
         });
     }, [transactions, searchTerm, paymentMethod, dateStart, dateEnd]);
 
-    // 1. KPI: Total Filtrado
+    // --- NUEVOS KPIS JERÁRQUICOS ---
     const totalIncome = useMemo(() => filteredData.reduce((acc, t) => acc + (parseInt(t.monto) || 0), 0), [filteredData]);
     const countTx = filteredData.length;
 
-    // 2. KPI: Ingresos Mes Actual (Real)
-    const currentMonthIncome = useMemo(() => {
-        const now = new Date();
-        // Primer día del mes actual a las 00:00:00
-        const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-        const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+    // Desglose Exacto
+    const cashIncome = useMemo(() => filteredData.filter(t => t.metodo_pago === 'Efectivo').reduce((acc, t) => acc + (parseInt(t.monto) || 0), 0), [filteredData]);
+    const cardIncome = useMemo(() => filteredData.filter(t => t.metodo_pago === 'Tarjeta').reduce((acc, t) => acc + (parseInt(t.monto) || 0), 0), [filteredData]);
+    const transferIncome = useMemo(() => filteredData.filter(t => t.metodo_pago === 'Transferencia').reduce((acc, t) => acc + (parseInt(t.monto) || 0), 0), [filteredData]);
 
-        return transactions
-            .filter(t => {
-                const d = new Date(t.fecha_pago);
-                return d >= firstDay && d <= lastDay;
-            })
-            .reduce((acc, t) => acc + (parseInt(t.monto) || 0), 0);
-    }, [transactions]);
+    //  MOTOR DE EXPORTACIÓN Y ARCHIVADO
+    const handleExportAndSave = async () => {
+        if (filteredData.length === 0) {
+            return toast.warning("No hay datos en pantalla para exportar");
+        }
 
-    // Exportar a CSV
-    const handleExport = () => {
-        const headers = ["Fecha", "Hora", "Cliente", "RUT", "Plan", "Método", "Monto", "Atendido Por"];
-        const rows = filteredData.map(t => [
-            new Date(t.fecha_pago).toLocaleDateString(),
-            new Date(t.fecha_pago).toLocaleTimeString(),
-            `"${t.nombre_cliente || 'N/A'}"`, // Comillas para evitar errores con comas en nombres
-            t.rut_cliente || 'N/A',
-            t.nombre_plan || 'N/A',
-            t.metodo_pago || 'N/A',
-            t.monto,
-            `"${t.nombre_admin || 'Sistema'}"`
-        ]);
+        const toastId = toast.loading("Generando documento financiero...");
 
-        const csvContent = "data:text/csv;charset=utf-8,\uFEFF" // BOM para Excel
-            + headers.join(",") + "\n"
-            + rows.map(e => e.join(",")).join("\n");
+        try {
+            let periodoTexto = "Histórico";
+            if (dateStart && dateEnd) {
+                if (dateStart === dateEnd) periodoTexto = `Día ${dateStart}`;
+                else periodoTexto = `del ${dateStart} al ${dateEnd}`;
+            } else if (dateStart) {
+                periodoTexto = `desde el ${dateStart}`;
+            }
 
-        const encodedUri = encodeURI(csvContent);
-        const link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
-        link.setAttribute("download", `reporte_financiero_${new Date().toISOString().split('T')[0]}.csv`);
-        document.body.appendChild(link);
+            const tituloReporte = `Balance Financiero - ${periodoTexto}`;
+            const dStart = dateStart || "2000-01-01";
+            const dEnd = dateEnd || "2099-12-31";
+
+            const formData = {
+                titulo: tituloReporte,
+                tipo: 'finanzas',
+                fechaInicio: dStart,
+                fechaFin: dEnd,
+                // SOLUCIÓN: Traducimos 'all' a 'todos' para que el backend lo entienda
+                filtroExtra: paymentMethod === 'all' ? 'todos' : paymentMethod
+            };
+
+            const response = await axios.post('/reportes', formData);
+            const nuevoReporte = response.data.body || response.data;
+
+            toast.success("Documento archivado en Centro de Reportes", { id: toastId });
+
+            if (nuevoReporte && nuevoReporte.contenido) {
+                descargarCSV(nuevoReporte);
+            }
+        } catch (error) {
+            console.error(error);
+            //  Mostrará el error exacto que envía el backend
+            const mensajeBackend = error.response?.data?.error || "Error al generar el balance financiero";
+            toast.error(mensajeBackend, { id: toastId });
+        }
+    };
+
+    const descargarCSV = (reporte) => {
+        let data = reporte.contenido;
+        if (typeof data === 'string') data = JSON.parse(data);
+        if (!data || data.length === 0) return;
+
+        const headers = Object.keys(data[0]);
+        const csvContent = [
+            headers.join(','),
+            ...data.map(row => headers.map(header => `"${String(row[header] || '').replace(/"/g, '""')}"`).join(','))
+        ].join('\n');
+
+        const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `${reporte.titulo.replace(/\s+/g, '_')}.csv`;
         link.click();
-        document.body.removeChild(link);
+    };
+
+    const clearFilters = () => {
+        setSearchTerm('');
+        setDateStart('');
+        setDateEnd('');
+        setPaymentMethod('all');
+        setSearchParams({});
     };
 
     return (
-        <div className="space-y-6 animate-fade-in-up pb-10">
+        <div className="space-y-8 animate-fade-in-up pb-10">
 
             {/* HEADER */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
                 <div>
-                    <h2 className="text-2xl font-bold text-white">Finanzas y Caja</h2>
-                    <p className="text-gym-gray text-sm">Control detallado de ingresos y flujo de caja.</p>
+                    <h2 className="text-3xl font-black text-white tracking-tight flex items-center gap-3">
+                        <DollarSign className="text-gym-orange" size={28} />
+                        Tesorería
+                    </h2>
+                    <p className="text-zinc-400 font-medium mt-1">Control detallado de ingresos y flujo de caja.</p>
                 </div>
-                <button
-                    onClick={handleExport}
-                    className="bg-green-600 hover:bg-green-500 text-white px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 shadow-lg transition-all"
-                >
-                    <Download size={18} /> Exportar Reporte
-                </button>
+                {filteredData.length > 0 && (
+                    <button onClick={handleExportAndSave} className="flex items-center gap-2 bg-gym-orange/10 hover:bg-gym-orange hover:text-white text-gym-orange border border-gym-orange/30 hover:border-gym-orange px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all shadow-lg active:scale-95">
+                        <FileSpreadsheet size={16} /> Extraer Balance
+                    </button>
+                )}
             </div>
 
-            {/* KPIS */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* 🌟 NUEVA ARQUITECTURA DE KPIS (Jerarquía Visual) */}
+            <div className="space-y-4">
 
-                {/* KPI 1: Total Filtrado */}
-                <div className="bg-gym-card border border-white/10 p-5 rounded-2xl flex items-center justify-between shadow-lg">
-                    <div>
-                        <p className="text-xs text-gym-gray uppercase font-bold tracking-wider">Total Vista Actual</p>
-                        <h3 className="text-2xl font-bold text-white">${totalIncome.toLocaleString()}</h3>
-                        <p className="text-xs text-zinc-500 mt-1">{countTx} transacciones</p>
+                {/* FILA 1: Totales Globales */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                    {/* Master Card: Dinero */}
+                    <div className="lg:col-span-2 bg-gym-card border border-white/5 rounded-3xl p-6 shadow-2xl relative overflow-hidden group">
+                        <div className="absolute -right-20 -top-20 w-64 h-64 blur-[80px] rounded-full bg-emerald-500/20 pointer-events-none transition-all duration-700 group-hover:bg-emerald-500/30"></div>
+                        <div className="flex items-center justify-between relative z-10">
+                            <div>
+                                <h4 className="text-[11px] font-black text-zinc-400 uppercase tracking-[0.2em] mb-2 flex items-center gap-2">
+                                    <TrendingUp size={14} className="text-emerald-400" />
+                                    Total Recaudado
+                                </h4>
+                                <div className="text-5xl font-black text-white tracking-tighter drop-shadow-md">
+                                    ${totalIncome.toLocaleString()}
+                                </div>
+                                <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mt-2">
+                                    Basado en los filtros actuales
+                                </p>
+                            </div>
+                            <div className="hidden sm:flex p-5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 shadow-inner">
+                                <DollarSign size={40} strokeWidth={2} />
+                            </div>
+                        </div>
                     </div>
-                    <div className="p-3 bg-green-500/10 text-green-500 rounded-xl"><DollarSign size={24} /></div>
+
+                    {/* Secondary Card: Registros */}
+                    <div className="bg-gym-card border border-white/5 rounded-3xl p-6 shadow-2xl relative overflow-hidden flex flex-col justify-center">
+                        <div className="absolute -right-10 -bottom-10 w-32 h-32 blur-[50px] rounded-full bg-blue-500/10 pointer-events-none"></div>
+                        <div className="relative z-10 flex items-start gap-4">
+                            <div className="p-3 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400">
+                                <Files size={24} />
+                            </div>
+                            <div>
+                                <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.15em] mb-1">Volumen de Búsqueda</h4>
+                                <div className="text-3xl font-black text-white tracking-tight">{countTx}</div>
+                                <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mt-1">Registros Hallados</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                {/* KPI 2: MES ACTUAL */}
-                <div className="bg-gym-card border border-white/10 p-5 rounded-2xl flex items-center justify-between shadow-lg relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 bg-blue-500 w-16 h-16 blur-2xl opacity-20 -mr-4 -mt-4"></div>
-                    <div className="relative z-10">
-                        <p className="text-xs text-blue-400 uppercase font-bold tracking-wider">Ingresos Este Mes</p>
-                        <h3 className="text-2xl font-bold text-white">${currentMonthIncome.toLocaleString()}</h3>
-                        <p className="text-xs text-zinc-500 mt-1">Acumulado mensual</p>
+                {/* FILA 2: Desglose Interactivo (Click para filtrar) */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div onClick={() => setPaymentMethod(paymentMethod === 'Efectivo' ? 'all' : 'Efectivo')} className={`cursor-pointer transition-all duration-300 active:scale-95 ${paymentMethod === 'Efectivo' ? 'ring-2 ring-yellow-500 ring-offset-2 ring-offset-[#09090b] rounded-2xl scale-[1.02]' : 'hover:-translate-y-1'}`}>
+                        <StatCardBreakdown title="Efectivo Físico" value={`$${cashIncome.toLocaleString()}`} icon={<Wallet size={20} />} color="text-yellow-400" bg="bg-yellow-500" />
                     </div>
-                    <div className="p-3 bg-blue-500/10 text-blue-500 rounded-xl relative z-10"><Calendar size={24} /></div>
-                </div>
 
-                {/* KPI 3: Efectivo */}
-                <div className="bg-gym-card border border-white/10 p-5 rounded-2xl flex items-center justify-between shadow-lg">
-                    <div>
-                        <p className="text-xs text-gym-gray uppercase font-bold tracking-wider">Caja Efectivo</p>
-                        <h3 className="text-2xl font-bold text-white">
-                            ${filteredData.filter(t => t.metodo_pago === 'Efectivo').reduce((acc, t) => acc + (parseInt(t.monto) || 0), 0).toLocaleString()}
-                        </h3>
-                        <p className="text-[10px] text-zinc-500 mt-1">En selección actual</p>
+                    <div onClick={() => setPaymentMethod(paymentMethod === 'Transferencia' ? 'all' : 'Transferencia')} className={`cursor-pointer transition-all duration-300 active:scale-95 ${paymentMethod === 'Transferencia' ? 'ring-2 ring-blue-500 ring-offset-2 ring-offset-[#09090b] rounded-2xl scale-[1.02]' : 'hover:-translate-y-1'}`}>
+                        <StatCardBreakdown title="Transferencias" value={`$${transferIncome.toLocaleString()}`} icon={<Landmark size={20} />} color="text-blue-400" bg="bg-blue-500" />
                     </div>
-                    <div className="p-3 bg-yellow-500/10 text-yellow-500 rounded-xl"><Wallet size={24} /></div>
-                </div>
 
-                {/* KPI 4: Digital */}
-                <div className="bg-gym-card border border-white/10 p-5 rounded-2xl flex items-center justify-between shadow-lg">
-                    <div>
-                        <p className="text-xs text-gym-gray uppercase font-bold tracking-wider">Digital / Banco</p>
-                        <h3 className="text-2xl font-bold text-white">
-                            ${filteredData.filter(t => t.metodo_pago !== 'Efectivo').reduce((acc, t) => acc + (parseInt(t.monto) || 0), 0).toLocaleString()}
-                        </h3>
-                        <p className="text-[10px] text-zinc-500 mt-1">En selección actual</p>
+                    <div onClick={() => setPaymentMethod(paymentMethod === 'Tarjeta' ? 'all' : 'Tarjeta')} className={`cursor-pointer transition-all duration-300 active:scale-95 ${paymentMethod === 'Tarjeta' ? 'ring-2 ring-purple-500 ring-offset-2 ring-offset-[#09090b] rounded-2xl scale-[1.02]' : 'hover:-translate-y-1'}`}>
+                        <StatCardBreakdown title="Tarjetas / POS" value={`$${cardIncome.toLocaleString()}`} icon={<CreditCard size={20} />} color="text-purple-400" bg="bg-purple-500" />
                     </div>
-                    <div className="p-3 bg-purple-500/10 text-purple-500 rounded-xl"><CreditCard size={24} /></div>
                 </div>
 
             </div>
 
             {/* BARRA DE HERRAMIENTAS */}
-            <div className="bg-gym-card border border-white/10 p-4 rounded-xl flex flex-col md:flex-row gap-4 items-center">
+            <div className="bg-gym-card border border-white/5 p-4 rounded-2xl flex flex-col xl:flex-row gap-4 items-center shadow-xl">
+
+                {/* Fechas Rango */}
+                <div className="flex gap-2 w-full xl:w-auto bg-black/40 p-1.5 rounded-xl border border-white/5 shadow-inner items-center px-3">
+                    <span className="text-[10px] font-black uppercase text-zinc-500 tracking-wider">Desde</span>
+                    <input type="date" className="bg-transparent text-white text-xs font-bold outline-none [color-scheme:dark] cursor-pointer" value={dateStart} onChange={e => setDateStart(e.target.value)} />
+                    <div className="w-px h-4 bg-white/10 mx-1"></div>
+                    <span className="text-[10px] font-black uppercase text-zinc-500 tracking-wider">Hasta</span>
+                    <input type="date" className="bg-transparent text-white text-xs font-bold outline-none [color-scheme:dark] cursor-pointer" value={dateEnd} onChange={e => setDateEnd(e.target.value)} />
+                </div>
+
+                <div className="w-px h-8 bg-white/10 hidden xl:block"></div>
+
+                {/* Filtro Método (Sincronizado con las tarjetas) */}
+                <select className="w-full xl:w-48 bg-black/40 border border-white/5 rounded-xl px-4 py-2.5 text-white text-xs font-bold uppercase tracking-wider outline-none cursor-pointer shadow-inner transition-colors focus:border-gym-orange" value={paymentMethod} onChange={e => setPaymentMethod(e.target.value)}>
+                    <option value="all">Todas las vías</option>
+                    <option value="Efectivo">💰 Solo Efectivo</option>
+                    <option value="Tarjeta">💳 Solo Tarjetas</option>
+                    <option value="Transferencia">🏦 Transferencias</option>
+                </select>
+
+                <div className="w-px h-8 bg-white/10 hidden xl:block"></div>
 
                 {/* Buscador */}
                 <div className="relative flex-1 w-full">
-                    <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gym-gray" />
-                    <input
-                        type="text"
-                        placeholder="Buscar cliente, rut o plan..."
-                        className="w-full bg-black/40 border border-white/10 rounded-lg pl-10 pr-4 py-2 text-white text-sm outline-none focus:border-gym-orange transition-colors"
-                        value={searchTerm}
-                        onChange={e => setSearchTerm(e.target.value)}
-                    />
+                    <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
+                    <input type="text" placeholder="Buscar por Nombre de Cliente, RUT o Plan..." className="w-full bg-black/40 border border-white/5 rounded-xl pl-9 pr-4 py-2.5 text-white text-xs font-medium focus:border-gym-orange outline-none transition-all shadow-inner placeholder:text-zinc-600" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
                 </div>
 
-                {/* Filtro Fecha */}
-                <div className="flex items-center gap-2 w-full md:w-auto bg-black/20 p-1 rounded-lg border border-white/5">
-                    <div className="relative flex-1 min-w-[130px]">
-                        <input
-                            type="date"
-                            className="w-full bg-transparent text-white text-xs px-2 py-1.5 outline-none [color-scheme:dark]"
-                            value={dateStart}
-                            onChange={e => setDateStart(e.target.value)}
-                        />
-                    </div>
-                    <span className="text-zinc-600">-</span>
-                    <div className="relative flex-1 min-w-[130px]">
-                        <input
-                            type="date"
-                            className="w-full bg-transparent text-white text-xs px-2 py-1.5 outline-none [color-scheme:dark]"
-                            value={dateEnd}
-                            onChange={e => setDateEnd(e.target.value)}
-                        />
-                    </div>
-                </div>
-
-                {/* Filtro Método */}
-                <select
-                    className="bg-black/40 border border-white/10 rounded-lg px-4 py-2 text-white text-sm outline-none focus:border-gym-orange cursor-pointer"
-                    value={paymentMethod}
-                    onChange={e => setPaymentMethod(e.target.value)}
-                >
-                    <option value="all">Todos los Métodos</option>
-                    <option value="Efectivo">Efectivo</option>
-                    <option value="Tarjeta">Tarjeta / Débito</option>
-                    <option value="Transferencia">Transferencia</option>
-                </select>
-
-                {/* Botón Limpiar */}
                 {(searchTerm || dateStart || dateEnd || paymentMethod !== 'all') && (
-                    <button
-                        onClick={() => { setSearchTerm(''); setDateStart(''); setDateEnd(''); setPaymentMethod('all'); }}
-                        className="p-2 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
-                        title="Limpiar filtros"
-                    >
-                        <FilterX size={20} />
+                    <button onClick={clearFilters} className="p-2.5 text-zinc-500 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-all border border-transparent hover:border-red-500/20" title="Reiniciar Filtros">
+                        <FilterX size={18} />
                     </button>
                 )}
             </div>
 
             {/* DATA GRID */}
-            <div className="bg-gym-card border border-white/10 rounded-2xl overflow-hidden shadow-lg">
+            <div className="bg-gym-card border border-white/5 rounded-3xl overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-300">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left text-sm border-collapse">
-                        <thead className="bg-white/5 text-gym-gray uppercase text-xs font-bold border-b border-white/5">
+                        <thead className="bg-black/40 text-zinc-500 text-[10px] uppercase font-black tracking-widest border-b border-white/5">
                             <tr>
-                                <th className="p-4">Fecha</th>
-                                <th className="p-4">Cliente</th>
-                                <th className="p-4">Detalle Plan</th>
-                                <th className="p-4">Método</th>
-                                <th className="p-4 text-right">Monto</th>
-                                <th className="p-4 text-center">Admin</th>
+                                <th className="p-5">Fecha / Hora</th>
+                                <th className="p-5">Cliente / RUT</th>
+                                <th className="p-5">Membresía Adquirida</th>
+                                <th className="p-5 text-center">Vía de Pago</th>
+                                <th className="p-5 text-right">Monto Bruto</th>
+                                <th className="p-5 text-center">Operador</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-white/5">
                             {loading ? (
-                                <tr><td colSpan="6" className="p-8 text-center text-zinc-500">Cargando transacciones...</td></tr>
+                                Array.from({ length: 5 }).map((_, i) => <TableSkeleton key={i} />)
                             ) : filteredData.length > 0 ? (
                                 filteredData.map((t) => (
                                     <tr key={t.id} className="hover:bg-white/5 transition-colors group">
-                                        <td className="p-4 text-zinc-400 whitespace-nowrap">
-                                            {new Date(t.fecha_pago).toLocaleDateString()}
-                                            <span className="text-[10px] ml-2 opacity-50 font-mono">{new Date(t.fecha_pago).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                        <td className="p-5">
+                                            <p className="text-white font-mono font-bold tracking-wider text-sm">{new Date(t.fecha_pago).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                                            <p className="text-zinc-500 text-[10px] font-bold uppercase mt-0.5">{new Date(t.fecha_pago).toLocaleDateString()}</p>
                                         </td>
-                                        <td className="p-4">
-                                            <p className="text-white font-medium group-hover:text-gym-orange transition-colors">{t.nombre_cliente}</p>
-                                            <p className="text-[10px] text-zinc-500 font-mono">{t.rut_cliente}</p>
+                                        <td className="p-5">
+                                            <p className="text-white font-bold tracking-tight">{t.nombre_cliente || 'N/A'}</p>
+                                            <p className="text-[10px] text-zinc-500 font-mono mt-0.5">{t.rut_cliente || 'N/A'}</p>
                                         </td>
-                                        <td className="p-4 text-zinc-300">
-                                            <span className="bg-white/5 px-2 py-1 rounded border border-white/5 text-xs inline-flex items-center gap-1">
+                                        <td className="p-5 text-zinc-300">
+                                            <span className="bg-black/40 px-3 py-1.5 rounded-lg border border-white/5 text-[10px] uppercase font-black tracking-tight shadow-inner inline-block">
                                                 {t.nombre_plan || 'Plan Borrado'}
                                             </span>
                                         </td>
-                                        <td className="p-4">
-                                            <span className={`text-[10px] font-bold px-2 py-1 rounded-full border uppercase tracking-wider ${t.metodo_pago === 'Efectivo'
-                                                ? 'bg-green-500/10 text-green-400 border-green-500/20'
-                                                : 'bg-purple-500/10 text-purple-400 border-purple-500/20'
-                                                }`}>
+                                        <td className="p-5 text-center">
+                                            <button onClick={() => setPaymentMethod(t.metodo_pago)} className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-[9px] uppercase font-black tracking-widest border hover:scale-105 transition-transform cursor-pointer
+                                                ${t.metodo_pago === 'Efectivo' ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20 hover:bg-yellow-500/20' :
+                                                    t.metodo_pago === 'Transferencia' ? 'bg-blue-500/10 text-blue-400 border-blue-500/20 hover:bg-blue-500/20' :
+                                                        'bg-purple-500/10 text-purple-400 border-purple-500/20 hover:bg-purple-500/20'}`}>
+                                                {t.metodo_pago === 'Efectivo' ? <Wallet size={10} /> : t.metodo_pago === 'Transferencia' ? <Landmark size={10} /> : <CreditCard size={10} />}
                                                 {t.metodo_pago}
-                                            </span>
+                                            </button>
                                         </td>
-                                        <td className="p-4 text-right font-mono font-bold text-white">
+                                        <td className="p-5 text-right font-mono font-black text-emerald-400 text-lg">
                                             ${parseInt(t.monto).toLocaleString()}
                                         </td>
-                                        <td className="p-4 text-center">
-                                            <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-xs text-zinc-400 mx-auto border border-white/5" title={`Atendido por: ${t.nombre_admin}`}>
-                                                {t.nombre_admin ? t.nombre_admin.charAt(0) : 'S'}
+                                        <td className="p-5 text-center">
+                                            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-zinc-800 to-zinc-700 flex items-center justify-center text-xs font-bold text-white mx-auto shadow-lg border border-white/10" title={`Operador: ${t.nombre_admin || 'Sistema'}`}>
+                                                {t.nombre_admin ? t.nombre_admin.charAt(0).toUpperCase() : 'S'}
                                             </div>
                                         </td>
                                     </tr>
                                 ))
                             ) : (
-                                <tr><td colSpan="6" className="p-12 text-center text-zinc-500 italic">No se encontraron transacciones.</td></tr>
+                                <tr><td colSpan="6" className="p-16 text-center text-zinc-500 font-medium border-2 border-dashed border-white/5 bg-black/20 m-4 rounded-xl">No hay movimientos financieros con estos filtros.</td></tr>
                             )}
                         </tbody>
                     </table>
                 </div>
 
-                {/* Footer Totales */}
                 {!loading && filteredData.length > 0 && (
-                    <div className="bg-white/5 p-4 flex justify-between items-center border-t border-white/5 text-sm">
-                        <span className="text-gym-gray">Mostrando {filteredData.length} registros</span>
-                        <div className="flex gap-4">
-                            <span className="text-white font-bold">Total Vista: <span className="text-green-400">${totalIncome.toLocaleString()}</span></span>
-                        </div>
+                    <div className="bg-black/20 p-4 flex justify-between items-center border-t border-white/5 text-[10px] text-zinc-500 font-bold uppercase tracking-wider">
+                        <span>Mostrando {filteredData.length} registros en pantalla</span>
+                        <span className="text-white text-[11px]">Total: <span className="text-emerald-400 ml-1 font-black">${totalIncome.toLocaleString()}</span></span>
                     </div>
                 )}
             </div>
-
         </div>
+    );
+}
+
+// --- SUBCOMPONENTES UI ---
+
+function StatCardBreakdown({ title, value, icon, color, bg }) {
+    return (
+        <div className="bg-gym-card border border-white/5 rounded-2xl p-4 shadow-lg relative overflow-hidden h-full flex items-center gap-4">
+            <div className={`absolute -right-4 -top-4 w-16 h-16 blur-2xl rounded-full opacity-10 pointer-events-none ${bg}`}></div>
+            <div className={`p-2.5 rounded-xl bg-white/5 border border-white/10 ${color} shrink-0 shadow-inner`}>
+                {icon}
+            </div>
+            <div>
+                <h4 className="text-[9px] font-black text-zinc-500 uppercase tracking-[0.1em] mb-0.5">{title}</h4>
+                <div className="text-lg font-black text-white tracking-tight leading-none">{value}</div>
+            </div>
+        </div>
+    );
+}
+
+function TableSkeleton() {
+    return (
+        <tr className="animate-pulse border-b border-white/5">
+            <td className="p-5"><div className="h-5 bg-white/5 rounded w-16 mb-2"></div><div className="h-3 bg-white/5 rounded w-20"></div></td>
+            <td className="p-5"><div className="h-5 bg-white/5 rounded w-32 mb-2"></div><div className="h-3 bg-white/5 rounded w-24"></div></td>
+            <td className="p-5"><div className="h-8 bg-white/5 rounded-lg w-28"></div></td>
+            <td className="p-5 text-center"><div className="h-6 bg-white/5 rounded w-20 mx-auto"></div></td>
+            <td className="p-5 text-right"><div className="h-6 bg-white/5 rounded w-16 ml-auto"></div></td>
+            <td className="p-5"><div className="w-8 h-8 bg-white/5 rounded-full mx-auto"></div></td>
+        </tr>
     );
 }
