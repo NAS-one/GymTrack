@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { X, User, CreditCard, Activity, Calendar, CheckCircle, MapPin, Ban, History, TrendingUp, Clock, AlertTriangle } from 'lucide-react';
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
-import axios from '../../api/axios';
-import { useConfirm } from '../../contexts/ConfirmContext';
+import axios from '../../../api/axios';
+import { useConfirm } from '../../../contexts/ConfirmContext';
 import { toast } from 'sonner'; // <-- IMPORTACIÓN CORRECTA
 
 export function ClientDetailModal({ isOpen, onClose, client, onUpdate }) {

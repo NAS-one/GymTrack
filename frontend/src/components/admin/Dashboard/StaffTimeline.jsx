@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from '../../api/axios';
+import axios from '../../../api/axios';
 import { User, Phone, Clock, Briefcase, Moon, Sun, Sunset, Dumbbell, Monitor, Sparkles } from 'lucide-react';
 
 export function StaffTimeline() {
