@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { MaquinaController } from "../Controllers/maquinas.js";
-import { verifyToken } from "../middlewares/auth.js";
+import { verifyToken } from "../Middlewares/auth.js";
 
 export const createMaquinaRouter = ({ MaquinaModel }) => {
   const router = Router();

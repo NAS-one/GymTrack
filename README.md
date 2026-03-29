@@ -1,4 +1,4 @@
-# 📌 Proyecto Full Stack (Backend + Frontend)
+# 📌 Proyecto Full Stack
 
 Aplicación web desarrollada con **Node.js + Express (backend)** y **React + Vite (frontend)**.  
 Incluye autenticación, manejo de sesiones, validaciones y consumo de API.
@@ -27,7 +27,86 @@ Incluye autenticación, manejo de sesiones, validaciones y consumo de API.
 
 ---
 
-##  Instalación del Proyecto
+## 🐳  Forma 1 (Recomendada): Instalación del Proyecto con Docker.
+
+Esta guía te permitirá levantar el proyecto completo de forma local utilizando Docker, incluyendo frontend, backend y base de datos.
+
+---
+
+### Notas Adicionales
+- Asegúrate de tener **Docker** y **Docker Compose** instalados en tu sistema.
+- Si es la primera vez que ejecutas el proyecto, utiliza siempre **--build** para asegurar la correcta construcción de las imágenes.
+- Puedes acceder al frontend desde: **http://localhost:5173**
+- El backend estará disponible en: **http://localhost:3000**
+
+
+##  Servicios Incluidos
+
+El entorno se compone de los siguientes servicios:
+
+| Servicio     | Puerto (Host → Contenedor) |
+|--------------|----------------------------|
+| Frontend     | 5173 → 80                  |
+| Backend      | 3000 → 3000                |
+| PostgreSQL   | 5432 → 5432                |
+
+---
+
+##  Levantar el Proyecto
+
+> Para construir y ejecutar todos los servicios en segundo plano:
+
+```bash
+docker-compose up -d --build
+```
+
+## Ejecutar Datos Iniciales (Seed)
+
+> Una vez que el backend esté en ejecución, puedes cargar datos de prueba con:
+
+```bash
+docker exec -it gymtrack-backend-1 npm run seed
+```
+
+## Ver Logs del Backend
+
+> Para revisar posibles errores o el estado del backend:
+
+```bash
+docker logs gymtrack-backend-1
+```
+
+
+## Reconstruir un Servicio Específico
+
+> Si realizas cambios y necesitas reconstruir un servicio, como:
+
+- Backend
+- Frontend
+- Base de Datos
+
+```bash
+docker-compose up -d --build backend
+```
+
+## Detener la Aplicación
+
+> Para detener y eliminar los contenedores:
+
+```bash
+docker-compose down
+```
+
+> Para detener y eliminar los contenedores y la base de datos:
+
+```bash
+docker-compose down -v
+```
+
+
+
+
+## Forma 2: Instalación Manual (Sin Docker)
 
 ###  Backend
 

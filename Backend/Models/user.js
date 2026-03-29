@@ -1,13 +1,4 @@
-// Models/user.js
-import postgres from "postgres";
-
-// Configuración de conexión
-const sql = postgres({
-  host: process.env.DB_HOST,
-  username: process.env.DB_USER,
-  password: process.env.DB_PASS,
-  database: process.env.DB_NAME,
-});
+import { sql } from "../bd.js";
 
 export class UserModel {
   //1. Método para crear un nuevo usuario

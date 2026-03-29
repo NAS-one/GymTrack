@@ -1,11 +1,5 @@
-import postgres from "postgres";
+import { sql } from "../bd.js";
 
-const sql = postgres({
-  host: process.env.DB_HOST,
-  username: process.env.DB_USER,
-  password: process.env.DB_PASS,
-  database: process.env.DB_NAME,
-});
 
 export class ProgresoModel {
   // 1. Registrar una serie o ejercicio completado

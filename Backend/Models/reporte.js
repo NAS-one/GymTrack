@@ -1,4 +1,4 @@
-import { sql } from "../../Backend/bd.js";
+import { sql } from "../bd.js";
 
 export class ReporteModel {
   static getAll = async () => {
