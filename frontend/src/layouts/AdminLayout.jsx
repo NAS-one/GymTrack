@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Outlet, NavLink, useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import { useAuth } from '../contexts/useAuth';
 import {
     LayoutDashboard, Users, UserCog, Dumbbell, CreditCard, Package,
@@ -11,6 +12,32 @@ export function AdminLayout() {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
+    // Conexión SSE para Notificaciones de Asistencia en Tiempo Real
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
+        const baseURL = `http://${window.location.hostname}:3000`;
+        const eventSource = new EventSource(`${baseURL}/notifications/stream?token=${token}`);
+
+        eventSource.onmessage = (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                if (data.type === 'success') {
+                    toast.success(data.message, { duration: 8000 });
+                } else if (data.type === 'error') {
+                    toast.error(data.message, { duration: 8000 });
+                }
+            } catch (err) {
+                console.error("Error parseando SSE:", err);
+            }
+        };
+
+        return () => {
+            eventSource.close();
+        };
+    }, []);
 
     const menuItems = [
         {
@@ -116,7 +143,7 @@ export function AdminLayout() {
                 {/* PERFIL */}
                 <div className="p-4 border-t border-white/5">
                     <div className={`flex items-center gap-3 p-2 rounded-2xl bg-white/[0.02] border border-white/5 ${!isSidebarOpen && 'justify-center'}`}>
-                        <div className="w-8 h-8 rounded-lg bg-zinc-800 flex items-center justify-center text-[10px] font-black border border-white/10">{user?.username?.substring(0, 2).toUpperCase() || 'AD'}</div>
+                        <div className="w-8 h-8 rounded-lg bg-zinc-800 flex items-center justify-center text-[10px] font-black border border-white/10">{user?.nombre?.substring(0, 2).toUpperCase() || user?.username?.substring(0, 2).toUpperCase() || 'AD'}</div>
                         {isSidebarOpen && (
                             <button onClick={handleLogout} className="ml-auto p-2 text-zinc-600 hover:text-rose-500 transition-colors"><LogOut size={16} /></button>
                         )}

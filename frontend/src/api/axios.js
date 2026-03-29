@@ -4,7 +4,7 @@ import axios from "axios";
 // 1. Instancia personalizada de Axios
 // Axios configurado al localhost:3000.
 const instance = axios.create({
-  baseURL: "http://localhost:3000", // Tu Backend
+  baseURL: `http://${window.location.hostname}:3000`, // Tu Backend (Dinamico para soportar celulares)
   withCredentials: true, // Opcional: necesario si usaras cookies en el futuro
 });
 

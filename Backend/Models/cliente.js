@@ -1,10 +1,10 @@
 import { sql } from "../bd.js";
 
 export class ClienteModel {
-  
-  // 1. OBTENER TODOS
-static async getAll() {
-    return await sql`
+
+    // 1. OBTENER TODOS
+    static async getAll() {
+        return await sql`
       SELECT 
         c.id, c.rut, c.nombre, c.objetivo, c.fecha_nacimiento, c.genero, c.direccion,
         u.email, u.estado as estado_usuario,
@@ -35,41 +35,41 @@ static async getAll() {
       WHERE u.estado != 'inactive'
       ORDER BY c.created_at DESC
     `;
-  }
+    }
 
-  // 2. CREAR
-  static async create(input) {
-    const { rut, nombre, email, password, id_entrenador, objetivo, fecha_nacimiento, genero, direccion } = input;
+    // 2. CREAR
+    static async create(input) {
+        const { rut, nombre, email, password, id_entrenador, objetivo, fecha_nacimiento, genero, direccion } = input;
 
-    return await sql.begin(async (sql) => {
-      // Obtener rol
-      const [role] = await sql`SELECT id FROM roles WHERE nombre = 'cliente'`;
-      if (!role) throw new Error("Rol 'cliente' no existe en la BD");
+        return await sql.begin(async (sql) => {
+            // Obtener rol
+            const [role] = await sql`SELECT id FROM roles WHERE nombre = 'cliente'`;
+            if (!role) throw new Error("Rol 'cliente' no existe en la BD");
 
-      // Crear Usuario
-      const baseUsername = email.split("@")[0].replace(/[^a-zA-Z0-9]/g, '');
-      const [newUser] = await sql`
+            // Crear Usuario
+            const baseUsername = email.split("@")[0].replace(/[^a-zA-Z0-9]/g, '');
+            const [newUser] = await sql`
         INSERT INTO usuarios (username, email, password, estado, id_rol)
-        VALUES (${baseUsername}, ${email}, ${password}, 'active', ${role.id})
+        VALUES (${baseUsername}, ${email}, ${password}, 'pendiente', ${role.id})
         RETURNING id
       `;
 
-      // Crear Cliente
-      const [newClient] = await sql`
+            // Crear Cliente
+            const [newClient] = await sql`
         INSERT INTO clientes (rut, nombre, objetivo, id_usuario, id_entrenador, fecha_nacimiento, genero, direccion)
         VALUES (${rut}, ${nombre}, ${objetivo}, ${newUser.id}, ${id_entrenador || null}, ${fecha_nacimiento || null}, ${genero || null}, ${direccion || null})
         RETURNING *
       `;
 
-      return newClient;
-    });
-  }
+            return newClient;
+        });
+    }
 
-  // 3. ACTUALIZAR
-  static async update({ id, input }) {
-    const { nombre, rut, objetivo, id_entrenador, fecha_nacimiento, genero, direccion } = input;
+    // 3. ACTUALIZAR
+    static async update({ id, input }) {
+        const { nombre, rut, objetivo, id_entrenador, fecha_nacimiento, genero, direccion } = input;
 
-    const [updatedClient] = await sql`
+        const [updatedClient] = await sql`
       UPDATE clientes 
       SET 
         nombre = COALESCE(${nombre}, nombre),
@@ -82,31 +82,31 @@ static async getAll() {
       WHERE id = ${id}
       RETURNING *
     `;
-    return updatedClient;
-  }
+        return updatedClient;
+    }
 
-  // 4. ELIMINAR (Soft Delete)
-  static async delete({ id }) {
-    // Desactivamos el usuario asociado
-    const [disabledUser] = await sql`
+    // 4. ELIMINAR (Soft Delete)
+    static async delete({ id }) {
+        // Desactivamos el usuario asociado
+        const [disabledUser] = await sql`
       UPDATE usuarios SET estado = 'inactive'
       FROM clientes
       WHERE usuarios.id = clientes.id_usuario AND clientes.id = ${id}
       RETURNING usuarios.id
     `;
-    return !!disabledUser;
-  }
+        return !!disabledUser;
+    }
 
-  // 5. OBTENER PERFIL 360 (Corregido para Asistencia Universal)
-  static async getStats({ id }) {
-    
-    // Primero obtenemos el id_usuario del cliente para buscar su asistencia
-    const [cliente] = await sql`SELECT id_usuario FROM clientes WHERE id = ${id}`;
-    if (!cliente) throw new Error("Cliente no encontrado");
+    // 5. OBTENER PERFIL 360 (Corregido para Asistencia Universal)
+    static async getStats({ id }) {
 
-    const [pagos, medidas, asistencia, planesDisponibles] = await Promise.all([
-      // A. Historial de Pagos
-      sql`
+        // Primero obtenemos el id_usuario del cliente para buscar su asistencia
+        const [cliente] = await sql`SELECT id_usuario FROM clientes WHERE id = ${id}`;
+        if (!cliente) throw new Error("Cliente no encontrado");
+
+        const [pagos, medidas, asistencia, planesDisponibles] = await Promise.all([
+            // A. Historial de Pagos
+            sql`
         SELECT p.monto, p.metodo_pago, p.fecha_pago, pl.nombre as tipo_plan
         FROM pagos p
         JOIN membresias m ON p.id_membresia = m.id
@@ -114,11 +114,11 @@ static async getAll() {
         WHERE m.id_cliente = ${id}
         ORDER BY p.fecha_pago DESC LIMIT 10
       `,
-      // B. Evolución Física
-      sql`SELECT peso, porcentaje_grasa, fecha_registro FROM medidas_fisicas WHERE id_cliente = ${id} ORDER BY fecha_registro ASC`,
-      
-      // C. Asistencia (CORREGIDO: Usamos id_usuario)
-      sql`
+            // B. Evolución Física
+            sql`SELECT peso, porcentaje_grasa, fecha_registro FROM medidas_fisicas WHERE id_cliente = ${id} ORDER BY fecha_registro ASC`,
+
+            // C. Asistencia (CORREGIDO: Usamos id_usuario)
+            sql`
         SELECT fecha_entrada 
         FROM asistencia 
         WHERE id_usuario = ${cliente.id_usuario} 
@@ -126,10 +126,10 @@ static async getAll() {
         ORDER BY fecha_entrada ASC
       `,
 
-      // D. Planes Disponibles (Para el select de renovación)
-      sql`SELECT id, nombre, precio, duracion_meses FROM planes WHERE estado = 'active' ORDER BY precio ASC`,
-    ]);
+            // D. Planes Disponibles (Para el select de renovación)
+            sql`SELECT id, nombre, precio, duracion_meses FROM planes WHERE estado = 'active' ORDER BY precio ASC`,
+        ]);
 
-    return { pagos, medidas, asistencia, planesDisponibles };
-  }
+        return { pagos, medidas, asistencia, planesDisponibles };
+    }
 }
