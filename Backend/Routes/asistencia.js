@@ -2,15 +2,18 @@ import { Router } from "express";
 import { AsistenciaController } from "../Controllers/asistencia.js";
 
 export const createAsistenciaRouter = ({ AsistenciaModel }) => {
-  const router = Router();
-  const controller = new AsistenciaController({ AsistenciaModel });
+    const router = Router();
+    const controller = new AsistenciaController({ AsistenciaModel });
 
-  // DEFINICIÓN EXPLÍCITA DE RUTAS
-  // POST /acceso/  -> Ejecuta registrarAcceso
-  router.post("/", controller.registrarAcceso);
+    // DEFINICIÓN EXPLÍCITA DE RUTAS
+    // POST /acceso/scan -> Ejecuta scanCheckIn (desde App Móvil QR)
+    router.post("/scan", controller.scanCheckIn);
 
-  // GET /acceso/   -> Ejecuta getAll
-  router.get("/", controller.getAll);
+    // POST /acceso/  -> Ejecuta registrarAcceso (manual Recepción)
+    router.post("/", controller.registrarAcceso);
 
-  return router;
+    // GET /acceso/   -> Ejecuta getAll
+    router.get("/", controller.getAll);
+
+    return router;
 };
