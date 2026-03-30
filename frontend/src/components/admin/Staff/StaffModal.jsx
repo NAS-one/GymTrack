@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { X, Save, DollarSign, Briefcase } from 'lucide-react';
-import axios from '../../api/axios';
+import axios from '../../../api/axios';
 
 const INITIAL_STATE = {
     nombre: '',

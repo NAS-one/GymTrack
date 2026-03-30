@@ -59,7 +59,7 @@ export class ClienteModel {
       const baseUsername = email.split("@")[0].replace(/[^a-zA-Z0-9]/g, "");
       const [newUser] = await sql`
         INSERT INTO usuarios (username, email, password, estado, id_rol)
-        VALUES (${baseUsername}, ${email}, ${password}, 'active', ${role.id})
+        VALUES (${baseUsername}, ${email}, ${password}, 'pendiente', ${role.id})
         RETURNING id
       `;
 
@@ -132,10 +132,10 @@ export class ClienteModel {
         WHERE m.id_cliente = ${id}
         ORDER BY p.fecha_pago DESC LIMIT 10
       `,
-        // B. Evolución Física
+        // B. Evolución Física (Mantenemos SELECT * para traer los nuevos campos de medidas)
         sql`SELECT * FROM medidas_fisicas WHERE id_cliente = ${id} ORDER BY fecha_registro ASC`,
 
-        // C. Asistencia
+        // C. Asistencia (CORREGIDO: Usamos id_usuario)
         sql`
         SELECT fecha_entrada 
         FROM asistencia 
@@ -147,7 +147,7 @@ export class ClienteModel {
         // D. Planes Disponibles (Para el select de renovación)
         sql`SELECT id, nombre, precio, duracion_meses FROM planes WHERE estado = 'active' ORDER BY precio ASC`,
 
-        //E. Rutina activa real
+        // E. Rutina activa real
         sql`SELECT r.nombre as nombre_rutina,
       r.fecha_inicio,
       dr.dia,
@@ -177,6 +177,7 @@ export class ClienteModel {
     };
   }
 
+  // Registrar nuevas medidas fisicas
   static async addMedidas({
     id_cliente,
     peso,

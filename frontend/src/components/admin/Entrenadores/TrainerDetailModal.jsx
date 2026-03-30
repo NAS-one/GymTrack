@@ -3,7 +3,7 @@ import {
     X, DollarSign, Users, Briefcase, TrendingUp,
     Calendar, ArrowRightLeft, Percent, Search, Filter, Clock, ArrowUpDown, ShieldCheck
 } from 'lucide-react';
-import axios from '../../api/axios';
+import axios from '../../../api/axios';
 import {
     ComposedChart, Line, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, Area
 } from 'recharts';

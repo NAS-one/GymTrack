@@ -10,8 +10,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@vitejs/plugin-basic-ssl": "^2.3.0",
     "axios": "^1.13.2",
+    "html5-qrcode": "^2.3.8",
     "lucide-react": "^0.562.0",
+    "qrcode.react": "^4.2.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-icons": "^5.5.0",

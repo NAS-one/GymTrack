@@ -3,7 +3,7 @@ import {
     X, Briefcase, Calendar, DollarSign, Clock,
     TrendingUp, Phone, MapPin, AlertCircle
 } from 'lucide-react';
-import axios from '../../api/axios';
+import axios from '../../../api/axios';
 import {
     BarChart, Bar, XAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area
 } from 'recharts';

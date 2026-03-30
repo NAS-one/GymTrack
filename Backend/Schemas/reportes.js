@@ -1,18 +1,14 @@
-import z from "zod";
+import { z } from 'zod';
 
 const reporteSchema = z.object({
-  titulo: z.string().min(3),
-  tipo: z.enum(["financiero", "operativo", "asistencia", "inventario"]),
-  id_administrador: z.string().uuid(),
-
-  // ❌ ANTES (Daba error en Zod v4):
-  // contenido: z.record(z.any())
-
-  // ✅ AHORA (Solución segura):
-  // Usamos z.any() para permitir cualquier objeto o array JSON sin validación estricta interna
-  contenido: z.any(),
+  titulo: z.string().min(1, "El título es requerido"),
+  tipo: z.enum(['finanzas', 'asistencia', 'inventario', 'clientes']), 
+  fechaInicio: z.string().optional(), 
+  fechaFin: z.string().optional(),    
+  filtroExtra: z.string().optional(),
+  datosPreCargados: z.array(z.any()).optional() 
 });
 
-export function validateReporte(input) {
-  return reporteSchema.safeParse(input);
+export function validateReporte(data) {
+  return reporteSchema.safeParse(data);
 }

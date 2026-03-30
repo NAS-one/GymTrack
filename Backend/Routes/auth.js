@@ -10,6 +10,8 @@ export const createAuthRouter = ({ UserModel }) => {
   // Definimos las rutas
   authRouter.post("/register", authController.register);
   authRouter.post("/login", authController.login);
+  authRouter.post("/activate", authController.activateAccount);
+
 
   return authRouter;
 };

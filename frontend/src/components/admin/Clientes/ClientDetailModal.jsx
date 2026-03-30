@@ -31,8 +31,8 @@ import {
   CartesianGrid,
   Legend,
 } from "recharts";
-import axios from "../../api/axios";
-import { useConfirm } from "../../contexts/ConfirmContext";
+import axios from "../../../api/axios"; // Ruta actualizada a la estructura de master
+import { useConfirm } from "../../../contexts/ConfirmContext"; // Ruta actualizada
 import { toast } from "sonner"; // <-- IMPORTACIÓN CORRECTA
 
 export function ClientDetailModal({

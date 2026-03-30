@@ -51,12 +51,36 @@ export class UserModel {
     const [user] = await sql`
       SELECT 
         u.id, u.username, u.password, u.email, u.estado,
-        r.nombre as role
+        r.nombre as role,
+        COALESCE(c.nombre, col.nombre, e.nombre, a.nombre, 'Usuario') as nombre
       FROM usuarios u
       JOIN roles r ON u.id_rol = r.id
-      WHERE u.username = ${username}
+      LEFT JOIN clientes c ON u.id = c.id_usuario
+      LEFT JOIN colaboradores col ON u.id = col.id_usuario
+      LEFT JOIN entrenadores e ON u.id = e.id_usuario
+      LEFT JOIN administradores a ON u.id = a.id_usuario
+      WHERE u.username = ${username} OR u.email = ${username}
     `;
     // Si no existe, devuelve undefined
     return user;
+  };
+
+  //3. Método para buscar un usuario por su ID
+  static findById = async ({ id }) => {
+    const [user] = await sql`
+      SELECT * FROM usuarios WHERE id = ${id}
+    `;
+    return user;
+  };
+
+  //4. Método para activar cuenta
+  static activateAccount = async ({ id, hashedPassword }) => {
+    const [updatedUser] = await sql`
+      UPDATE usuarios 
+      SET password = ${hashedPassword}, estado = 'active'
+      WHERE id = ${id} AND estado = 'pendiente'
+      RETURNING id, username, email, estado
+    `;
+    return updatedUser;
   };
 }
