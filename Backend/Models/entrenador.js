@@ -86,8 +86,8 @@ export class EntrenadorModel {
       const [newUser] = await sql`
         INSERT INTO usuarios (username, password, email, estado, id_rol)
         VALUES (${`t_${baseUsername}`}, ${password}, ${email}, 'active', ${
-        role.id
-      })
+          role.id
+        })
         RETURNING id
       `;
 
@@ -98,8 +98,8 @@ export class EntrenadorModel {
         )
         VALUES (
             ${rut}, ${nombre}, ${especialidad}, ${telefono}, ${newUser.id}, ${
-        turno || "Mañana"
-      },
+              turno || "Mañana"
+            },
             ${modelo_contrato || "sueldo_fijo"}, 
             ${sueldo_base || 0}, 
             ${porcentaje_retencion || 0}, 
@@ -163,7 +163,7 @@ export class EntrenadorModel {
     return !!disabledUser;
   }
 
-// 5. OBTENER DETALLE Y ESTADÍSTICAS AVANZADAS (CORREGIDO)
+  // 5. OBTENER DETALLE Y ESTADÍSTICAS AVANZADAS (CORREGIDO)
   static async getStats({ id }) {
     // A. Datos del Entrenador
     const [perfil] = await sql`
@@ -243,5 +243,105 @@ export class EntrenadorModel {
       RETURNING id
     `;
     return result.length;
+  }
+
+  //7. Obtener resumen para dashboard
+  static async getDashboardSummary({ id_usuario }) {
+    //Primer, cruzamos el ID del usuario con el de entrenadores
+    //para saber que entrenador  es el que mira la pantalla
+    const [entrenador] = await sql`
+      SELECT id
+      FROM entrenadores
+      WHERE id_usuario = ${id_usuario}
+      `;
+    //Si la cuenta no es de un entrenador, detenemos todo aqui
+    if (!entrenador) return null;
+
+    const id_entrenador = entrenador.id;
+    //En vez de usar 4 "await" que suma tiempo de carga
+    //usamos promise.all para disparar todas las consultas a Postgres al mismo instante.
+    const [[alumnosResult], [rutinasResult], [asistenciaResult], logsResult] =
+      await Promise.all([
+        //Consulta 1 : ¿Cuantos clientes tiene a su cargo?
+        sql`
+        SELECT COUNT(*)::int  as total
+        FROM clientes
+        WHERE id_entrenador = ${id_entrenador}`,
+
+        //Consulta 2: ¿Cuantas rutinas a creado y estan vigentes?
+        sql`
+        SELECT COUNT(*)::int as total
+        FROM rutinas
+        WHERE id_entrenador = ${id_entrenador} AND activa = true`,
+
+        //Consulta 3: ¿ Cuantos alumnos vinieron al gimnasio hoy?
+        sql`
+        SELECT COUNT (DISTINCT a.id_usuario)::int as total
+        FROM asistencia a
+        JOIN clientes c ON a.id_usuario = c.id_usuario
+        WHERE c.id_entrenador = ${id_entrenador}
+        AND DATE(a.fecha_entrada) = CURRENT_DATE`,
+
+        //Consulta 4: El "LiveFeed" o actividades recientes.
+        sql`
+        SELECT c.nombre as cliente, a.fecha_entrada as fecha
+        FROM asistencia a
+        JOIN clientes c ON a.id_usuario = c.id_usuario
+        WHERE c.id_entrenador = ${id_entrenador}
+        ORDER BY a.fecha_entrada DESC
+        LIMIT 5`,
+      ]);
+
+    //Adaptamos el array de logs devuelto por SQL para que los componentes
+    //visuales de React lo puedan leer directamente.
+    const recentLogs = logsResult.map((log) => ({
+      text: `${log.cliente} registró su ingreso`,
+      time: log.fecha,
+    }));
+
+    return {
+      kpi: {
+        misAlumnos: alumnosResult.total || 0,
+        sugerenciasIA: 0, //Lo dejamos en 0 hasta que implementemos la IA
+        asistenciaHoy: asistenciaResult.total || 0,
+        rutinasActivas: rutinasResult.total || 0,
+      },
+      recentLogs,
+    };
+  } // <-- Aquí termina getDashboardSummary
+
+  // ==========================================
+  // 8. OBTENER LISTA DE "MIS ALUMNOS" (CORREGIDO)
+  // ==========================================
+  static async getMisAlumnos({ id_usuario }) {
+    // 1. Obtenemos el ID del entrenador
+    const [entrenador] =
+      await sql`SELECT id FROM entrenadores WHERE id_usuario = ${id_usuario}`;
+    if (!entrenador) return null;
+
+    // 2. Traemos a los clientes filtrando duplicados del historial
+    return await sql`
+      WITH ClientesUnicos AS (
+        SELECT DISTINCT ON (c.id)
+          c.id, 
+          c.nombre, 
+          c.rut,
+          u.email,
+          c.fecha_nacimiento,
+          c.genero,
+          c.direccion,
+          c.objetivo,
+          COALESCE(p.nombre, 'Sin Plan Vigente') as plan,
+          COALESCE(m.estado, 'inactive') as estado,
+          m.fecha_fin as vencimiento_plan
+        FROM clientes c
+        JOIN usuarios u ON c.id_usuario = u.id
+        LEFT JOIN membresias m ON m.id_cliente = c.id AND m.estado = 'active'
+        LEFT JOIN planes p ON m.id_plan = p.id
+        WHERE c.id_entrenador = ${entrenador.id}
+        ORDER BY c.id, m.fecha_fin DESC
+      )
+      SELECT * FROM ClientesUnicos ORDER BY nombre ASC;
+    `;
   }
 }
