@@ -15,10 +15,10 @@ import {
   Activity,
   Eye,
 } from "lucide-react";
-import { ClientModal } from "../components/Clientes/ClientModal";
-import { ClientDetailModal } from "../components/Clientes/ClientDetailModal";
+import { ClientModal } from "../components/admin/Clientes/ClientModal";
+import { ClientDetailModal } from "../components/admin/Clientes/ClientDetailModal";
 import { useConfirm } from "../contexts/ConfirmContext";
-import { AddMeasurementsModal } from "../components/Clientes/AddMeasurementsModal";
+import { AddMeasurementsModal } from "../components/admin/Clientes/AddMeasurementsModal";
 // 👇 Importamos toast
 import { toast } from "sonner";
 

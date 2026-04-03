@@ -47,8 +47,6 @@ export class EntrenadorModel {
                    AND EXTRACT(MONTH FROM s.fecha) = EXTRACT(MONTH FROM CURRENT_DATE)
                ), 0)
             )
-            -- C. Arriendo: No le pagamos, él nos paga (Retornamos 0 o negativo)
-            WHEN e.modelo_contrato = 'arriendo_espacio' THEN 0 
             ELSE 0 
         END as sueldo_estimado
 
@@ -213,8 +211,6 @@ export class EntrenadorModel {
           CASE 
               WHEN ${perfil.modelo_contrato} = 'sueldo_fijo' THEN ${perfil.sueldo_base}
               
-              WHEN ${perfil.modelo_contrato} = 'arriendo_espacio' THEN 0
-              
               WHEN ${perfil.modelo_contrato} = 'porcentaje' THEN 
                   (COALESCE((
                       SELECT SUM(p.monto)
@@ -260,37 +256,56 @@ export class EntrenadorModel {
     const id_entrenador = entrenador.id;
     //En vez de usar 4 "await" que suma tiempo de carga
     //usamos promise.all para disparar todas las consultas a Postgres al mismo instante.
-    const [[alumnosResult], [rutinasResult], [asistenciaResult], logsResult] =
-      await Promise.all([
-        //Consulta 1 : ¿Cuantos clientes tiene a su cargo?
-        sql`
+    const [
+      [alumnosResult],
+      [rutinasResult],
+      [sesionesResult],
+      logsResult,
+      proximasSesiones,
+    ] = await Promise.all([
+      //Consulta 1 : ¿Cuantos clientes tiene a su cargo?
+      sql`
         SELECT COUNT(*)::int  as total
         FROM clientes
         WHERE id_entrenador = ${id_entrenador}`,
 
-        //Consulta 2: ¿Cuantas rutinas a creado y estan vigentes?
-        sql`
+      //Consulta 2: ¿Cuantas rutinas a creado y estan vigentes?
+      sql`
         SELECT COUNT(*)::int as total
         FROM rutinas
         WHERE id_entrenador = ${id_entrenador} AND activa = true`,
 
-        //Consulta 3: ¿ Cuantos alumnos vinieron al gimnasio hoy?
-        sql`
-        SELECT COUNT (DISTINCT a.id_usuario)::int as total
-        FROM asistencia a
-        JOIN clientes c ON a.id_usuario = c.id_usuario
-        WHERE c.id_entrenador = ${id_entrenador}
-        AND DATE(a.fecha_entrada) = CURRENT_DATE`,
+      //Consulta 3: ¿ Cuantas sesiones pendientes tiene para hoy?
+      sql`
+        SELECT COUNT(*)::int as total
+        FROM sesiones_entrenador
+        WHERE id_entrenador = ${id_entrenador}
+        AND estado = 'agendada'
+        AND DATE(fecha) = CURRENT_DATE`,
 
-        //Consulta 4: El "LiveFeed" o actividades recientes.
-        sql`
+      //Consulta 4: El "LiveFeed" o actividades recientes.
+      sql`
         SELECT c.nombre as cliente, a.fecha_entrada as fecha
         FROM asistencia a
         JOIN clientes c ON a.id_usuario = c.id_usuario
         WHERE c.id_entrenador = ${id_entrenador}
         ORDER BY a.fecha_entrada DESC
         LIMIT 5`,
-      ]);
+
+      //Consulta 5: Próximas sesiones agendadas (para el panel lateral)
+      sql`
+        SELECT s.fecha, s.duracion_minutos, c.nombre as cliente,
+               TO_CHAR(s.fecha, 'HH24:MI') as hora_formateada,
+               TO_CHAR(s.fecha, 'TMDay') as dia_semana,
+               (DATE(s.fecha) = CURRENT_DATE) as es_hoy
+        FROM sesiones_entrenador s
+        JOIN clientes c ON s.id_cliente = c.id
+        WHERE s.id_entrenador = ${id_entrenador}
+        AND s.estado = 'agendada'
+        AND s.fecha >= NOW()
+        ORDER BY s.fecha ASC
+        LIMIT 5`,
+    ]);
 
     //Adaptamos el array de logs devuelto por SQL para que los componentes
     //visuales de React lo puedan leer directamente.
@@ -299,20 +314,38 @@ export class EntrenadorModel {
       time: log.fecha,
     }));
 
+    // Formateamos las próximas sesiones para el frontend (ya vienen con hora formateada de SQL)
+    const sesionesFormateadas = proximasSesiones.map((s) => ({
+      cliente: s.cliente,
+      duracion: s.duracion_minutos,
+      hora: s.hora_formateada,
+      dia: s.dia_semana?.trim() || "",
+    }));
+
+    // Subtítulo dinámico: la próxima sesión más cercana
+    let proximaSesionTexto = "Sin sesiones agendadas";
+    if (sesionesFormateadas.length > 0) {
+      const proxima = sesionesFormateadas[0];
+      const esHoy = proximasSesiones[0].es_hoy;
+      proximaSesionTexto = esHoy
+        ? `Próxima a las ${proxima.hora}`
+        : `Próxima: ${proxima.dia} ${proxima.hora}`;
+    }
+
     return {
       kpi: {
         misAlumnos: alumnosResult.total || 0,
         sugerenciasIA: 0, //Lo dejamos en 0 hasta que implementemos la IA
-        asistenciaHoy: asistenciaResult.total || 0,
+        sesionesPendientesHoy: sesionesResult.total || 0,
         rutinasActivas: rutinasResult.total || 0,
+        proximaSesionTexto,
       },
       recentLogs,
+      proximasSesiones: sesionesFormateadas,
     };
   } // <-- Aquí termina getDashboardSummary
 
-  // ==========================================
-  // 8. OBTENER LISTA DE "MIS ALUMNOS" (CORREGIDO)
-  // ==========================================
+  // 8. Obtener la lista de los alumnos del entrenador
   static async getMisAlumnos({ id_usuario }) {
     // 1. Obtenemos el ID del entrenador
     const [entrenador] =
@@ -323,7 +356,8 @@ export class EntrenadorModel {
     return await sql`
       WITH ClientesUnicos AS (
         SELECT DISTINCT ON (c.id)
-          c.id, 
+          c.id,
+          c.id_entrenador,
           c.nombre, 
           c.rut,
           u.email,
@@ -343,5 +377,96 @@ export class EntrenadorModel {
       )
       SELECT * FROM ClientesUnicos ORDER BY nombre ASC;
     `;
+  }
+
+  // 9. Obtener perfil del entrenador logeado
+
+  static async getMiPerfil({ id_usuario }) {
+    const [perfil] = await sql`
+      SELECT *
+      FROM entrenadores
+      WHERE id_usuario = ${id_usuario}
+    `;
+    return perfil || null;
+  }
+
+  //10. Finanzas del entrenador Logeado
+  static async getFinanzas({ id_usuario }) {
+    const [entrenador] = await sql`
+      SELECT id FROM entrenadores WHERE id_usuario = ${id_usuario}`;
+    if (!entrenador) return null;
+    const id_entrenador = entrenador.id;
+
+    //A. Perfil financiero
+    const [perfil] = await sql`
+      SELECT nombre, modelo_contrato, sueldo_base, porcentaje_retencion,
+      (SELECT COUNT(*)::int FROM clientes c
+      JOIN usuarios u ON c.id_usuario = u.id
+      WHERE c.id_entrenador = ${id_entrenador} AND u.estado = 'active') as total_alumnos_activos
+      FROM entrenadores
+      WHERE id = ${id_entrenador}`;
+
+    // B. Sesiones del mes actual con detalle
+    const sesiones = await sql`
+      SELECT s.id, c.nombre as cliente,
+        TO_CHAR(s.fecha, 'DD/MM/YYYY') as fecha_formateada,
+        TO_CHAR(s.fecha, 'HH24:MI') as hora_formateada,
+        s.duracion_minutos, s.valor_cobrado, s.monto_gimnasio, s.monto_entrenador, s.estado
+      FROM sesiones_entrenador s
+      JOIN clientes c ON s.id_cliente = c.id
+      WHERE s.id_entrenador = ${id_entrenador}
+      AND EXTRACT(MONTH FROM s.fecha) = EXTRACT(MONTH FROM CURRENT_DATE)
+      AND EXTRACT(YEAR FROM s.fecha) = EXTRACT(YEAR FROM CURRENT_DATE)
+      ORDER BY s.fecha DESC
+    `;
+    // C. Totales del mes
+    const [totalesMes] = await sql`
+      SELECT 
+        COUNT(*)::int as total_sesiones,
+        COALESCE(SUM(CASE WHEN estado = 'realizada' THEN monto_entrenador ELSE 0 END), 0)::int as comisiones_realizadas,
+        COALESCE(SUM(CASE WHEN estado = 'realizada' THEN valor_cobrado ELSE 0 END), 0)::int as ingresos_generados,
+        COUNT(CASE WHEN estado = 'agendada' THEN 1 END)::int as sesiones_pendientes
+      FROM sesiones_entrenador
+      WHERE id_entrenador = ${id_entrenador}
+      AND EXTRACT(MONTH FROM fecha) = EXTRACT(MONTH FROM CURRENT_DATE)
+      AND EXTRACT(YEAR FROM fecha) = EXTRACT(YEAR FROM CURRENT_DATE)
+    `;
+    // D. Histórico últimos 6 meses (para gráfico)
+    const historico = await sql`
+      WITH meses AS (
+        SELECT generate_series(
+          DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '5 months',
+          DATE_TRUNC('month', CURRENT_DATE),
+          '1 month'::interval
+        ) as mes
+      )
+      SELECT 
+        TO_CHAR(m.mes, 'Mon') as nombre_mes,
+        COALESCE((
+          SELECT SUM(s.monto_entrenador)
+          FROM sesiones_entrenador s
+          WHERE s.id_entrenador = ${id_entrenador}
+          AND s.estado = 'realizada'
+          AND DATE_TRUNC('month', s.fecha) = m.mes
+        ), 0)::int as ganancia
+      FROM meses m
+      ORDER BY m.mes ASC
+    `;
+    // E. Cálculo del total estimado según modelo
+    let totalEstimado = 0;
+    if (perfil.modelo_contrato === "sueldo_fijo") {
+      const bonoPorAlumno = 5000;
+      totalEstimado =
+        perfil.sueldo_base + bonoPorAlumno * perfil.total_alumnos_activos;
+    } else if (perfil.modelo_contrato === "porcentaje") {
+      totalEstimado = totalesMes.comisiones_realizadas;
+    }
+    return {
+      perfil,
+      sesiones,
+      totalesMes,
+      historico,
+      totalEstimado,
+    };
   }
 }

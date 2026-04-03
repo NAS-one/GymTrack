@@ -9,7 +9,7 @@ import { BiDumbbell } from "react-icons/bi";
 
 export function Login() {
   const { login } = useAuth();
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
@@ -19,11 +19,18 @@ export function Login() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    // 1. Verificamos si la función al menos se dispara
+    console.log("🔘 BOTÓN PRESIONADO. Intentando enviar:", { email, password });
     setError(null);
     setLoading(true); // Activa spinner
 
     try {
-      const response = await axios.post("auth/login", { username, password });
+      console.log("🚀 Enviando petición a la API...");
+      const response = await axios.post("auth/login", {
+        username: email,
+        password,
+      });
+      console.log("✅ Respuesta exitosa del backend:", response.data);
       const { token, user } = response.data.body;
 
       console.log("🕵️ DATOS DEL USUARIO QUE LLEGAN DEL BACKEND:", user);
@@ -37,6 +44,8 @@ export function Login() {
       const rolDelUsuario = (user?.role || user?.rol || user?.id_rol || "")
         .toString()
         .toLowerCase();
+
+      console.log("🔍 EL ROL DETECTADO ES EXACTAMENTE:", `"${rolDelUsuario}"`);
 
       if (rolDelUsuario === "entrenador" || rolDelUsuario === "2") {
         navigate("/entrenador/dashboard");
@@ -107,8 +116,8 @@ export function Login() {
             </label>
             <input
               type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="w-full bg-zinc-950/50 border border-zinc-800 rounded-xl px-4 py-3.5 text-white text-sm placeholder-zinc-600 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition-all"
               placeholder="nombre@ejemplo.com"
             />

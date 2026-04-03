@@ -31,9 +31,10 @@ import {
   CartesianGrid,
   Legend,
 } from "recharts";
-import axios from "../../../api/axios"; // Ruta actualizada a la estructura de master
-import { useConfirm } from "../../../contexts/ConfirmContext"; // Ruta actualizada
-import { toast } from "sonner"; // <-- IMPORTACIÓN CORRECTA
+import axios from "../../../api/axios";
+import { useConfirm } from "../../../contexts/ConfirmContext";
+import { toast } from "sonner";
+import { RutinaModal } from "./RutinaModal";
 
 export function ClientDetailModal({
   isOpen,
@@ -49,6 +50,9 @@ export function ClientDetailModal({
   const [processing, setProcessing] = useState(false);
   const [loadingStats, setLoadingStats] = useState(false);
 
+  // Estado del modal de rutinas
+  const [isRutinaModalOpen, setIsRutinaModalOpen] = useState(false);
+
   // Estado del Formulario de Pago
   const [paymentData, setPaymentData] = useState({
     id_plan: "",
@@ -63,15 +67,30 @@ export function ClientDetailModal({
   const [weightData, setWeightData] = useState([]);
   const [attendanceData, setAttendanceData] = useState([]);
   const [availablePlans, setAvailablePlans] = useState([]);
-  const [rutinaActual, setRutinaActual] = useState([]);
+  const [rutinaActual, setRutinaActual] = useState(null); // null = aún cargando, false = sin rutina, objeto = rutina
 
   // --- CARGA DE DATOS ---
   useEffect(() => {
     if (isOpen && client) {
-      setActiveTab(initialTab || "profile"); // Reset tab al abrir
+      setActiveTab(initialTab || "profile");
+      setRutinaActual(null);
       fetchStats();
+      fetchRutinaActual();
     }
   }, [isOpen, client, initialTab]);
+
+  const fetchRutinaActual = async () => {
+    if (!client?.id) return;
+    try {
+      const res = await axios.get(`/rutinas/active/${client.id}`);
+      let data = res.data.body || res.data;
+      if (data?.body) data = data.body;
+      setRutinaActual(data || false);
+    } catch {
+      // 404 = sin rutina activa, es válido
+      setRutinaActual(false);
+    }
+  };
 
   const fetchStats = async () => {
     try {
@@ -81,12 +100,10 @@ export function ClientDetailModal({
       let data = response.data.body || response.data;
       if (data.body) data = data.body;
 
-      const { pagos, medidas, asistencia, planesDisponibles, rutinaActual } =
-        data;
+      const { pagos, medidas, asistencia, planesDisponibles } = data;
 
       setHistory(pagos || []);
       setAvailablePlans(planesDisponibles || []);
-      setRutinaActual(rutinaActual || []);
 
       if (planesDisponibles && planesDisponibles.length > 0) {
         const first = planesDisponibles[0];
@@ -288,15 +305,15 @@ export function ClientDetailModal({
 
           <div className="w-full space-y-3">
             <div
-              className={`p-3 rounded-xl border border-white/5 ${client.estado_membresia === "active" ? "bg-green-500/10" : "bg-red-500/10"}`}
+              className={`p-3 rounded-xl border border-white/5 ${(client.estado_membresia === "active" || client.estado === "active") ? "bg-green-500/10" : "bg-red-500/10"}`}
             >
               <p className="text-xs text-gym-gray uppercase font-bold">
                 Estado Membresía
               </p>
               <p
-                className={`font-bold text-lg ${client.estado_membresia === "active" ? "text-green-400" : "text-red-400"}`}
+                className={`font-bold text-lg ${(client.estado_membresia === "active" || client.estado === "active") ? "text-green-400" : "text-red-400"}`}
               >
-                {client.estado_membresia === "active" ? "ACTIVO" : "INACTIVO"}
+                {(client.estado_membresia === "active" || client.estado === "active") ? "ACTIVO" : "INACTIVO"}
               </p>
             </div>
 
@@ -551,107 +568,6 @@ export function ClientDetailModal({
                   )}
                 </div>
 
-                {/* ========================================================= */}
-                {/* 3A. RUTINAS (NUEVO - SOLO ENTRENADOR) */}
-                {/* ========================================================= */}
-                {activeTab === "routines" && modoEntrenador && (
-                  <div className="space-y-6 animate-fade-in">
-                    {/* Header de Rutinas */}
-                    {/* Header de Rutinas Dinámico */}
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-orange-500/10 p-5 rounded-xl border border-orange-500/20">
-                      <div>
-                        <h3 className="text-lg font-bold text-orange-400 mb-1">
-                          {rutinaActual.length > 0
-                            ? `Rutina Actual: ${rutinaActual[0].nombre_rutina}`
-                            : "Sin Rutina Activa"}
-                        </h3>
-                        <p className="text-sm text-orange-500/80">
-                          {rutinaActual.length > 0
-                            ? `Asignada el: ${new Date(rutinaActual[0].fecha_inicio).toLocaleDateString()}`
-                            : "El cliente no tiene un plan de entrenamiento asignado."}
-                        </p>
-                      </div>
-                      <button
-                        onClick={() =>
-                          toast.info("Pronto abriremos el creador de rutinas")
-                        }
-                        className="bg-gym-orange hover:bg-orange-600 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 shadow-lg transition-all active:scale-95 text-sm whitespace-nowrap"
-                      >
-                        <Plus size={18} /> Asignar Nueva Rutina
-                      </button>
-                    </div>
-
-                    {/* Tabla de Ejercicios */}
-                    <div>
-                      <h4 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
-                        <Calendar size={16} className="text-zinc-400" />{" "}
-                        Distribución de la Semana
-                      </h4>
-
-                      {rutinaActual.length > 0 ? (
-                        <div className="bg-black/20 rounded-xl border border-white/5 overflow-hidden">
-                          <table className="w-full text-left text-sm">
-                            <thead className="bg-white/5 text-gym-gray">
-                              <tr>
-                                <th className="p-4 font-semibold">Día</th>
-                                <th className="p-4 font-semibold">Músculo</th>
-                                <th className="p-4 font-semibold">
-                                  Ejercicio Principal
-                                </th>
-                                <th className="p-4 font-semibold text-center">
-                                  Series
-                                </th>
-                                <th className="p-4 font-semibold text-center">
-                                  Reps
-                                </th>
-                                <th className="p-4 font-semibold text-right">
-                                  Carga Sugerida
-                                </th>
-                              </tr>
-                            </thead>
-                            <tbody className="divide-y divide-white/5">
-                              {rutinaActual.map((row, i) => (
-                                <tr
-                                  key={i}
-                                  className="hover:bg-white/5 transition-colors"
-                                >
-                                  <td className="p-4 font-bold text-white">
-                                    {row.dia}
-                                  </td>
-                                  <td className="p-4 text-zinc-300">
-                                    {row.musculo}
-                                  </td>
-                                  <td className="p-4 text-zinc-300">
-                                    {row.ejercicio}
-                                  </td>
-                                  <td className="p-4 text-center text-zinc-400 font-mono">
-                                    {row.series}
-                                  </td>
-                                  <td className="p-4 text-center text-zinc-400 font-mono">
-                                    {row.reps}
-                                  </td>
-                                  <td className="p-4 text-right">
-                                    <span className="bg-zinc-800 text-gym-orange px-2 py-1 rounded font-mono border border-zinc-700">
-                                      {row.carga || "Peso Corporal"}
-                                    </span>
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      ) : (
-                        <div className="bg-black/20 border border-white/5 rounded-xl p-10 flex flex-col items-center justify-center text-center">
-                          <Dumbbell size={40} className="text-zinc-600 mb-3" />
-                          <p className="text-gym-gray">
-                            Aún no has creado una rutina para este alumno.
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-
                 {/* Gráfico Asistencia */}
                 <div className="bg-black/20 p-4 rounded-xl border border-white/5 h-56">
                   <p className="text-sm font-bold text-white mb-4 flex items-center gap-2">
@@ -696,7 +612,114 @@ export function ClientDetailModal({
               </div>
             )}
 
-            {/* 3. PAGOS Y RENOVACIÓN */}
+            {/* ============================================================ */}
+            {/* 3. RUTINAS - TAB EXCLUSIVO DEL ENTRENADOR                     */}
+            {/* ============================================================ */}
+            {activeTab === "routines" && modoEntrenador && (
+              <div className="space-y-6 animate-fade-in">
+                {/* Header con acción */}
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-orange-500/10 p-5 rounded-xl border border-orange-500/20">
+                  <div>
+                    <h3 className="text-lg font-bold text-orange-400 mb-1">
+                      {rutinaActual === null
+                        ? "Cargando rutina..."
+                        : rutinaActual
+                          ? `Rutina Activa: ${rutinaActual.nombre}`
+                          : "Sin Rutina Activa"}
+                    </h3>
+                    <p className="text-sm text-orange-500/80">
+                      {rutinaActual === null
+                        ? ""
+                        : rutinaActual
+                          ? `Creada el: ${new Date(rutinaActual.created_at).toLocaleDateString()}`
+                          : "El alumno no tiene un plan de entrenamiento asignado."}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setIsRutinaModalOpen(true)}
+                    className="bg-gym-orange hover:bg-orange-600 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 shadow-lg transition-all active:scale-95 text-sm whitespace-nowrap"
+                  >
+                    <Plus size={18} /> Asignar Nueva Rutina
+                  </button>
+                </div>
+
+                {/* Tabla de ejercicios de la rutina activa */}
+                <div>
+                  <h4 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
+                    <Calendar size={16} className="text-zinc-400" />{" "}
+                    Distribución de la Semana
+                  </h4>
+
+                  {rutinaActual === null ? (
+                    <div className="bg-black/20 border border-white/5 rounded-xl p-8 flex items-center justify-center text-zinc-500 text-sm">
+                      Cargando...
+                    </div>
+                  ) : rutinaActual && rutinaActual.plan?.length > 0 ? (
+                    <div className="bg-black/20 rounded-xl border border-white/5 overflow-hidden">
+                      <table className="w-full text-left text-sm">
+                        <thead className="bg-white/5 text-gym-gray text-xs uppercase tracking-wider">
+                          <tr>
+                            <th className="p-4 font-semibold">Día</th>
+                            <th className="p-4 font-semibold">Músculo</th>
+                            <th className="p-4 font-semibold">Ejercicio</th>
+                            <th className="p-4 font-semibold text-center">
+                              Series
+                            </th>
+                            <th className="p-4 font-semibold text-center">
+                              Reps
+                            </th>
+                            <th className="p-4 font-semibold text-right">
+                              Carga Sugerida
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-white/5">
+                          {rutinaActual.plan.map((row, i) => (
+                            <tr
+                              key={i}
+                              className="hover:bg-white/5 transition-colors"
+                            >
+                              <td className="p-4 font-bold text-white">
+                                {row.dia}
+                              </td>
+                              <td className="p-4 text-zinc-400 text-xs">
+                                {row.grupo_muscular || "--"}
+                              </td>
+                              <td className="p-4 text-zinc-300">
+                                {row.nombre_ejercicio}
+                              </td>
+                              <td className="p-4 text-center text-zinc-400 font-mono">
+                                {row.series}
+                              </td>
+                              <td className="p-4 text-center text-zinc-400 font-mono">
+                                {row.repeticiones}
+                              </td>
+                              <td className="p-4 text-right">
+                                <span className="bg-zinc-800 text-gym-orange px-2 py-1 rounded font-mono border border-zinc-700 text-xs">
+                                  {row.carga_proyectada || "Peso Corporal"}
+                                </span>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <div className="bg-black/20 border border-white/5 rounded-xl p-10 flex flex-col items-center justify-center text-center">
+                      <Dumbbell size={40} className="text-zinc-600 mb-3" />
+                      <p className="text-gym-gray">
+                        Este alumno aún no tiene una rutina asignada.
+                      </p>
+                      <p className="text-xs text-zinc-600 mt-1">
+                        Haz clic en "Asignar Nueva Rutina" para comenzar.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* 4. PAGOS Y RENOVACIÓN */}
             {activeTab === "payment" && (
               <div className="animate-fade-in space-y-6">
                 <div className="bg-black/20 p-5 rounded-xl border border-white/5">
@@ -857,6 +880,17 @@ export function ClientDetailModal({
           </div>
         </div>
       </div>
+
+      {/* Modal para crear nueva rutina */}
+      <RutinaModal
+        isOpen={isRutinaModalOpen}
+        onClose={() => setIsRutinaModalOpen(false)}
+        client={client}
+        onSave={() => {
+          fetchRutinaActual();
+          if (onUpdate) onUpdate();
+        }}
+      />
     </div>
   );
 }

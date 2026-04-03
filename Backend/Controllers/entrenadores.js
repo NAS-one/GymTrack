@@ -206,4 +206,42 @@ export class EntrenadorController {
       res.status(500).json({ error: "Error al cargar la lista de alumnos" });
     }
   };
+
+  getMiPerfil = async (req, res) => {
+    try {
+      const id_usuario = req.user?.id || req.user?.id_usuario;
+      if (!id_usuario)
+        return res.status(401).json({ error: "Usuario no autenticado" });
+
+      const perfil = await this.EntrenadorModel.getMiPerfil({ id_usuario });
+      if (!perfil)
+        return res
+          .status(404)
+          .json({ error: "Perfil de entrenador no encontrado" });
+
+      res.json({ body: perfil });
+    } catch (e) {
+      console.error("Error en getMiPerfil:", e);
+      res.status(500).json({ error: "Error al cargar el perfil" });
+    }
+  };
+
+  getFinanzas = async (req, res) => {
+    try {
+      const id_usuario = req.user?.id || req.user?.id_usuario;
+      if (!id_usuario)
+        return res.status(401).json({ error: "Usuario no autenticado" });
+
+      const data = await this.EntrenadorModel.getFinanzas({ id_usuario });
+      if (!data)
+        return res
+          .status(404)
+          .json({ error: "Perfil del entrenador no encontrado" });
+
+      res.json({ body: data });
+    } catch (e) {
+      console.error("Error en getFinanzas;", e);
+      res.status(500).json({ error: "Error al cargar datos financieros" });
+    }
+  };
 }

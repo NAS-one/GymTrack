@@ -24,9 +24,12 @@ import { Asistencia } from "./pages/admin/Asistencia";
 import { Equipo } from "./pages/admin/Equipo";
 import { Reportes } from "./pages/admin/Reportes";
 
-// Páginas de Entrenador (Tus aportes)
+// Páginas de Entrenador
 import { EntrenadorDashboard } from "./pages/EntrenadorDashboard";
 import { MisAlumnos } from "./pages/MisAlumnos";
+import { AgendaDiaria } from "./components/admin/Entrenadores/AgendaDiaria";
+import { EntrenadorRutinas } from "./pages/EntrenadorRutinas";
+import { EntrenadorFinanzas } from "./pages/EntrenadorFinanzas";
 
 function App() {
   return (
@@ -43,7 +46,7 @@ function App() {
                         2. ZONA EXCLUSIVA DEL ADMINISTRADOR
                         ==================================================== */}
             <Route
-              element={<ProtectedRoute allowedRoles={["administrador"]} />}
+              element={<ProtectedRoute allowedRoles={["administrador", "1"]} />}
             >
               <Route element={<AdminLayout />}>
                 <Route path="/dashboard" element={<AdminDashboard />} />
@@ -62,7 +65,7 @@ function App() {
             {/* ====================================================
                         3. ZONA EXCLUSIVA DEL CLIENTE (MÓVIL PWA)
                         ==================================================== */}
-            <Route element={<ProtectedRoute allowedRoles={["cliente"]} />}>
+            <Route element={<ProtectedRoute allowedRoles={["cliente", "3"]} />}>
               <Route element={<ClientLayout />}>
                 <Route path="/client/dashboard" element={<ClientDashboard />} />
                 <Route
@@ -94,7 +97,7 @@ function App() {
             <Route
               element={
                 <ProtectedRoute
-                  allowedRoles={["entrenador", "administrador"]}
+                  allowedRoles={["entrenador", "2", "administrador"]}
                 />
               }
             >
@@ -108,36 +111,14 @@ function App() {
                 {/* Vistas temporales para que no se rompa la app al hacer clic en el menú */}
                 <Route path="/entrenador/clientes" element={<MisAlumnos />} />
                 <Route
-                  path="/entrenador/rutinas"
-                  element={
-                    <div className="text-center text-white mt-10">
-                      Gestión de Rutinas (Próximamente)
-                    </div>
-                  }
+                  path="entrenador/rutinas"
+                  element={<EntrenadorRutinas />}
                 />
-                <Route
-                  path="/entrenador/agenda"
-                  element={
-                    <div className="text-center text-white mt-10">
-                      Agenda y Sesiones (Próximamente)
-                    </div>
-                  }
-                />
-                <Route
-                  path="/entrenador/ejercicios"
-                  element={
-                    <div className="text-center text-white mt-10">
-                      Biblioteca de Ejercicios (Próximamente)
-                    </div>
-                  }
-                />
+                <Route path="/entrenador/agenda" element={<AgendaDiaria />} />
+                <Route path="/entrenador/ejercicios" element={<Ejercicios />} />
                 <Route
                   path="/entrenador/comisiones"
-                  element={
-                    <div className="text-center text-white mt-10">
-                      Mis Comisiones (Próximamente)
-                    </div>
-                  }
+                  element={<EntrenadorFinanzas />}
                 />
               </Route>
             </Route>

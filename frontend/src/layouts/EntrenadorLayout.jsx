@@ -1,8 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Outlet, NavLink, useNavigate, useLocation } from "react-router-dom";
+import { toast } from "sonner";
 import { useAuth } from "../contexts/useAuth";
-
-// Iconos adaptados para el Entrenador
 import {
   LayoutDashboard,
   Users,
@@ -13,68 +12,59 @@ import {
   LogOut,
   Menu,
   ChevronLeft,
+  Bell,
+  Settings,
+  Zap,
 } from "lucide-react";
 
 export function EntrenadorLayout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-
-  const pageTitles = {
-    "/entrenador/dashboard": "Mi Panel",
-    "/entrenador/clientes": "Mis Alumnos",
-    "/entrenador/rutinas": "Gestión de Rutinas",
-    "/entrenador/agenda": "Agenda y Sesiones",
-    "/entrenador/ejercicios": "Biblioteca de Ejercicios",
-    "/entrenador/comisiones": "Mis Comisiones",
-  };
-
-  const currentTitle = pageTitles[location.pathname] || "GymTrack Entrenador";
 
   const menuItems = [
     {
-      section: "Principal",
+      section: "PRINCIPAL",
       items: [
         {
           path: "/entrenador/dashboard",
           label: "Mi Panel",
-          icon: <LayoutDashboard size={20} />,
+          icon: <LayoutDashboard size={18} />,
         },
       ],
     },
     {
-      section: "Entrenamiento",
+      section: "ENTRENAMIENTO",
       items: [
         {
           path: "/entrenador/clientes",
           label: "Mis Alumnos",
-          icon: <Users size={20} />,
+          icon: <Users size={18} />,
         },
         {
           path: "/entrenador/rutinas",
           label: "Rutinas",
-          icon: <ClipboardList size={20} />,
+          icon: <ClipboardList size={18} />,
         },
         {
           path: "/entrenador/agenda",
           label: "Agenda",
-          icon: <CalendarDays size={20} />,
+          icon: <CalendarDays size={18} />,
         },
       ],
     },
     {
-      section: "Herramientas",
+      section: "HERRAMIENTAS",
       items: [
         {
           path: "/entrenador/ejercicios",
           label: "Ejercicios",
-          icon: <Dumbbell size={20} />,
+          icon: <Dumbbell size={18} />,
         },
         {
           path: "/entrenador/comisiones",
-          label: "Comisiones",
-          icon: <Wallet size={20} />,
+          label: "Finanzas",
+          icon: <Wallet size={18} />,
         },
       ],
     },
@@ -86,41 +76,52 @@ export function EntrenadorLayout() {
   };
 
   return (
-    <div className="flex h-screen bg-[#09090b] text-white overflow-hidden font-sans">
-      {/* === SIDEBAR === */}
+    <div className="flex h-screen bg-black text-white overflow-hidden font-sans selection:bg-gym-orange/30">
+      {/* 🌌 FONDO ATMOSFÉRICO GLOBAL */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <div className="absolute top-[-10%] left-1/4 w-[500px] h-[500px] bg-gym-orange/5 blur-[120px] rounded-full animate-pulse-slow"></div>
+        <div className="absolute bottom-[-10%] right-1/4 w-[600px] h-[600px] bg-blue-500/5 blur-[150px] rounded-full"></div>
+      </div>
+
+      {/* === SIDEBAR (Minimalista) === */}
       <aside
-        className={`${isSidebarOpen ? "w-72" : "w-20"} bg-black border-r border-white/5 flex flex-col transition-all duration-300 ease-in-out relative z-20`}
+        className={`${isSidebarOpen ? "w-64" : "w-20"} bg-black flex flex-col transition-all duration-500 ease-in-out relative z-30`}
       >
         <button
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          className="absolute -right-3 top-8 bg-zinc-800 border border-zinc-700 text-zinc-400 hover:text-white rounded-full p-1 shadow-xl transition-colors z-50"
+          className="absolute -right-3 top-10 bg-zinc-900 border border-white/10 text-zinc-400 hover:text-gym-orange rounded-full p-1.5 shadow-2xl transition-all z-50 hover:scale-110"
         >
-          {isSidebarOpen ? <ChevronLeft size={14} /> : <Menu size={14} />}
+          {isSidebarOpen ? (
+            <ChevronLeft size={12} strokeWidth={3} />
+          ) : (
+            <Menu size={12} strokeWidth={3} />
+          )}
         </button>
 
-        <div className="h-20 flex items-center px-6 border-b border-white/5">
-          <div className="flex items-center gap-3 overflow-hidden">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-600 to-orange-500 flex items-center justify-center shrink-0 shadow-lg shadow-orange-500/20">
-              <Dumbbell className="text-white fill-white/20" size={20} />
+        {/* LOGO */}
+        <div className="h-24 flex items-center px-6 shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-gym-orange flex items-center justify-center shrink-0 shadow-[0_0_20px_rgba(249,115,22,0.3)]">
+              <Zap
+                className="text-white fill-white/20"
+                size={18}
+                strokeWidth={2.5}
+              />
             </div>
             {isSidebarOpen && (
-              <div className="animate-fade-in">
-                <h1 className="font-bold text-lg tracking-tight leading-none">
-                  GymTrack
-                </h1>
-                <span className="text-[10px] text-zinc-500 font-medium tracking-widest uppercase">
-                  Entrenador
-                </span>
-              </div>
+              <h1 className="font-black text-lg tracking-tighter italic">
+                GYM<span className="text-gym-orange">TRACK</span>
+              </h1>
             )}
           </div>
         </div>
 
-        <nav className="flex-1 overflow-y-auto py-6 px-3 space-y-6 custom-scrollbar">
+        {/* NAVEGACIÓN */}
+        <nav className="flex-1 overflow-y-auto px-3 space-y-7 custom-scrollbar py-4">
           {menuItems.map((group, index) => (
-            <div key={index}>
+            <div key={index} className="space-y-1">
               {isSidebarOpen && (
-                <h3 className="px-4 text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-2">
+                <h3 className="px-4 text-[9px] font-black text-zinc-700 uppercase tracking-[0.3em] mb-2">
                   {group.section}
                 </h3>
               )}
@@ -129,25 +130,26 @@ export function EntrenadorLayout() {
                   <li key={item.path}>
                     <NavLink
                       to={item.path}
-                      className={({ isActive }) =>
-                        `relative flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group overflow-hidden ${isActive ? "bg-white/5 text-white" : "text-zinc-400 hover:text-white hover:bg-white/5"}`
-                      }
+                      className={({ isActive }) => `
+                                                relative flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-300 group
+                                                ${isActive ? "bg-white/[0.03] text-white shadow-inner" : "text-zinc-500 hover:text-zinc-200"}
+                                            `}
                     >
                       {({ isActive }) => (
                         <>
-                          {isActive && (
-                            <span className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-1 rounded-r-full bg-orange-500 shadow-[0_0_10px_rgba(249,115,22,0.5)]"></span>
-                          )}
                           <span
-                            className={`shrink-0 transition-colors ${isActive ? "text-orange-500" : "group-hover:text-zinc-300"}`}
+                            className={`${isActive ? "text-gym-orange" : "group-hover:text-white"}`}
                           >
                             {item.icon}
                           </span>
-                          <span
-                            className={`whitespace-nowrap font-medium text-sm transition-opacity duration-200 ${isSidebarOpen ? "opacity-100" : "opacity-0 w-0"}`}
-                          >
-                            {item.label}
-                          </span>
+                          {isSidebarOpen && (
+                            <span className="text-sm font-bold tracking-tight">
+                              {item.label}
+                            </span>
+                          )}
+                          {isActive && (
+                            <div className="absolute left-0 w-1 h-4 bg-gym-orange rounded-r-full shadow-[0_0_10px_rgba(249,115,22,1)]"></div>
+                          )}
                         </>
                       )}
                     </NavLink>
@@ -158,28 +160,20 @@ export function EntrenadorLayout() {
           ))}
         </nav>
 
-        <div className="p-4 border-t border-white/5 bg-zinc-900/30">
+        {/* PERFIL */}
+        <div className="p-4 border-t border-white/5">
           <div
-            className={`flex items-center gap-3 ${!isSidebarOpen && "justify-center"}`}
+            className={`flex items-center gap-3 p-2 rounded-2xl bg-white/[0.02] border border-white/5 ${!isSidebarOpen && "justify-center"}`}
           >
-            <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-zinc-700 to-zinc-600 flex items-center justify-center text-xs font-bold text-white shrink-0 border border-white/10">
-              {user?.username?.substring(0, 2).toUpperCase() || "EN"}
+            <div className="w-8 h-8 rounded-lg bg-zinc-800 flex items-center justify-center text-[10px] font-black border border-white/10">
+              {user?.nombre?.substring(0, 2).toUpperCase() ||
+                user?.username?.substring(0, 2).toUpperCase() ||
+                "EN"}
             </div>
-            {isSidebarOpen && (
-              <div className="flex-1 overflow-hidden transition-all duration-300">
-                <p className="text-sm font-medium text-white truncate">
-                  {user?.username || "Profesor"}
-                </p>
-                <p className="text-[10px] text-zinc-500 truncate">
-                  {user?.email || "coach@gymtrack.com"}
-                </p>
-              </div>
-            )}
             {isSidebarOpen && (
               <button
                 onClick={handleLogout}
-                className="p-1.5 text-zinc-500 hover:text-red-400 hover:bg-red-500/10 rounded-md transition-colors"
-                title="Cerrar Sesión"
+                className="ml-auto p-2 text-zinc-600 hover:text-rose-500 transition-colors"
               >
                 <LogOut size={16} />
               </button>
@@ -188,25 +182,27 @@ export function EntrenadorLayout() {
         </div>
       </aside>
 
-      {/* === CONTENIDO PRINCIPAL === */}
-      <main className="flex-1 flex flex-col min-w-0 bg-[#09090b] relative">
-        <header className="h-16 border-b border-white/5 flex items-center justify-between px-8 bg-black/20 backdrop-blur-sm sticky top-0 z-10">
-          <div>
-            <h2 className="text-lg font-semibold text-white">{currentTitle}</h2>
-            <p className="text-xs text-zinc-500 hidden md:block">
-              Modo Staff Técnico
-            </p>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-zinc-400 text-xs hover:bg-zinc-700 cursor-pointer transition-colors">
-              🔔
+      {/* === MAIN CONTENT (La "Hoja" Premium) === */}
+      <main className="flex-1 relative z-10 flex flex-col bg-black">
+        {/* Contenedor con bordes ultra suaves */}
+        <div className="flex-1 bg-[#0c0c0e] my-2 mr-2 rounded-[3.5rem] border border-white/[0.03] flex flex-col overflow-hidden shadow-[0_0_60px_rgba(0,0,0,0.8)]">
+          {/* TOP HEADER (Minimalista - Sin Títulos ni Buscadores redundantes) */}
+          <header className="h-14 flex items-center justify-end px-12 shrink-0">
+            <div className="flex items-center gap-5">
+              <button className="text-zinc-600 hover:text-white transition-all hover:scale-110">
+                <Bell size={18} />
+              </button>
+              <button className="text-zinc-600 hover:text-white transition-all hover:scale-110">
+                <Settings size={18} />
+              </button>
             </div>
-          </div>
-        </header>
+          </header>
 
-        <div className="flex-1 overflow-y-auto p-6 md:p-8 scroll-smooth custom-scrollbar">
-          <div className="max-w-7xl mx-auto animate-fade-in">
-            <Outlet />
+          {/* ÁREA DE CONTENIDO */}
+          <div className="flex-1 overflow-y-auto px-12 pb-12 custom-scrollbar">
+            <div className="max-w-[1500px] mx-auto pt-4">
+              <Outlet />
+            </div>
           </div>
         </div>
       </main>

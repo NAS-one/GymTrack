@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { X, Scale, Ruler, Percent, Target, CheckCircle } from "lucide-react";
-import axios from "../../api/axios";
+import axios from "../../../api/axios";
 import { toast } from "sonner";
 
 export function AddMeasurementsModal({ isOpen, onClose, client, onSave }) {

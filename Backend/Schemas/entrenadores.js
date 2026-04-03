@@ -3,11 +3,12 @@ import z from "zod";
 const entrenadorSchema = z.object({
   // --- Credenciales ---
   email: z.string().email("Email inválido").optional(),
-  
+
   // CORRECCIÓN PASSWORD: Si viene vacío o null, lo tratamos como undefined para que .optional() funcione
-  password: z.union([z.string().min(6, "Mínimo 6 caracteres"), z.literal(""), z.null()])
+  password: z
+    .union([z.string().min(6, "Mínimo 6 caracteres"), z.literal(""), z.null()])
     .optional()
-    .transform(e => (e === "" || e === null ? undefined : e)),
+    .transform((e) => (e === "" || e === null ? undefined : e)),
 
   // --- Perfil Básico ---
   rut: z.string().min(8, "RUT inválido").optional(),
@@ -16,16 +17,14 @@ const entrenadorSchema = z.object({
   telefono: z.string().optional(),
 
   // --- NUEVOS CAMPOS FINANCIEROS (Faltaban aquí) ---
-  turno: z.enum(['Mañana', 'Tarde', 'Full Time']).optional(),
-  
-  modelo_contrato: z.enum(['sueldo_fijo', 'porcentaje', 'arriendo_espacio']).optional(),
-  
+  turno: z.enum(["Mañana", "Tarde", "Full Time"]).optional(),
+
+  modelo_contrato: z.enum(["sueldo_fijo", "porcentaje"]).optional(),
+
   // Zod espera números. Si el frontend manda string, esto fallará (ver Paso 2)
   sueldo_base: z.number().nonnegative().optional(),
-  
+
   porcentaje_retencion: z.number().min(0).max(1).optional(),
-  
-  tarifa_arriendo: z.number().nonnegative().optional(),
 });
 
 export function validateEntrenador(input) {
@@ -35,9 +34,11 @@ export function validateEntrenador(input) {
     nombre: z.string().min(2, "Nombre requerido"),
     rut: z.string().min(8, "RUT requerido"),
     password: z.string().min(6, "Password requerido"), // En create el password es obligatorio
-    modelo_contrato: z.enum(['sueldo_fijo', 'porcentaje', 'arriendo_espacio']).default('sueldo_fijo')
+    modelo_contrato: z
+      .enum(["sueldo_fijo", "porcentaje"])
+      .default("sueldo_fijo"),
   });
-  
+
   return createSchema.safeParse(input);
 }
 
