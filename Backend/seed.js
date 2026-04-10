@@ -9,25 +9,25 @@ const sql = postgres({
   database: process.env.DB_NAME,
 });
 
-// --- UTILIDADES ---
+// --- UTILIDADES MEJORADAS ---
 const getRandomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 const getRandomFloat = (min, max, decimals = 1) => parseFloat((Math.random() * (max - min) + min).toFixed(decimals));
 const getRandomItem = (arr) => arr.length > 0 ? arr[Math.floor(Math.random() * arr.length)] : null;
 
-// Generador de horas ponderado (Pico tarde)
+// Generador de RUT Chileno Realista
+const generateRUT = () => {
+    const num = getRandomInt(10000000, 26000000).toString();
+    const dv = Math.random() > 0.9 ? 'K' : getRandomInt(0, 9).toString();
+    return `${num.slice(0,2)}.${num.slice(2,5)}.${num.slice(5,8)}-${dv}`;
+};
+
+// Generador de horas ponderado por Jornada del Cliente
 const getRandomTime = (shift = 'General') => {
-  const rand = Math.random();
   let hour;
-  if (shift === 'Mañana') hour = getRandomInt(7, 13);
-  else if (shift === 'Tarde') hour = getRandomInt(14, 21);
-  else { // Clientes
-    if (rand < 0.2) hour = getRandomInt(6, 9);
-    else if (rand < 0.3) hour = getRandomInt(10, 11);
-    else if (rand < 0.45) hour = getRandomInt(12, 14);
-    else if (rand < 0.55) hour = getRandomInt(15, 16);
-    else if (rand < 0.9) hour = getRandomInt(17, 21);
-    else hour = getRandomInt(21, 22);
-  }
+  if (shift === 'Mañana') hour = getRandomInt(6, 12);
+  else if (shift === 'Tarde') hour = getRandomInt(13, 17);
+  else if (shift === 'Noche') hour = getRandomInt(18, 22);
+  else hour = getRandomInt(6, 22); // Fallback
   return { hour, minute: getRandomInt(0, 59) };
 };
 
@@ -37,11 +37,15 @@ const getHistoricalDate = (minYears, maxYears) => {
     const years = getRandomInt(minYears, maxYears);
     date.setFullYear(date.getFullYear() - years);
     date.setMonth(getRandomInt(0, 11));
+    date.setDate(getRandomInt(1, 28));
     return date;
 };
 
+// Métodos de pago disponibles
+const PAYMENT_METHODS = ['Tarjeta', 'Efectivo', 'Transferencia', 'Webpay'];
+
 async function seed() {
-  console.log("🌱 Iniciando Siembra ENTERPRISE 2.0 (Progreso & Inventario)...");
+  console.log("🌱 Iniciando Siembra ENTERPRISE 3.0 (Datos Realistas, Finanzas y Stats)...");
 
   try {
     // 0. LIMPIEZA TOTAL
@@ -65,27 +69,25 @@ async function seed() {
     const password = await bcrypt.hash("123456", 10);
 
     // 1.1 ADMIN
-    const [uAdmin] = await sql`INSERT INTO usuarios (username, email, password, estado, id_rol) VALUES ('admin', 'admin@gymtrack.com', ${password}, 'active', ${getRol("administrador")}) RETURNING id`;
+    const [uAdmin] = await sql`INSERT INTO usuarios (username, email, password, estado, id_rol) VALUES ('admin', 'victoralexis.gonzalez@alumnos.ulagos.cl', ${password}, 'active', ${getRol("administrador")}) RETURNING id`;
     const [adminProfile] = await sql`INSERT INTO administradores (nombre, cargo, id_usuario) VALUES ('Admin Principal', 'Gerente General', ${uAdmin.id}) RETURNING id`;
 
     const staffAttendancePool = []; 
 
-    // 1.2 STAFF OPERATIVO MEJORADO (Antigüedad y Roles)
+    // 1.2 STAFF OPERATIVO
     console.log("🧹 Contratando Staff...");
-    
     const staffData = [
-        { nombre: "Maria Recepcionista", rut: "15.555.555-5", cargo: "Recepcionista", turno: "Mañana", sueldo: 500000, antiguedad: 3 },
-        { nombre: "Pedro Recepcionista", rut: "18.888.888-8", cargo: "Recepcionista", turno: "Tarde", sueldo: 480000, antiguedad: 1 },
-        { nombre: "Juan Limpieza", rut: "16.666.666-6", cargo: "Aseo", turno: "Tarde", sueldo: 450000, antiguedad: 2 },
-        { nombre: "Luisa Limpieza", rut: "17.777.777-7", cargo: "Aseo", turno: "Mañana", sueldo: 450000, antiguedad: 4 },
-        { nombre: "Carlos Técnico", rut: "14.444.444-4", cargo: "Mantenimiento", turno: "Full Time", sueldo: 650000, antiguedad: 5 },
+        { nombre: "Maria Recepcionista", rut: generateRUT(), cargo: "Recepcionista", turno: "Mañana", sueldo: 500000, antiguedad: 3 },
+        { nombre: "Pedro Recepcionista", rut: generateRUT(), cargo: "Recepcionista", turno: "Tarde", sueldo: 480000, antiguedad: 1 },
+        { nombre: "Juan Limpieza", rut: generateRUT(), cargo: "Aseo", turno: "Tarde", sueldo: 450000, antiguedad: 2 },
+        { nombre: "Luisa Limpieza", rut: generateRUT(), cargo: "Aseo", turno: "Mañana", sueldo: 450000, antiguedad: 4 },
+        { nombre: "Carlos Técnico", rut: generateRUT(), cargo: "Mantenimiento", turno: "Full Time", sueldo: 650000, antiguedad: 5 },
     ];
 
     for (const s of staffData) {
         const username = s.nombre.split(" ")[0].toLowerCase() + "_" + s.cargo.substring(0,3).toLowerCase();
-        // Fallback seguro para roles (si 'mantenimiento' no existe en DB como rol de usuario, usa 'recepcionista' o similar para login)
         let roleId = getRol(s.cargo.toLowerCase());
-        if (!roleId) roleId = getRol('recepcionista'); // Fallback
+        if (!roleId) roleId = getRol('recepcionista');
 
         const [u] = await sql`INSERT INTO usuarios (username, email, password, estado, id_rol) VALUES (${username}, ${`${username}@gym.com`}, ${password}, 'active', ${roleId}) RETURNING id`;
         
@@ -96,17 +98,17 @@ async function seed() {
         staffAttendancePool.push({ id_usuario: u.id, turno: s.turno });
     }
 
-    // 2. PLANES
+    // 2. PLANES (Ahora se usan todos)
     const planesData = [
       { nombre: "Plan Mensual", precio: 35000, duracion: 1, desc: "Acceso total 1 mes." },
       { nombre: "Plan Trimestral", precio: 95000, duracion: 3, desc: "Ahorra un 10%." },
       { nombre: "Plan Semestral", precio: 180000, duracion: 6, desc: "Compromiso medio." },
       { nombre: "Plan Anual", precio: 320000, duracion: 12, desc: "Mejor valor anual." },
     ];
-    const planesMap = {};
+    const planesListDB = [];
     for (const p of planesData) {
       const [planDB] = await sql`INSERT INTO planes (nombre, precio, duracion_meses, descripcion) VALUES (${p.nombre}, ${p.precio}, ${p.duracion}, ${p.desc}) RETURNING *`;
-      planesMap[planDB.nombre] = planDB;
+      planesListDB.push(planDB);
     }
 
     // 3. ENTRENADORES MEJORADOS
@@ -129,7 +131,7 @@ async function seed() {
             rut, nombre, especialidad, telefono, id_usuario, turno,
             modelo_contrato, sueldo_base, porcentaje_retencion, tarifa_arriendo, created_at
         ) VALUES (
-            ${getRandomInt(10, 25) + "." + getRandomInt(100, 999) + "-K"}, 
+            ${generateRUT()}, 
             ${c.name}, ${c.esp}, '+56912345678', ${u.id}, ${c.turno},
             ${c.modelo}, ${c.sueldo}, ${c.porcentaje}, ${c.arriendo}, ${getHistoricalDate(1, c.antiguedad)}
         ) RETURNING id
@@ -138,68 +140,73 @@ async function seed() {
       staffAttendancePool.push({ id_usuario: u.id, turno: c.turno });
     }
 
-    // 4. CLIENTES MEJORADOS (Nombres reales + Datos Físicos Iniciales)
-    console.log("👥 Registrando 120 Clientes...");
+    // 4. CLIENTES CON HÁBITOS REALISTAS
+    console.log("👥 Registrando 150 Clientes VIP...");
     const clientPool = [];
-    const maleNames = ["Juan", "Pedro", "Diego", "Carlos", "Luis", "Jose", "Matias", "Nicolas", "Felipe", "Sebastian", "Andres", "Gabriel", "Tomas", "Martin"];
-    const femaleNames = ["Maria", "Ana", "Sofia", "Camila", "Valentina", "Isabella", "Fernanda", "Javiera", "Catalina", "Martina", "Daniela", "Constanza"];
-    const lastnames = ["Gonzalez", "Muñoz", "Rojas", "Diaz", "Perez", "Soto", "Contreras", "Silva", "Martinez", "Sepulveda", "Morales", "Rodriguez", "Lopez", "Fuentes", "Hernandez"];
+    const maleNames = ["Juan", "Pedro", "Diego", "Carlos", "Luis", "Jose", "Matias", "Nicolas", "Felipe", "Sebastian", "Andres", "Gabriel", "Tomas", "Martin", "Joaquin"];
+    const femaleNames = ["Maria", "Ana", "Sofia", "Camila", "Valentina", "Isabella", "Fernanda", "Javiera", "Catalina", "Martina", "Daniela", "Constanza", "Antonia"];
+    const lastnames = ["Gonzalez", "Muñoz", "Rojas", "Diaz", "Perez", "Soto", "Contreras", "Silva", "Martinez", "Sepulveda", "Morales", "Rodriguez", "Lopez", "Fuentes", "Hernandez", "Vidal", "Guzman"];
+    const direcciones = ["Av. Providencia 123", "Las Condes 444", "Santiago Centro", "Maipú 90", "Ñuñoa 500", "La Florida 100", "Vitacura 300"];
 
-    for (let i = 1; i <= 120; i++) {
+    for (let i = 1; i <= 150; i++) {
       const isMale = Math.random() > 0.5;
       const firstName = getRandomItem(isMale ? maleNames : femaleNames);
       const lastName = getRandomItem(lastnames);
       const nombre = `${firstName} ${lastName}`;
       
-      // Datos Físicos Base (Para evolución)
       const baseHeight = isMale ? getRandomFloat(1.65, 1.90, 2) : getRandomFloat(1.50, 1.75, 2);
       const baseWeight = isMale ? getRandomInt(70, 110) : getRandomInt(50, 80);
       const baseFat = isMale ? getRandomFloat(15, 30) : getRandomFloat(20, 35);
       
       const [u] = await sql`INSERT INTO usuarios (username, email, password, estado, id_rol) VALUES (${`u_${firstName.toLowerCase()}${i}`}, ${`user${i}@mail.com`}, ${password}, 'active', ${getRol("cliente")}) RETURNING id`;
       
-      // Fecha registro aleatoria en los últimos 2 años
       const joinDate = getHistoricalDate(0, 2);
+      const assignedTrainer = Math.random() > 0.4 ? getRandomItem(trainerIds) : null; // 60% tiene entrenador desde el inicio
 
       const [c] = await sql`
-        INSERT INTO clientes (rut, nombre, objetivo, fecha_nacimiento, genero, direccion, id_usuario, created_at) 
+        INSERT INTO clientes (rut, nombre, objetivo, fecha_nacimiento, genero, direccion, id_usuario, id_entrenador, created_at) 
         VALUES (
-            ${getRandomInt(10, 22) + "." + getRandomInt(100, 999) + "-" + getRandomInt(0, 9)}, 
+            ${generateRUT()}, 
             ${nombre}, 
             ${isMale ? 'Ganar Masa Muscular' : 'Tonificar'}, 
-            ${getHistoricalDate(18, 40)}, -- Entre 18 y 40 años atrás
+            ${getHistoricalDate(18, 50)}, 
             ${isMale ? 'Masculino' : 'Femenino'}, 
-            'Av. Siempre Viva 123', 
+            ${getRandomItem(direcciones)}, 
             ${u.id},
+            ${assignedTrainer},
             ${joinDate}
         ) 
         RETURNING id
       `;
 
+      // Hábito del cliente (Atributos ocultos para la simulación)
+      const shifts = ['Mañana', 'Tarde', 'Noche'];
+      const habitShift = getRandomItem(shifts);
+      const attendanceProb = getRandomFloat(0.2, 0.8); // Algunos van 2 veces por semana, otros 6.
+
       clientPool.push({
         id_cliente: c.id,
         id_usuario: u.id,
         nombre: nombre,
-        activeUntil: new Date(2024, 11, 31), // Se actualizará en simulación
-        assignedTrainer: null,
-        // Datos para simulación de progreso
+        activeUntil: new Date(2024, 11, 31), // Vencimiento inicial para forzar renovación
+        assignedTrainer: assignedTrainer,
+        habitShift: habitShift,
+        attendanceProb: attendanceProb,
         currentWeight: baseWeight,
         currentFat: baseFat,
-        targetWeight: baseWeight * (isMale ? 1.05 : 0.9), // Hombres quieren subir, mujeres bajar (generalización seed)
+        targetWeight: baseWeight * (isMale ? 1.05 : 0.9), 
         height: baseHeight
       });
     }
 
     // --- SIMULACIÓN TEMPORAL (2025 - HOY) ---
-    console.log("⏳ Ejecutando simulación temporal (Asistencia, Pagos y Progreso Físico)...");
+    console.log("⏳ Ejecutando simulación temporal (Planes variados, Pagos Múltiples y Asistencia)...");
     
     const startDate = new Date(2025, 0, 1);
     const endDate = new Date();
     let currentDate = new Date(startDate);
     let totalAsistencias = 0;
-    const planMensual = planesMap["Plan Mensual"];
-
-    // Buffer para insertions masivos
+    
     const measureBuffer = [];
 
     while (currentDate <= endDate) {
@@ -222,43 +229,38 @@ async function seed() {
 
       // 2. GESTIÓN CLIENTES
       for (let client of clientPool) {
-        // A. Renovación (Simulada)
+        // A. Renovación Dinámica (Uso de todos los planes y métodos de pago)
         if (client.activeUntil < currentDate) {
-          if (Math.random() < 0.03) { // 3% chance diario de renovar si está vencido
+          if (Math.random() < 0.05) { // 5% chance diario de renovar si está vencido
+            const planElegido = getRandomItem(planesListDB); // Ahora eligen cualquier plan (Mensual, Trimestral, etc.)
+            const metodoPagoElegido = getRandomItem(PAYMENT_METHODS); // Variedad de pagos
+            
             const fechaFin = new Date(currentDate);
-            fechaFin.setMonth(fechaFin.getMonth() + 1);
+            fechaFin.setMonth(fechaFin.getMonth() + planElegido.duracion_meses);
             client.activeUntil = fechaFin;
 
-            const [m] = await sql`INSERT INTO membresias (id_plan, fecha_inicio, fecha_fin, estado, id_cliente) VALUES (${planMensual.id}, ${currentDate}, ${fechaFin}, 'active', ${client.id_cliente}) RETURNING id`;
-            await sql`INSERT INTO pagos (monto, metodo_pago, id_membresia, id_administrador, fecha_pago) VALUES (${planMensual.precio}, 'Tarjeta', ${m.id}, ${adminProfile.id}, ${currentDate})`;
-            
-            // Asignación Entrenador (Retención)
-            if (!client.assignedTrainer && Math.random() > 0.5) {
-                 const newTrainer = getRandomItem(trainerIds);
-                 client.assignedTrainer = newTrainer;
-                 await sql`UPDATE clientes SET id_entrenador = ${newTrainer} WHERE id = ${client.id_cliente}`;
-            }
+            const [m] = await sql`INSERT INTO membresias (id_plan, fecha_inicio, fecha_fin, estado, id_cliente) VALUES (${planElegido.id}, ${currentDate}, ${fechaFin}, 'active', ${client.id_cliente}) RETURNING id`;
+            await sql`INSERT INTO pagos (monto, metodo_pago, id_membresia, id_administrador, fecha_pago) VALUES (${planElegido.precio}, ${metodoPagoElegido}, ${m.id}, ${adminProfile.id}, ${currentDate})`;
           }
         }
 
-        // B. Asistencia & Progreso
+        // B. Asistencia Realista Basada en Hábitos
         if (client.activeUntil >= currentDate) {
-          let attendanceProb = isWeekend ? 0.2 : 0.5;
+          // El cliente va a su jornada preferida con su probabilidad personalizada (Si es finde, va menos)
+          let prob = isWeekend ? (client.attendanceProb * 0.3) : client.attendanceProb;
           
-          if (Math.random() < attendanceProb && client.id_usuario) {
-            // -- Asistencia --
-            const { hour, minute } = getRandomTime('General');
+          if (Math.random() < prob && client.id_usuario) {
+            const { hour, minute } = getRandomTime(client.habitShift);
             const entryTime = new Date(entryDateBase);
             entryTime.setHours(hour, minute, 0);
             dailyAttendanceBuffer.push({ id_usuario: client.id_usuario, estado_acceso: "aprobado", fecha_entrada: entryTime });
             totalAsistencias++;
 
-            // -- Progreso Físico (Medición cada ~15 asistencias) --
-            if (Math.random() < 0.07) {
-                // Simular evolución: Se acerca a su meta
-                const delta = (client.targetWeight - client.currentWeight) * 0.05; // 5% hacia la meta
-                client.currentWeight += delta + getRandomFloat(-0.5, 0.5); // + Ruido
-                client.currentFat -= 0.1; // Baja grasa lentamente
+            // Progreso Físico Lento y Constante
+            if (Math.random() < 0.05) {
+                const delta = (client.targetWeight - client.currentWeight) * 0.05;
+                client.currentWeight += delta + getRandomFloat(-0.3, 0.3);
+                client.currentFat -= 0.1;
 
                 measureBuffer.push({
                     peso: parseFloat(client.currentWeight.toFixed(1)),
@@ -272,13 +274,13 @@ async function seed() {
         }
       }
 
-      // Bulk Inserts Diarios
+      // Inserción en Bloque de Asistencia
       if (dailyAttendanceBuffer.length > 0) {
         const cleanBuffer = dailyAttendanceBuffer.filter(a => a.id_usuario && a.fecha_entrada);
         if (cleanBuffer.length > 0) await sql`INSERT INTO asistencia ${sql(cleanBuffer, "id_usuario", "estado_acceso", "fecha_entrada")}`;
       }
 
-      if (measureBuffer.length > 50) { // Batch medidas para no saturar memoria
+      if (measureBuffer.length > 50) {
           await sql`INSERT INTO medidas_fisicas ${sql(measureBuffer, "peso", "altura", "porcentaje_grasa", "fecha_registro", "id_cliente")}`;
           measureBuffer.length = 0;
       }
@@ -286,47 +288,88 @@ async function seed() {
       currentDate.setDate(currentDate.getDate() + 1);
     }
     
-    // Insertar medidas remanentes
     if (measureBuffer.length > 0) {
         await sql`INSERT INTO medidas_fisicas ${sql(measureBuffer, "peso", "altura", "porcentaje_grasa", "fecha_registro", "id_cliente")}`;
     }
 
-    // 5. INVENTARIO MEJORADO (50+ Máquinas)
+    // 5. INVENTARIO (Equipos en Mantención y Activos)
     console.log("🔧 Equipando Inventario Masivo...");
     const inventoryList = [
-        { name: "Cinta de Correr", brand: "LifeFitness", type: "Cardio", count: 10 },
-        { name: "Elíptica", brand: "Technogym", type: "Cardio", count: 8 },
-        { name: "Bicicleta Estática", brand: "Schwinn", type: "Cardio", count: 8 },
-        { name: "Press Banca", brand: "Hammer Strength", type: "Fuerza", count: 4 },
-        { name: "Prensa de Piernas", brand: "Cybex", type: "Fuerza", count: 2 },
-        { name: "Polea Alta", brand: "Technogym", type: "Fuerza", count: 3 },
+        { name: "Cinta de Correr Pro", brand: "LifeFitness", type: "Cardio", count: 8 },
+        { name: "Elíptica Avanzada", brand: "Technogym", type: "Cardio", count: 6 },
+        { name: "Bicicleta Estática", brand: "Schwinn", type: "Cardio", count: 10 },
+        { name: "Press Banca Olímpico", brand: "Hammer Strength", type: "Fuerza", count: 4 },
+        { name: "Prensa de Piernas 45°", brand: "Cybex", type: "Fuerza", count: 3 },
+        { name: "Polea Cruzada", brand: "Technogym", type: "Fuerza", count: 2 },
         { name: "Smith Machine", brand: "Precor", type: "Fuerza", count: 2 },
-        { name: "Rack de Mancuernas", brand: "Rogue", type: "Peso Libre", count: 3 },
-        { name: "Banco Ajustable", brand: "Rogue", type: "Peso Libre", count: 6 },
-        { name: "Remo Concept2", brand: "Concept2", type: "Cardio", count: 4 },
+        { name: "Set Mancuernas 5-50kg", brand: "Rogue", type: "Peso Libre", count: 2 },
+        { name: "Banco Ajustable", brand: "Rogue", type: "Peso Libre", count: 8 },
+        { name: "Remo Concept2", brand: "Concept2", type: "Cardio", count: 5 },
     ];
 
     const machinesBuffer = [];
     for (const item of inventoryList) {
         for (let i = 1; i <= item.count; i++) {
-            const isBroken = Math.random() > 0.9; // 10% probabilidad fallo
+            const isBroken = Math.random() > 0.92;
             machinesBuffer.push({
                 nombre: `${item.name} #${i}`,
                 marca: item.brand,
                 codigo_serie: `${item.brand.substring(0,2).toUpperCase()}-${Math.floor(Math.random()*10000)}`,
                 estado: isBroken ? 'en_mantencion' : 'operativa',
-                fecha_adquisicion: getHistoricalDate(1, 3),
+                fecha_adquisicion: getHistoricalDate(1, 4),
                 id_administrador: adminProfile.id
             });
         }
     }
     await sql`INSERT INTO maquinas ${sql(machinesBuffer, "nombre", "marca", "codigo_serie", "estado", "fecha_adquisicion", "id_administrador")}`;
 
+    // 6. BIBLIOTECA DE EJERCICIOS
+    console.log("🏋️ Creando Biblioteca de Ejercicios...");
+    const ejerciciosDb = [
+        { nombre: "Press de Banca Plano", grupo_muscular: "Pecho", descripcion: "Ejercicio compuesto para desarrollar fuerza en el pectoral mayor." },
+        { nombre: "Sentadilla Libre", grupo_muscular: "Piernas", descripcion: "Rey de los ejercicios de piernas, enfocado en cuádriceps y glúteos." },
+        { Dominadas: "Dominadas Supinas", grupo_muscular: "Espalda", descripcion: "Ejercicio de tracción vertical para dorsales y bíceps." },
+        { nombre: "Peso Muerto Convencional", grupo_muscular: "Espalda", descripcion: "Ejercicio fundamental para la cadena posterior completa." },
+        { nombre: "Press Militar con Barra", grupo_muscular: "Hombros", descripcion: "Empuje vertical para el desarrollo de los deltoides." },
+        { nombre: "Curl de Bíceps con Barra", grupo_muscular: "Brazos", descripcion: "Aislamiento clásico para el desarrollo del bíceps." },
+        { nombre: "Extensión de Tríceps en Polea", grupo_muscular: "Brazos", descripcion: "Aislamiento para las tres cabezas del tríceps." },
+        { nombre: "Prensa de Piernas", grupo_muscular: "Piernas", descripcion: "Máquina de empuje para hipertrofia del tren inferior." },
+        { nombre: "Remo con Barra", grupo_muscular: "Espalda", descripcion: "Tracción horizontal pesada para grosor de la espalda." },
+        { nombre: "Hip Thrust", grupo_muscular: "Piernas", descripcion: "Ejercicio por excelencia para el aislamiento de glúteos." },
+        { nombre: "Elevaciones Laterales", grupo_muscular: "Hombros", descripcion: "Aislamiento para el deltoides lateral." },
+        { nombre: "Crunch Abdominal", grupo_muscular: "Core", descripcion: "Contracción clásica para el recto abdominal." }
+    ].map(e => ({ nombre: e.nombre || 'Dominadas', grupo_muscular: e.grupo_muscular, descripcion: e.descripcion })); // Normalización rápida
+    
+    await sql`INSERT INTO ejercicios ${sql(ejerciciosDb, "nombre", "grupo_muscular", "descripcion")}`;
+
+    // 7. HISTORIAL DE REPORTES (Auditoría Administrativa)
+    console.log("📈 Generando Historial de Reportes...");
+    const reportesBuffer = [];
+    for(let r=0; r<40; r++) {
+        const tiposReporte = ['financiero', 'operativo', 'inventario', 'asistencia'];
+        const tipoD = getRandomItem(tiposReporte);
+        const fechaGeneracion = getHistoricalDate(0, 1);
+        
+        reportesBuffer.push({
+            titulo: `Auditoría ${tipoD.charAt(0).toUpperCase() + tipoD.slice(1)} - ${fechaGeneracion.toLocaleString('es-CL', { month: 'long', year: 'numeric' })}`,
+            tipo: tipoD,
+            contenido: sql.json({ 
+                analisis: "Generado automáticamente por el sistema de auditoría mensual.", 
+                metricas_clave: { transacciones_revisadas: getRandomInt(100, 500), margen_error: "0.2%" },
+                estado: "Aprobado"
+            }),
+            id_administrador: adminProfile.id,
+            fecha_generacion: fechaGeneracion
+        });
+    }
+    await sql`INSERT INTO reportes ${sql(reportesBuffer, "titulo", "tipo", "contenido", "id_administrador", "fecha_generacion")}`;
+
     console.log("==========================================");
     console.log("✅ SIEMBRA COMPLETADA EXITOSAMENTE");
-    console.log(`📊 Asistencias: ${totalAsistencias}`);
-    console.log(`🔧 Máquinas: ${machinesBuffer.length}`);
-    console.log(`📈 Medidas Físicas: Simuladas en el tiempo`);
+    console.log(`📊 Clientes VIP: 150 (con hábitos asignados)`);
+    console.log(`💳 Asistencias Orgánicas Simuladas: ${totalAsistencias}`);
+    console.log(`🏋️ Ejercicios en Biblioteca: ${ejerciciosDb.length}`);
+    console.log(`📈 Reportes Históricos Generados: ${reportesBuffer.length}`);
     console.log("==========================================");
   } catch (error) {
     console.error("❌ Error fatal en el seed:", error);

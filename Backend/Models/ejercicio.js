@@ -1,12 +1,4 @@
-import postgres from "postgres";
-
-// Configuración de la conexión a la base de datos
-const sql = postgres({
-  host: process.env.DB_HOST,
-  username: process.env.DB_USER,
-  password: process.env.DB_PASS,
-  database: process.env.DB_NAME,
-});
+import { sql } from "../bd.js";
 
 export class EjercicioModel {
   static async getAll() {

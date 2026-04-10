@@ -1,12 +1,4 @@
-import postgres from "postgres";
-import { success } from "zod";
-
-const sql = postgres({
-  host: process.env.DB_HOST,
-  username: process.env.DB_USER,
-  password: process.env.DB_PASS,
-  database: process.env.DB_NAME,
-});
+import { sql } from "../bd.js";
 
 export class RutinaModel {
   // 1. CREAR RUTINA COMPLETA

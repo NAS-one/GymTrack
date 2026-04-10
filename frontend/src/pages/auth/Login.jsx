@@ -2,6 +2,8 @@ import { useState } from 'react';
 import axios from '../../api/axios';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/useAuth';
+import { ExpiredPasswordModal } from '../../components/Auth/ExpiredPasswordModal';
+import { TwoFactorModal } from '../../components/Auth/TwoFactorModal';
 // Importamos iconos
 import { HiEye, HiEyeOff } from 'react-icons/hi';
 import { BiDumbbell } from 'react-icons/bi';
@@ -16,6 +18,12 @@ export function Login() {
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false); // Estado de carga visual
     const [loginMethod, setLoginMethod] = useState('email'); // 'email' | 'qr'
+    const [show2FAModal, setShow2FAModal] = useState(false);
+    const [twoFactorData, setTwoFactorData] = useState(null);
+
+    //  ESTADOS DEL MODAL DE POLÍTICAS DE SEGURIDAD
+    const [showExpiredModal, setShowExpiredModal] = useState(false);
+    const [tempCredentials, setTempCredentials] = useState(null);
 
     const navigate = useNavigate();
 
@@ -41,8 +49,25 @@ export function Login() {
             }
         } catch (err) {
             console.error(err);
-            if (err.response && err.response.data && err.response.data.body) {
-                setError(err.response.data.body);
+            // 🌟 1. ATRApar EXCEPCIÓN: Caducidad de Contraseña (90 días)
+            if (err.response?.status === 403 && err.response?.data?.body?.requirePasswordChange) {
+                setTempCredentials({ username, password });
+                setShowExpiredModal(true);
+            }
+            // 🌟 2. NUEVO: ATRApar EXCEPCIÓN: Verificación en 2 Pasos (2FA)
+            else if (err.response?.status === 403 && err.response?.data?.body?.require2FA) {
+                // Guardamos el userId y el email que nos manda el backend
+                setTwoFactorData({
+                    userId: err.response.data.body.userId,
+                    email: err.response.data.body.email
+                });
+                setShow2FAModal(true); // Abrimos el modal azul de los 6 dígitos
+            }
+            // Manejo de errores normales (Credenciales inválidas, cuenta desactivada, etc.)
+            else if (err.response && err.response.data && err.response.data.body) {
+                // Extraemos el mensaje, ya sea que venga como objeto o como string
+                const errorMessage = err.response.data.body.message || err.response.data.body;
+                setError(typeof errorMessage === 'string' ? errorMessage : 'Error de autenticación');
             } else {
                 setError('No se pudo conectar con el servidor');
             }
@@ -51,14 +76,12 @@ export function Login() {
         }
     };
 
-
-
     return (
         // FONDO: Degradado oscuro sutil y profesional
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-zinc-950 via-black to-zinc-900 text-white font-sans selection:bg-orange-500 selection:text-white p-4">
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-zinc-950 via-black to-zinc-900 text-white font-sans selection:bg-orange-500 selection:text-white p-4 relative">
 
             {/* TARJETA PRINCIPAL: Efecto Glassmorphism sutil */}
-            <div className="w-full max-w-[420px] bg-zinc-900/50 backdrop-blur-xl border border-white/5 rounded-3xl p-8 shadow-2xl shadow-black/50 animate-fade-in-up">
+            <div className="w-full max-w-[420px] bg-zinc-900/50 backdrop-blur-xl border border-white/5 rounded-3xl p-8 shadow-2xl shadow-black/50 animate-fade-in-up z-10">
 
                 {/* HEADER: Logo y Bienvenida */}
                 <div className="text-center mb-8">
@@ -70,7 +93,7 @@ export function Login() {
                 </div>
 
                 {/* TABS DE MÉTODOS DE INICIO DE SESIÓN */}
-                <div className="flex bg-zinc-950/50 rounded-xl p-1 mb-6 border border-zinc-800/50 relative z-10 p-1">
+                <div className="flex bg-zinc-950/50 rounded-xl p-1 mb-6 border border-zinc-800/50 relative z-10">
                     <button
                         type="button"
                         onClick={() => setLoginMethod('email')}
@@ -101,7 +124,6 @@ export function Login() {
                     </div>
                 ) : (
                     <div className="animate-fade-in-up">
-
 
                         {/* FORMULARIO */}
                         <form onSubmit={handleLogin} className="space-y-5">
@@ -171,9 +193,47 @@ export function Login() {
             </div>
 
             {/* Footer Branding sutil */}
-            <div className="fixed bottom-4 text-zinc-700 text-[10px] font-medium tracking-widest uppercase">
+            <div className="fixed bottom-4 text-zinc-700 text-[10px] font-medium tracking-widest uppercase z-0">
                 Powered by GymTrack System
             </div>
+
+            <ExpiredPasswordModal
+                isOpen={showExpiredModal}
+                userCredentials={tempCredentials}
+                onComplete={(data) => {
+                    // 1. Cerramos el modal
+                    setShowExpiredModal(false);
+
+                    // 2. Iniciamos sesión en el sistema con los datos devueltos
+                    login(data.user, data.token);
+
+                    // 3. Redirección inteligente
+                    if (data.user.role === 'cliente') {
+                        navigate('/client/dashboard');
+                    } else if (data.user.role === 'administrador' || data.user.role === 'recepcionista') {
+                        navigate('/dashboard');
+                    } else {
+                        navigate('/');
+                    }
+                }}
+            />
+
+            <TwoFactorModal
+                isOpen={show2FAModal}
+                onClose={() => setShow2FAModal(false)}
+                data={twoFactorData}
+                onComplete={(data) => {
+                    // data trae { user, token } desde verify2FA
+                    setShow2FAModal(false);
+                    login(data.user, data.token);
+
+                    if (data.user.role === 'cliente') {
+                        navigate('/client/dashboard');
+                    } else {
+                        navigate('/dashboard');
+                    }
+                }}
+            />
 
         </div>
     );

@@ -1,14 +1,4 @@
-// Models/administrador.js
-//Es el único que sabe SQL, Gestiona la Transacción.
-import postgres from "postgres";
-
-// 1. Configuración de conexión (usando variables de entorno).
-const sql = postgres({
-  host: process.env.DB_HOST,
-  username: process.env.DB_USER,
-  password: process.env.DB_PASS,
-  database: process.env.DB_NAME,
-});
+import { sql } from "../bd.js";
 
 export class AdministradorModel {
   //1. Crear un nuevo administrador con su usuario asociado.

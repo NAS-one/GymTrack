@@ -1,11 +1,4 @@
-import postgres from "postgres";
-
-const sql = postgres({
-  host: process.env.DB_HOST,
-  username: process.env.DB_USER,
-  password: process.env.DB_PASS,
-  database: process.env.DB_NAME,
-});
+import { sql } from "../bd.js";
 
 // --- HELPER: Formateador RUT (Visual) ---
 const formatearRut = (rutRaw) => {

@@ -1,5 +1,5 @@
 import { success, error } from "../Utils/responses.js";
-import { sendNotification } from "../Utils/sse.js";
+import { dispararAlertaStaff } from "../Utils/alertas.js";
 
 // Cache en memoria para evitar spam de escaneos (Rate Limiting)
 const recentScans = new Map();
@@ -17,8 +17,13 @@ export class AsistenciaController {
             const resultado = await this.AsistenciaModel.registrarNuevoAcceso(identificador);
 
             if (resultado.estado_acceso === "aprobado") {
+                // 🌟 CORREGIDO: Usamos "ingreso_exitoso" para que el toast sea Verde
+                dispararAlertaStaff("Acceso Permitido", `${resultado.nombre} ha ingresado correctamente.`, "ingreso_exitoso");
                 return success(req, res, resultado, 200);
             }
+
+            // 🌟 CORREGIDO: Usamos "ingreso_denegado" para que el toast sea Rojo
+            dispararAlertaStaff("ACCESO DENEGADO", `${resultado.nombre}: ${resultado.mensaje || 'Consulte en recepción'}`, "ingreso_denegado");
 
             return res.status(200).json({
                 error: true,
@@ -27,6 +32,9 @@ export class AsistenciaController {
             });
         } catch (e) {
             if (e.message === "USUARIO_NO_ENCONTRADO") {
+                // 🌟 CORREGIDO: Usamos "alerta_sistema" para Naranja/Advertencia
+                dispararAlertaStaff("USUARIO DESCONOCIDO", `Intento de acceso con identificador no registrado: ${identificador}`, "alerta_sistema");
+
                 return res.status(200).json({
                     error: true,
                     body: {
@@ -61,7 +69,6 @@ export class AsistenciaController {
 
         try {
             // 2. Registrar el acceso en la DB
-            // El modelo ya sabe buscar por id_usuario si le pasamos el string/numero
             const resultado = await this.AsistenciaModel.registrarNuevoAcceso(id_usuario.toString());
 
             // Actualizamos el cache de escáner
@@ -69,20 +76,11 @@ export class AsistenciaController {
 
             // 3. Empujar Notificación en Tiempo Real al Administrador (SSE)
             if (resultado.estado_acceso === "aprobado") {
-                sendNotification({
-                    type: 'success',
-                    title: 'Nuevo Ingreso',
-                    message: `${resultado.nombre} acaba de hacer check-in. ¡Pase libre!`,
-                    data: resultado
-                });
+                // 🌟 CORREGIDO
+                dispararAlertaStaff("Nuevo Ingreso", `${resultado.nombre} acaba de hacer check-in. ¡Pase libre!`, "ingreso_exitoso");
             } else {
-                // Opcional: Notificar denegados también
-                sendNotification({
-                    type: 'error',
-                    title: 'Acceso Denegado',
-                    message: `${resultado.nombre} intentó ingresar. ${resultado.mensaje}`,
-                    data: resultado
-                });
+                // 🌟 CORREGIDO
+                dispararAlertaStaff("Acceso Denegado", `${resultado.nombre} intentó ingresar. ${resultado.mensaje}`, "ingreso_denegado");
             }
 
             // 4. Responder al celular del cliente
@@ -102,7 +100,7 @@ export class AsistenciaController {
 
     getAll = async (req, res) => {
         try {
-            const { year, month, day, type } = req.query; // Leemos 'type' también
+            const { year, month, day, type } = req.query; 
             const logs = await this.AsistenciaModel.getAll({ year, month, day, type });
             success(req, res, logs, 200);
         } catch (e) {

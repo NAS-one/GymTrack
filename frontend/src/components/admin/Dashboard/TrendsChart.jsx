@@ -1,6 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'sonner';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend
@@ -141,15 +140,12 @@ export function TrendsChart({ data }) {
       const monthNumber = monthMap[clickedLabel];
 
       if (!monthNumber) {
-        toast.error(`No se pudo procesar el período: ${clickedLabel}`);
         return;
       }
 
       if (activeTab === 'attendance') {
-        toast.loading('Analizando registros de asistencia...');
         navigate(`/asistencia-historial?year=${selectedYear}&month=${monthNumber}`);
       } else if (activeTab === 'revenue') {
-        toast.loading('Extrayendo historial financiero...');
         navigate(`/finanzas?year=${selectedYear}&month=${monthNumber}`);
       }
 
@@ -175,7 +171,6 @@ export function TrendsChart({ data }) {
 
   const handlePieClick = (data) => {
     if (!data) return;
-    toast.loading(`Filtrando membresías: ${data.name}...`);
     navigate(`/planes?plan=${data.name}`);
   };
 
