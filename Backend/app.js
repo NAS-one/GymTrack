@@ -2,14 +2,14 @@ import express, { json } from "express";
 import { corsMiddleware } from "./Middlewares/cors.js";
 import morgan from "morgan";
 
-import { createAuthRouter } from "./Routes/auth.js"; // Importar el router de Auth
-import { createEntrenadorRouter } from "./Routes/entrenadores.js"; // Importar el router de Entrenadores
-import { createClienteRouter } from "./Routes/clientes.js"; // Importar el router de Clientes
-import { createAdministradorRouter } from "./Routes/administradores.js"; // Importar el router de Administradores
-import { createMembresiaRouter } from "./Routes/membresias.js"; // Importar el router de Membresías
-import { createPagoRouter } from "./Routes/pagos.js"; // Importar el router de Pagos
-import { createEjercicioRouter } from "./Routes/ejercicios.js"; // <--- Importar el router de Ejercicios
-import { createRutinaRouter } from "./Routes/rutinas.js"; // <--- Importar el router de Rutinas
+import { createAuthRouter } from "./Routes/auth.js";
+import { createEntrenadorRouter } from "./Routes/entrenadores.js";
+import { createClienteRouter } from "./Routes/clientes.js";
+import { createAdministradorRouter } from "./Routes/administradores.js";
+import { createMembresiaRouter } from "./Routes/membresias.js";
+import { createPagoRouter } from "./Routes/pagos.js";
+import { createEjercicioRouter } from "./Routes/ejercicios.js";
+import { createRutinaRouter } from "./Routes/rutinas.js";
 import { createAsistenciaRouter } from "./Routes/asistencia.js";
 import { createMedidaRouter } from "./Routes/medidas.js";
 import { createProgresoRouter } from "./Routes/progreso.js";
@@ -18,7 +18,9 @@ import { createReporteRouter } from "./Routes/reportes.js";
 import { createDashboardRouter } from "./Routes/dashboard.js";
 import { createPlanRouter } from "./Routes/planes.js";
 import { createColaboradorRouter } from "./Routes/colaboradores.js";
-import { createNotificationRouter } from "./Routes/notifications.js"; // <--- SSE Streams
+import { createPerfilRouter } from "./Routes/perfil.js";
+import { createConfiguracionRouter } from "./Routes/configuracion.js";
+import { createNotificacionesRouter } from "./Routes/notificaciones.js";
 
 // Actualizamos la función para recibir UserModel
 export const createApp = ({
@@ -38,6 +40,8 @@ export const createApp = ({
     PlanModel,
     DashboardModel,
     ColaboradorModel,
+    PerfilModel,
+    ConfiguracionModel,
 }) => {
     const app = express();
     app.disable("x-powered-by");
@@ -65,10 +69,13 @@ export const createApp = ({
     app.use("/dashboard", createDashboardRouter({ DashboardModel }));
     app.use("/planes", createPlanRouter({ PlanModel }));
     app.use("/staff", createColaboradorRouter({ ColaboradorModel })); // Usaremos /staff como ruta
-    app.use("/notifications", createNotificationRouter()); // <--- MONTADO EL SSE ROUTER
+    app.use("/perfil", createPerfilRouter(PerfilModel));
+    app.use("/configuracion", createConfiguracionRouter(ConfiguracionModel));
+    app.use("/notificaciones", createNotificacionesRouter());
 
+    
     const PORT = process.env.PORT || 3000; // Puerto estándar 3000
     app.listen(PORT, () => {
-        console.log(`💪 GymTrack corriendo en http://localhost:${PORT}`);
+        console.log(`GymTrack corriendo en http://localhost:${PORT}`);
     });
 };

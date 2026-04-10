@@ -35,7 +35,7 @@ export function Equipo() {
         fetchData();
     }, []);
 
-    // --- PETICIONES A LA API (BLINDADO CONTRA ERRORES) ---
+    // --- PETICIONES A LA API---
     const fetchData = async () => {
         try {
             setLoading(true);

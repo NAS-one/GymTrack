@@ -113,7 +113,47 @@ export function Clientes() {
     });
   };
 
-  // MOTOR DE EXPORTACIÓN (Conectado al endpoint oficial de reportes)
+  // --- HERRAMIENTA DE DESCARGA CSV ---
+  const descargarCSV = (reporte) => {
+    try {
+      // Nos aseguramos de que el contenido sea un array de objetos
+      const datos = typeof reporte.contenido === 'string' ? JSON.parse(reporte.contenido) : reporte.contenido;
+
+      if (!datos || !Array.isArray(datos) || datos.length === 0) {
+        return toast.error("El reporte está vacío, no hay datos para exportar.");
+      }
+
+      // Extraemos los encabezados (las llaves del primer objeto)
+      const headers = Object.keys(datos[0]);
+
+      // Construimos las filas del CSV
+      const csvContent = [
+        headers.join(","), // Fila 1: Encabezados
+        ...datos.map(row =>
+          headers.map(header => `"${row[header] ? String(row[header]).replace(/"/g, '""') : ''}"`).join(",")
+        ) // Fila 2+: Datos
+      ].join("\n");
+
+      // Truco para que Excel lea la Ñ y los tildes correctamente (\uFEFF)
+      const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      // Limpiamos el título para que sea un nombre de archivo válido
+      const nombreArchivo = reporte.titulo.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+      link.setAttribute("download", `${nombreArchivo}.csv`);
+
+      // Forzamos la descarga oculta
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error("Error al generar CSV:", error);
+      toast.error("Ocurrió un problema al construir el archivo descargable.");
+    }
+  };
+
+  // --- MOTOR DE EXPORTACIÓN ---
   const handleExportAndSave = async () => {
     if (filteredClients.length === 0) {
       return toast.warning("No hay datos en pantalla para exportar");
@@ -140,7 +180,7 @@ export function Clientes() {
       const formData = {
         titulo: tituloReporte,
         tipo: 'clientes',
-        datosPreCargados: datosListos // 👈 Magia: El backend ya no tiene que buscar en SQL
+        datosPreCargados: datosListos
       };
 
       const response = await axios.post('/reportes', formData);
@@ -148,15 +188,21 @@ export function Clientes() {
 
       toast.success("Directorio archivado en el Historial", { id: toastId });
 
-      if (nuevoReporte && nuevoReporte.contenido) {
-        descargarCSV(nuevoReporte);
+      // 4. Detonamos la descarga en el navegador
+      if (nuevoReporte) {
+        descargarCSV({
+          titulo: nuevoReporte.titulo || formData.titulo,
+          contenido: nuevoReporte.contenido || formData.datosPreCargados
+        });
       }
     } catch (error) {
       console.error(error);
-      const mensajeBackend = error.response?.data?.error || "Error al procesar el documento";
+      const mensajeBackend = error.response?.data?.error || "Error al procesar el documento. Verifica los permisos.";
       toast.error(mensajeBackend, { id: toastId });
     }
   };
+
+
   // --- HELPERS ---
   const getRealStatus = (client) => {
     if (!client.estado_membresia) return 'none';

@@ -97,6 +97,12 @@ docker-compose up -d --build backend
 docker-compose down
 ```
 
+## Apagar los contenedores.
+
+```bash
+docker-compose stop frontend backend
+```
+
 > Para detener y eliminar los contenedores y la base de datos:
 
 ```bash
@@ -130,7 +136,7 @@ npm -v
 2. Instalar dependencias:
 
 ```bash
-npm install express zod postgres cors bcrypt jsonwebtoken cookie-parser dotenv morgan
+npm install express zod postgres cors bcrypt jsonwebtoken cookie-parser dotenv morgan nodemailer
 ```
 
 3. Instalar dependencias de desarrollo:

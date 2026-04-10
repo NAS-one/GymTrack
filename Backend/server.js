@@ -15,6 +15,9 @@ import { ReporteModel } from "./Models/reporte.js";
 import { PlanModel } from "./Models/plan.js";
 import { DashboardModel } from "./Models/dashboard.js";
 import { ColaboradorModel } from "./Models/colaborador.js"; // <--- IMPORTAR
+import { PerfilModel } from "./Models/perfil.js";
+import { ConfiguracionModel } from "./Models/configuracion.js";
+
 
 // Inyectamos el modelo de usuarios
 createApp({
@@ -34,4 +37,6 @@ createApp({
   PlanModel,
   DashboardModel,
   ColaboradorModel,
+  PerfilModel,
+  ConfiguracionModel,
 });

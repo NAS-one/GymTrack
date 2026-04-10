@@ -11,6 +11,8 @@ export const createAuthRouter = ({ UserModel }) => {
   authRouter.post("/register", authController.register);
   authRouter.post("/login", authController.login);
   authRouter.post("/activate", authController.activateAccount);
+  authRouter.post("/force-password-change", authController.forcePasswordChange);
+  authRouter.post("/verify-2fa", authController.verify2FA);
 
 
   return authRouter;
