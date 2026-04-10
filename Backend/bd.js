@@ -12,7 +12,17 @@ export const sql = postgres({
   username: process.env.DB_USER,
   password: process.env.DB_PASS,
   database: process.env.DB_NAME,
-  port: process.env.DB_PORT || 5432, // Buena práctica agregar el puerto
+  port: process.env.DB_PORT || 5432,
+  // Evitar que el driver convierta timestamps a Date de JavaScript (causa desfase de zona horaria)
+  types: {
+    // OID 1114 = TIMESTAMP WITHOUT TIME ZONE → devolver como string crudo
+    1114: {
+      to: 1114,
+      from: [1114],
+      serialize: (x) => x,
+      parse: (x) => x, // Devuelve el string tal cual viene de PostgreSQL
+    },
+  },
 });
 
 // Opcional: Un log para saber si conectó (solo visual)

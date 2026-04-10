@@ -12,9 +12,10 @@ const detalleSchema = z.object({
 // 2. Esquema para la Rutina COMPLETA (Cabecera + Detalles)
 const rutinaSchema = z.object({
   nombre: z.string().min(3),
-  id_cliente: z.string().uuid(),
+  id_cliente: z.string().uuid().nullable().optional(),
   id_entrenador: z.string().uuid(),
   activa: z.boolean().optional(),
+  es_plantilla: z.boolean().optional(),
 
   // Aquí validamos el array de detalles
   detalles: z

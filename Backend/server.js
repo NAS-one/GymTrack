@@ -18,6 +18,7 @@ import { ColaboradorModel } from "./Models/colaborador.js"; // <--- IMPORTAR
 import { PerfilModel } from "./Models/perfil.js";
 import { ConfiguracionModel } from "./Models/configuracion.js";
 
+import { SesionModel } from "./Models/sesion.js";
 
 // Inyectamos el modelo de usuarios
 createApp({
@@ -39,4 +40,5 @@ createApp({
   ColaboradorModel,
   PerfilModel,
   ConfiguracionModel,
+  SesionModel,
 });

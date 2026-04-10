@@ -21,6 +21,8 @@ import { createColaboradorRouter } from "./Routes/colaboradores.js";
 import { createPerfilRouter } from "./Routes/perfil.js";
 import { createConfiguracionRouter } from "./Routes/configuracion.js";
 import { createNotificacionesRouter } from "./Routes/notificaciones.js";
+import { createNotificationRouter } from "./Routes/notifications.js";
+import { createSesionRouter } from "./Routes/sesiones.js";
 
 // Actualizamos la función para recibir UserModel
 export const createApp = ({
@@ -42,15 +44,36 @@ export const createApp = ({
     ColaboradorModel,
     PerfilModel,
     ConfiguracionModel,
-}) => {
-    const app = express();
-    app.disable("x-powered-by");
-    app.use(json());
-    app.use(corsMiddleware());
-    app.use(morgan("dev"));
 
-    // Ruta base de prueba
-    app.get("/", (req, res) => res.send("GymTrack API v1.0 funcionando 🚀"));
+
+// Actualizamos la función para recibir UserModel
+export const createApp = ({
+  UserModel,
+  EntrenadorModel,
+  ClienteModel,
+  AdministradorModel,
+  MembresiaModel,
+  PagoModel,
+  EjercicioModel,
+  RutinaModel,
+  AsistenciaModel,
+  MedidaModel,
+  ProgresoModel,
+  MaquinaModel,
+  ReporteModel,
+  PlanModel,
+  DashboardModel,
+  ColaboradorModel,
+  SesionModel,
+}) => {
+  const app = express();
+  app.disable("x-powered-by");
+  app.use(json());
+  app.use(corsMiddleware());
+  app.use(morgan("dev"));
+
+  // Ruta base de prueba
+  app.get("/", (req, res) => res.send("GymTrack API v1.0 funcionando 🚀"));
 
     // Montar los routers con los modelos inyectados
     app.use("/auth", createAuthRouter({ UserModel })); // Inyectamos UserModel
@@ -72,10 +95,12 @@ export const createApp = ({
     app.use("/perfil", createPerfilRouter(PerfilModel));
     app.use("/configuracion", createConfiguracionRouter(ConfiguracionModel));
     app.use("/notificaciones", createNotificacionesRouter());
+    app.use("/notifications", createNotificationRouter()); // <--- MONTADO EL SSE ROUTER
+    app.use("/sesiones", createSesionRouter({ SesionModel }));
 
-    
-    const PORT = process.env.PORT || 3000; // Puerto estándar 3000
-    app.listen(PORT, () => {
-        console.log(`GymTrack corriendo en http://localhost:${PORT}`);
-    });
+
+  const PORT = process.env.PORT || 3000; // Puerto estándar 3000
+  app.listen(PORT, () => {
+    console.log(`💪 GymTrack corriendo en http://localhost:${PORT}`);
+  });
 };

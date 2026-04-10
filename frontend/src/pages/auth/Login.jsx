@@ -38,12 +38,14 @@ export function Login() {
             login(user, token);
 
             // Redirección inteligente según el rol del usuario
-            if (user.role === 'cliente') {
+            if (user.role === 'entrenador') {
+                navigate('/entrenador/dashboard');
+            } else if (user.role === 'cliente') {
                 navigate('/client/dashboard');
             } else if (user.role === 'administrador' || user.role === 'recepcionista') {
                 navigate('/dashboard');
             } else {
-                navigate('/'); // O a tu página por defecto
+                navigate('/'); // Fallback al login
             }
         } catch (err) {
             console.error(err);

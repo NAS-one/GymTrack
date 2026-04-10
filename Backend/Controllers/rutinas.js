@@ -72,4 +72,59 @@ export class RutinaController {
       error(req, res, "Error interno", 500);
     }
   };
+
+  update = async (req, res) => {
+    try {
+      const { id } = req.params;
+      await this.RutinaModel.update({ id, input: req.body });
+      res.json({ message: "Rutina actualizada correctamente" });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: error.mensaje });
+    }
+  };
+
+  //Obtenemos todas las plantillas creadas por el entrenador logueado
+  getPlantillas = async (req, res) => {
+    try {
+      //Usamos el id_usuario del token
+      const id_usuario = req.user.id;
+      const plantillas = await this.RutinaModel.getPlantillas({
+        id_entrenador: id_usuario,
+      });
+
+      res.json({ body: plantillas });
+    } catch (error) {
+      console.error("Error al obtener las plantillas:", error);
+      res.status(500).json({ error: "Error interno del servidor" });
+    }
+  };
+  // Eliminar una rutina
+  delete = async (req, res) => {
+    try {
+      const { id } = req.params;
+      await this.RutinaModel.delete({ id });
+      res.json({ message: "Rutina eliminada correctamente" });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  };
+
+  // Clonar plantilla a un alumno
+  asignarPlantilla = async (req, res) => {
+    try {
+      const { id_plantilla } = req.params;
+      const { id_cliente } = req.body;
+
+      if (!id_cliente) {
+        return res.status(400).json({ error: "Debes seleccionar un cliente" });
+      }
+
+      await this.RutinaModel.asignarPlantilla({ id_plantilla, id_cliente });
+      res.json({ message: "Plantilla asignada exitosamente al alumno" });
+    } catch (error) {
+      console.error("Error al asignar:", error);
+      res.status(500).json({ error: error.message });
+    }
+  };
 }

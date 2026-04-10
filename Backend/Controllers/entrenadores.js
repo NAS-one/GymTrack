@@ -22,7 +22,7 @@ export class EntrenadorController {
     }
   };
 
-// 2. CREAR
+  // 2. CREAR
   create = async (req, res) => {
     // Validar con Zod
     const result = validateEntrenador(req.body);
@@ -42,7 +42,7 @@ export class EntrenadorController {
     } catch (e) {
       // 🔍 DIAGNÓSTICO EN TERMINAL (Esto te ayudará a ver el nombre real)
       console.error("--- ERROR AL CREAR ENTRENADOR ---");
-      console.error("Código SQL:", e.code); 
+      console.error("Código SQL:", e.code);
       console.error("Constraint:", e.constraint_name);
       console.error("Detalle:", e.detail);
       console.error("---------------------------------");
@@ -51,24 +51,33 @@ export class EntrenadorController {
       if (e.code === "23505") {
         // Concatenamos todo el texto del error y lo pasamos a minúsculas para buscar mejor
         const errorInfo = (
-            (e.constraint_name || "") + 
-            (e.detail || "") + 
-            (e.message || "")
+          (e.constraint_name || "") +
+          (e.detail || "") +
+          (e.message || "")
         ).toLowerCase();
 
         // 1. Detección de RUT duplicado
         if (errorInfo.includes("rut")) {
-          return res.status(409).json({ error: "Este RUT ya está registrado en el sistema." });
+          return res
+            .status(409)
+            .json({ error: "Este RUT ya está registrado en el sistema." });
         }
 
         // 2. Detección de Email duplicado
         if (errorInfo.includes("email")) {
-          return res.status(409).json({ error: "Este correo electrónico ya está registrado." });
+          return res
+            .status(409)
+            .json({ error: "Este correo electrónico ya está registrado." });
         }
-        
+
         // 3. Detección de Username duplicado (colisión en tabla usuarios)
-        if (errorInfo.includes("username") || errorInfo.includes("usuarios_username_key")) {
-             return res.status(409).json({ error: "El correo genera un usuario que ya existe." });
+        if (
+          errorInfo.includes("username") ||
+          errorInfo.includes("usuarios_username_key")
+        ) {
+          return res
+            .status(409)
+            .json({ error: "El correo genera un usuario que ya existe." });
         }
       }
 
@@ -141,11 +150,98 @@ export class EntrenadorController {
         req,
         res,
         { message: `Se migraron ${count} clientes correctamente` },
-        200
+        200,
       );
     } catch (e) {
       console.error(e);
       res.status(500).json({ error: "Error en la migración de cartera" });
+    }
+  };
+
+  //7. Dashboard del entrenador
+  getDashboardSummary = async (req, res) => {
+    try {
+      // 1. Extraemos el id del token (ahora que el guardia ya nos dejó pasar)
+      const id_usuario = req.user?.id || req.user?.id_usuario;
+
+      if (!id_usuario) {
+        return res.status(401).json({ error: "Usuario no autenticado" });
+      }
+
+      // 2. Llamamos al Modelo para que busque los números en PostgreSQL
+      const data = await this.EntrenadorModel.getDashboardSummary({
+        id_usuario,
+      });
+
+      // 3. Si no encuentra a este usuario en la tabla de entrenadores, avisamos
+      if (!data) {
+        return res
+          .status(404)
+          .json({ error: "Perfil de entrenador no encontrado" });
+      }
+
+      // 4. Si todo sale bien, enviamos los datos al Frontend
+      res.json({ body: data });
+    } catch (e) {
+      console.error("Error en getDashboardSummary:", e);
+      res.status(500).json({ error: "Error al cargar datos del panel" });
+    }
+  };
+
+  getMisAlumnos = async (req, res) => {
+    try {
+      const id_usuario = req.user?.id || req.user?.id_usuario;
+      if (!id_usuario)
+        return res.status(401).json({ error: "Usuario no autenticado" });
+
+      const alumnos = await this.EntrenadorModel.getMisAlumnos({ id_usuario });
+      if (!alumnos)
+        return res
+          .status(404)
+          .json({ error: "Perfil de entrenador no encontrado" });
+
+      res.json({ body: alumnos });
+    } catch (e) {
+      console.error("Error en getMisAlumnos:", e);
+      res.status(500).json({ error: "Error al cargar la lista de alumnos" });
+    }
+  };
+
+  getMiPerfil = async (req, res) => {
+    try {
+      const id_usuario = req.user?.id || req.user?.id_usuario;
+      if (!id_usuario)
+        return res.status(401).json({ error: "Usuario no autenticado" });
+
+      const perfil = await this.EntrenadorModel.getMiPerfil({ id_usuario });
+      if (!perfil)
+        return res
+          .status(404)
+          .json({ error: "Perfil de entrenador no encontrado" });
+
+      res.json({ body: perfil });
+    } catch (e) {
+      console.error("Error en getMiPerfil:", e);
+      res.status(500).json({ error: "Error al cargar el perfil" });
+    }
+  };
+
+  getFinanzas = async (req, res) => {
+    try {
+      const id_usuario = req.user?.id || req.user?.id_usuario;
+      if (!id_usuario)
+        return res.status(401).json({ error: "Usuario no autenticado" });
+
+      const data = await this.EntrenadorModel.getFinanzas({ id_usuario });
+      if (!data)
+        return res
+          .status(404)
+          .json({ error: "Perfil del entrenador no encontrado" });
+
+      res.json({ body: data });
+    } catch (e) {
+      console.error("Error en getFinanzas;", e);
+      res.status(500).json({ error: "Error al cargar datos financieros" });
     }
   };
 }

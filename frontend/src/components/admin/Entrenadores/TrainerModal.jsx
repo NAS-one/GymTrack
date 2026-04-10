@@ -205,8 +205,7 @@ export function TrainerModal({ isOpen, onClose, trainerToEdit, onSave }) {
             <div className="grid grid-cols-3 gap-2 mb-4 mt-2">
               {[
                 { id: 'sueldo_fijo', label: 'Sueldo Fijo', color: 'blue' },
-                { id: 'porcentaje', label: '% Comisión', color: 'purple' },
-                { id: 'arriendo_espacio', label: 'Arriendo', color: 'green' }
+                { id: 'porcentaje', label: '% Comisión', color: 'purple' }
               ].map(m => (
                 <button
                   key={m.id} type="button"
@@ -241,17 +240,6 @@ export function TrainerModal({ isOpen, onClose, trainerToEdit, onSave }) {
                   <p className="text-[10px] text-purple-300 mt-2">
                     El entrenador recibe el <b>{((1 - (parseFloat(formData.porcentaje_retencion) || 0)) * 100).toFixed(0)}%</b> de cada clase.
                   </p>
-                </div>
-              )}
-
-              {formData.modelo_contrato === 'arriendo_espacio' && (
-                <div>
-                  <Label text="Tarifa Mensual de Arriendo" />
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-green-500">$</span>
-                    <input type="number" className={`${inputClass()} pl-8 text-green-400 font-bold`} value={formData.tarifa_arriendo} onChange={e => handleChange('tarifa_arriendo', e.target.value)} />
-                  </div>
-                  <p className="text-[10px] text-green-300/70 mt-2">Ingreso fijo mensual para el gimnasio.</p>
                 </div>
               )}
             </div>

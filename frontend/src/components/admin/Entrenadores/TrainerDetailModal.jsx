@@ -138,11 +138,6 @@ export function TrainerDetailModal({ isOpen, onClose, trainerId, allTrainers = [
                                     <span className="text-zinc-500">Gym: {Number(perfil.porcentaje_retencion) * 100}%</span>
                                 </div>
                             </div>
-                        ) : perfil.modelo_contrato === 'arriendo_espacio' ? (
-                            <div className="bg-green-500/10 border border-green-500/20 p-3 rounded-xl text-center">
-                                <p className="text-xs text-green-300 font-bold uppercase mb-1">Arriendo Fijo</p>
-                                <p className="text-xl font-bold text-white">${Number(perfil.tarifa_arriendo).toLocaleString()}</p>
-                            </div>
                         ) : (
                             <div className="bg-blue-500/10 border border-blue-500/20 p-3 rounded-xl text-center">
                                 <p className="text-xs text-blue-300 font-bold uppercase mb-1">Sueldo Base</p>
