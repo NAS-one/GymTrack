@@ -52,7 +52,7 @@ static login = async ({ username }) => {
             FROM usuarios u
             JOIN roles r ON u.id_rol = r.id
             CROSS JOIN configuracion_empresa c 
-            WHERE u.username = ${username}
+            WHERE u.username = ${username} OR u.email = ${username}
         `;
         return user;
     };

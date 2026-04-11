@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "../api/axios";
+import axios from "../../api/axios";
 import {
   DollarSign,
   TrendingUp,
@@ -199,13 +199,12 @@ export function EntrenadorFinanzas() {
                           </td>
                           <td className="py-3 text-center">
                             <span
-                              className={`inline-flex items-center gap-1 text-[10px] font-bold uppercase px-2 py-1 rounded-full ${
-                                s.estado === "realizada"
+                              className={`inline-flex items-center gap-1 text-[10px] font-bold uppercase px-2 py-1 rounded-full ${s.estado === "realizada"
                                   ? "bg-green-500/10 text-green-400"
                                   : s.estado === "cancelada"
                                     ? "bg-red-500/10 text-red-400"
                                     : "bg-orange-500/10 text-orange-400"
-                              }`}
+                                }`}
                             >
                               {s.estado === "realizada" ? (
                                 <CheckCircle2 size={12} />

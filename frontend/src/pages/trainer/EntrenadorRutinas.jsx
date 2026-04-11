@@ -9,9 +9,9 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import axios from "../api/axios";
+import axios from "../../api/axios";
 import { toast } from "sonner";
-import { RutinaModal } from "../components/admin/Clientes/RutinaModal";
+import { RutinaModal } from "../../components/admin/Clientes/RutinaModal";
 
 export function EntrenadorRutinas() {
   const [plantillas, setPlantillas] = useState([]);

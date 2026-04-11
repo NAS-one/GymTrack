@@ -177,8 +177,9 @@ CREATE TABLE rutinas (
     fecha_inicio DATE DEFAULT CURRENT_DATE,
     fecha_fin DATE,
     activa BOOLEAN DEFAULT true,
-    id_cliente UUID NOT NULL REFERENCES clientes(id) ON DELETE CASCADE,
+    id_cliente UUID  DROP NOT NULL REFERENCES clientes(id) ON DELETE CASCADE,
     id_entrenador UUID NOT NULL REFERENCES entrenadores(id) ON DELETE CASCADE,
+    es_plantilla BOOLEAN DEFAULT false,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

@@ -44,28 +44,9 @@ export const createApp = ({
     ColaboradorModel,
     PerfilModel,
     ConfiguracionModel,
-
-
-// Actualizamos la función para recibir UserModel
-export const createApp = ({
-  UserModel,
-  EntrenadorModel,
-  ClienteModel,
-  AdministradorModel,
-  MembresiaModel,
-  PagoModel,
-  EjercicioModel,
-  RutinaModel,
-  AsistenciaModel,
-  MedidaModel,
-  ProgresoModel,
-  MaquinaModel,
-  ReporteModel,
-  PlanModel,
-  DashboardModel,
-  ColaboradorModel,
-  SesionModel,
+    SesionModel,
 }) => {
+  
   const app = express();
   app.disable("x-powered-by");
   app.use(json());

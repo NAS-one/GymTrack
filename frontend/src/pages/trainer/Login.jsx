@@ -1,7 +1,7 @@
 import { useState } from "react";
-import axios from "../api/axios";
+import axios from "../../api/axios";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../contexts/useAuth";
+import { useAuth } from "../../contexts/useAuth";
 // Importamos iconos de la librería que instalaste
 import { FaGoogle } from "react-icons/fa";
 import { HiEye, HiEyeOff } from "react-icons/hi";
