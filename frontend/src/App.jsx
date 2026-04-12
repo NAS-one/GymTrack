@@ -13,7 +13,7 @@ import { EntrenadorLayout } from "./layouts/EntrenadorLayout";
 import { Login } from "./pages/auth/Login";
 import { ActivateAccount } from "./pages/auth/ActivateAccount";
 import { Dashboard as AdminDashboard } from "./pages/admin/Dashboard";
-import { ClientDashboard } from "./pages/client/Dashboard";
+import { ClientDashboard } from "./pages/trainer/Dashboard";
 import { Clientes } from "./pages/admin/Clientes";
 import { Planes } from "./pages/admin/Planes";
 import { Finanzas } from "./pages/admin/Finanzas";
@@ -25,11 +25,11 @@ import { Equipo } from "./pages/admin/Equipo";
 import { Reportes } from "./pages/admin/Reportes";
 
 // Páginas de Entrenador
-import { EntrenadorDashboard } from "./pages/EntrenadorDashboard";
-import { MisAlumnos } from "./pages/MisAlumnos";
+import { EntrenadorDashboard } from "./pages/trainer/EntrenadorDashboard";
+import { MisAlumnos } from "./pages/trainer/MisAlumnos";
 import { AgendaDiaria } from "./components/admin/Entrenadores/AgendaDiaria";
-import { EntrenadorRutinas } from "./pages/EntrenadorRutinas";
-import { EntrenadorFinanzas } from "./pages/EntrenadorFinanzas";
+import { EntrenadorRutinas } from "./pages/trainer/EntrenadorRutinas";
+import { EntrenadorFinanzas } from "./pages/trainer/EntrenadorFinanzas";
 
 function App() {
   return (

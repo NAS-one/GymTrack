@@ -1,11 +1,4 @@
-import postgres from "postgres";
-
-const sql = postgres({
-  host: process.env.DB_HOST,
-  username: process.env.DB_USER,
-  password: process.env.DB_PASS,
-  database: process.env.DB_NAME,
-});
+import { sql } from "../bd.js";
 
 export class EntrenadorModel {
   // 1. OBTENER TODOS (Con cálculo de sueldo inteligente)

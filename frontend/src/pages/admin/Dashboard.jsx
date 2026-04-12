@@ -9,7 +9,7 @@ import { TrendsChart } from '../../components/admin/Dashboard/TrendsChart';
 import { PeakHoursChart } from '../../components/admin/Dashboard/PeakHoursChart';
 import { LiveFeed } from '../../components/admin/Dashboard/Livefeed';
 import { StaffTimeline } from '../../components/admin/Dashboard/StaffTimeline';
-import { formatMoney } from '../../utils/format';
+import { formatMoney } from '../../Utils/format';
 
 export function Dashboard() {
   const [stats, setStats] = useState(null);

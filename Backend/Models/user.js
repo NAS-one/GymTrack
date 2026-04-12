@@ -1,13 +1,4 @@
-// Models/user.js
-import postgres from "postgres";
-
-// Configuración de conexión
-const sql = postgres({
-  host: process.env.DB_HOST,
-  username: process.env.DB_USER,
-  password: process.env.DB_PASS,
-  database: process.env.DB_NAME,
-});
+import { sql } from "../bd.js";
 
 export class UserModel {
   //1. Método para crear un nuevo usuario
@@ -45,42 +36,130 @@ export class UserModel {
       throw new Error("Error al registrar el usuario");
     }
   }
-  //2. Método para buscar un usuario por su nombre de usuario
-  static login = async ({ username }) => {
-    // Buscamos usuario y hacemos JOIN con roles para saber quién es
-    const [user] = await sql`
-      SELECT 
-        u.id, u.username, u.password, u.email, u.estado,
-        r.nombre as role,
-        COALESCE(c.nombre, col.nombre, e.nombre, a.nombre, 'Usuario') as nombre
-      FROM usuarios u
-      JOIN roles r ON u.id_rol = r.id
-      LEFT JOIN clientes c ON u.id = c.id_usuario
-      LEFT JOIN colaboradores col ON u.id = col.id_usuario
-      LEFT JOIN entrenadores e ON u.id = e.id_usuario
-      LEFT JOIN administradores a ON u.id = a.id_usuario
-      WHERE u.username = ${username} OR u.email = ${username}
-    `;
-    // Si no existe, devuelve undefined
-    return user;
-  };
+
+static login = async ({ username }) => {
+        const [user] = await sql`
+            SELECT 
+                u.id, 
+                u.username, 
+                u.password, 
+                u.email, 
+                u.estado, 
+                u.created_at, 
+                u.ultima_actualizacion_password,
+                r.nombre as role,
+                c.politicas_seguridad 
+            FROM usuarios u
+            JOIN roles r ON u.id_rol = r.id
+            CROSS JOIN configuracion_empresa c 
+            WHERE u.username = ${username} OR u.email = ${username}
+        `;
+        return user;
+    };
 
   //3. Método para buscar un usuario por su ID
-  static findById = async ({ id }) => {
-    const [user] = await sql`
-      SELECT * FROM usuarios WHERE id = ${id}
-    `;
-    return user;
-  };
+static findById = async ({ id }) => {
+        const [user] = await sql`
+            SELECT 
+                u.*, 
+                r.nombre as role 
+            FROM usuarios u
+            JOIN roles r ON u.id_rol = r.id
+            WHERE u.id = ${id}
+        `;
+        return user;
+    };
 
   //4. Método para activar cuenta
   static activateAccount = async ({ id, hashedPassword }) => {
     const [updatedUser] = await sql`
       UPDATE usuarios 
-      SET password = ${hashedPassword}, estado = 'active'
+      SET password = ${hashedPassword}, estado = 'active',
+      ultima_actualizacion_password = CURRENT_TIMESTAMP
       WHERE id = ${id} AND estado = 'pendiente'
       RETURNING id, username, email, estado
     `;
     return updatedUser;
   };
+
+  //5. Método para registrar auditoría de sesión
+  static logSession = async ({ id_usuario, ip_address, dispositivo, estado }) => {
+        try {
+            await sql`
+                INSERT INTO auditoria_sesiones (id_usuario, ip_address, dispositivo, estado)
+                VALUES (${id_usuario}, ${ip_address}, ${dispositivo}, ${estado})
+            `;
+        } catch (error) {
+            // Lo envolvemos en un try/catch silencioso para que, 
+            // si falla el log, no le bote el login al usuario.
+            console.error("Error al registrar auditoría:", error);
+        }
+    };
+
+    // Actualizar contraseña y resetear la fecha de expiración
+    static updatePasswordAndResetDate = async ({ id, hashedPassword }) => {
+        const [updatedUser] = await sql`
+            UPDATE usuarios
+            SET 
+                password = ${hashedPassword},
+                ultima_actualizacion_password = CURRENT_TIMESTAMP
+            WHERE id = ${id}
+            RETURNING id
+        `;
+        return updatedUser;
+    };
+
+
+    // ==========================================
+    // MÉTODOS PARA VERIFICACIÓN EN 2 PASOS (2FA)
+    // ==========================================
+
+    // 1. Verificar si el dispositivo es de confianza
+    static isDeviceTrusted = async (id_usuario, dispositivo) => {
+        const [trusted] = await sql`
+            SELECT id FROM auditoria_sesiones 
+            WHERE id_usuario = ${id_usuario} 
+            AND dispositivo = ${dispositivo} 
+            AND dispositivo_confiable = TRUE
+            LIMIT 1
+        `;
+        return !!trusted; // Retorna true si ya existe en la BD como confiable
+    };
+
+    // 2. Guardar el código 2FA con 5 minutos de vida
+    static set2FACode = async (id_usuario, codigo) => {
+        await sql`
+            UPDATE usuarios 
+            SET codigo_2fa = ${codigo}, 
+                expiracion_2fa = CURRENT_TIMESTAMP + INTERVAL '5 minutes'
+            WHERE id = ${id_usuario}
+        `;
+    };
+
+    // 3. Validar si el código ingresado es correcto y no ha caducado
+    static verify2FACode = async (id_usuario, codigo) => {
+        const [user] = await sql`
+            SELECT id FROM usuarios 
+            WHERE id = ${id_usuario} 
+            AND codigo_2fa = ${codigo} 
+            AND expiracion_2fa > CURRENT_TIMESTAMP
+        `;
+        return !!user;
+    };
+
+    // 4. Marcar el dispositivo como confiable y limpiar el código
+    static markDeviceAsTrusted = async (id_usuario, ip_address, dispositivo) => {
+        // A. Limpiamos el código para que no se pueda reusar
+        await sql`
+            UPDATE usuarios 
+            SET codigo_2fa = NULL, expiracion_2fa = NULL 
+            WHERE id = ${id_usuario}
+        `;
+        
+        // B. Registramos la sesión exitosa y marcamos el dispositivo como seguro
+        await sql`
+            INSERT INTO auditoria_sesiones (id_usuario, ip_address, dispositivo, estado, dispositivo_confiable)
+            VALUES (${id_usuario}, ${ip_address}, ${dispositivo}, 'success', TRUE)
+        `;
+    };
 }

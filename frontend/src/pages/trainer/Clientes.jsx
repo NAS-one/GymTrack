@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import axios from "../api/axios";
+import axios from "../../api/axios";
 import {
   Search,
   Plus,
@@ -15,10 +15,10 @@ import {
   Activity,
   Eye,
 } from "lucide-react";
-import { ClientModal } from "../components/admin/Clientes/ClientModal";
-import { ClientDetailModal } from "../components/admin/Clientes/ClientDetailModal";
-import { useConfirm } from "../contexts/ConfirmContext";
-import { AddMeasurementsModal } from "../components/admin/Clientes/AddMeasurementsModal";
+import { ClientModal } from "../../components/admin/Clientes/ClientModal";
+import { ClientDetailModal } from "../../components/admin/Clientes/ClientDetailModal";
+import { useConfirm } from "../../contexts/ConfirmContext";
+import { AddMeasurementsModal } from "../../components/admin/Clientes/AddMeasurementsModal";
 // 👇 Importamos toast
 import { toast } from "sonner";
 
@@ -290,11 +290,10 @@ export function Clientes({ modoEntrenador = false }) {
         <div className="flex items-center gap-2 w-full md:w-auto">
           <Filter size={18} className="text-gym-gray" />
           <select
-            className={`border rounded-lg px-3 py-2 text-sm outline-none cursor-pointer w-full md:w-40 transition-colors ${
-              filterStatus !== "all"
+            className={`border rounded-lg px-3 py-2 text-sm outline-none cursor-pointer w-full md:w-40 transition-colors ${filterStatus !== "all"
                 ? "bg-gym-orange/10 border-gym-orange text-gym-orange"
                 : "bg-black/20 border-white/10 text-white"
-            }`}
+              }`}
             value={filterStatus}
             onChange={(e) => handleStatusChange(e.target.value)}
           >
@@ -321,14 +320,14 @@ export function Clientes({ modoEntrenador = false }) {
         {(filterStatus !== "all" ||
           searchTerm !== "" ||
           sortOrder !== "none") && (
-          <button
-            onClick={handleClearFilters}
-            className="p-2 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
-            title="Limpiar filtros"
-          >
-            <XCircle size={20} />
-          </button>
-        )}
+            <button
+              onClick={handleClearFilters}
+              className="p-2 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
+              title="Limpiar filtros"
+            >
+              <XCircle size={20} />
+            </button>
+          )}
       </div>
 
       {/* TABLA */}

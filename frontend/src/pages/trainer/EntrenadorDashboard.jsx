@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "../api/axios";
+import axios from "../../api/axios";
 import { Users, Lightbulb, CalendarClock, Dumbbell, TrendingUp, Clock, User } from "lucide-react";
 
 // Reutilizamos componentes de Admin
-import { StatCard } from "../components/admin/Dashboard/StatCard";
-import { LiveFeed } from "../components/admin/Dashboard/Livefeed";
+import { StatCard } from "../../components/admin/Dashboard/StatCard";
+import { LiveFeed } from "../../components/admin/Dashboard/Livefeed";
 
 export function EntrenadorDashboard() {
   const [stats, setStats] = useState(null);

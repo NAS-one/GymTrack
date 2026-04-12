@@ -1,5 +1,5 @@
 import { success, error } from "../Utils/responses.js";
-// Asegúrate de que este archivo exista, si no, comenta la línea del import y la validación en create
+import { dispararAlertaStaff } from "../Utils/alertas.js"; // 🌟 Importamos el nuevo coordinador unificado
 // import { validatePago } from "../Schemas/pagos.js"; 
 
 export class PagoController {
@@ -18,17 +18,24 @@ export class PagoController {
     }
   };
 
-  // 2. CREAR PAGO SIMPLE (Necesario si tienes la ruta router.post('/', controller.create))
+  // 2. CREAR PAGO SIMPLE
   create = async (req, res) => {
     try {
       const input = req.body;
       
-      // Validación básica si no usas Zod aún
       if (!input.monto || !input.id_membresia) {
         return error(req, res, "Faltan datos del pago", 400);
       }
 
       const newPago = await this.PagoModel.create(input);
+
+      // 🌟 REEMPLAZADO: Ahora usa el servicio de persistencia + SSE
+      dispararAlertaStaff(
+        "Pago Registrado", 
+        `Se ha registrado un pago manual por $${input.monto}.`, 
+        "pago_recibido"
+      );
+
       success(req, res, newPago, 201);
     } catch (e) {
       console.error("Error create Pago:", e);
@@ -36,22 +43,27 @@ export class PagoController {
     }
   };
 
-  // 3. RENOVAR MEMBRESÍA (Con lógica compleja)
+  // 3. RENOVAR MEMBRESÍA
   renovarPlan = async (req, res) => {
     try {
       // req.body trae: { id_cliente, id_plan, meses_duracion, monto, metodo_pago }
       
-      // Validación de seguridad
       if (!req.body.id_cliente || !req.body.id_plan) {
           return error(req, res, "Faltan datos para renovar (Cliente o Plan)", 400);
       }
       
       const resultado = await this.PagoModel.procesarRenovacion(req.body);
       
+      // 🌟 REEMPLAZADO: Ahora usa el servicio de persistencia + SSE
+      dispararAlertaStaff(
+        "Renovación Exitosa", 
+        `Un cliente ha renovado su plan (Monto: $${req.body.monto || 'N/A'}).`, 
+        "pago_recibido"
+      );
+
       success(req, res, resultado, 201);
     } catch (e) {
       console.error("🔴 Error Renovar:", e.message);
-      // Devolvemos el error específico si es de base de datos
       error(req, res, "Error al procesar el pago: " + e.message, 500);
     }
   };
@@ -70,7 +82,13 @@ export class PagoController {
       if (!cancelado) {
           console.warn("⚠️ No se encontró membresía activa para cancelar:", id_cliente);
           // Opcional: Podrías devolver 404 si prefieres ser estricto
-          // return error(req, res, "No hay membresía activa para cancelar", 404);
+      } else {
+          // 🌟 REEMPLAZADO: Usa el tag "alerta_sistema" para el color naranja
+          dispararAlertaStaff(
+            "Membresía Cancelada", 
+            `Se ha dado de baja la membresía del cliente ID: ${id_cliente}.`, 
+            "alerta_sistema"
+          );
       }
 
       success(req, res, { message: "Membresía cancelada correctamente" }, 200);
