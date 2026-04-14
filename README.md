@@ -114,7 +114,26 @@ docker-compose down -v
 
 ## Forma 2: Instalación Manual (Sin Docker)
 
-###  Backend
+
+### **Notas**
+
+1. **Configurar archivo .env para la conexión a PostgreSQL.**
+
+2. **Permisos de Ejecucion**
+
+```bash
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force
+```
+
+3. **Ejecucion del Proyecto**
+
+```bash
+npm run dev
+```
+
+
+
+###  **Backend**
 
 1. Inicializar proyecto:
 ```bash
@@ -172,11 +191,29 @@ npm install axios lucide-react react-icons recharts sonner
 npm install -D vite
 ```
 
-4. Permisos de Ejecucion
+### GymTrackMobile
+
+> **Notas:**
+- Cambiar direccion IP del archivo axios.js
+
+1. Crear el proyecto base
+> npx create-expo-app GymTrackMobile --template blank
+
+2. Instalar dependencias:
 
 ```bash
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force
+npx expo install @react-navigation/native @react-navigation/native-stack @react-navigation/bottom-tabs react-native-screens react-native-safe-area-context axios @react-native-async-storage/async-storage react-native-qrcode-svg react-native-svg lucide-react-native
 ```
+
+3. Correr Proyecto.
+> se visualizara un codigo Qr, escanee con su camara.
+
+
+```bash
+npx expo start
+```
+
+
 
 ### Funcionalidades principales
 > Autenticación con JWT
@@ -188,11 +225,3 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force
 > Visualización de datos (gráficos)
 
 
-##  Ejecucion del Proyecto
-
-```bash
-npm run dev
-```
-
-### Nota:
-> Configurar archivo .env para la conexión a PostgreSQL.
