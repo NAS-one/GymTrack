@@ -45,7 +45,8 @@ export class AuthController {
 
     // 2. INICIO DE SESIÓN (LOGIN) CON TODAS LAS POLÍTICAS (90 DÍAS Y 2FA)
     login = async (req, res) => {
-        const { username, password } = req.body;
+        const { username, identificador, password } = req.body;
+        const loginIdentifier = username || identificador;
 
         // --- Extracción de Dispositivo e IP ---
         const ipAddress = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'IP Desconocida';
@@ -56,7 +57,7 @@ export class AuthController {
         const dispositivo = `${os} - ${browser}`;
 
         try {
-            const user = await this.UserModel.login({ username });
+            const user = await this.UserModel.login({ username: loginIdentifier });
             if (!user) return error(req, res, "Usuario no encontrado", 401);
 
             if (user.estado === "inactive") {
