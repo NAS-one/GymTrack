@@ -13,7 +13,11 @@ import { EntrenadorLayout } from "./layouts/EntrenadorLayout";
 import { Login } from "./pages/auth/Login";
 import { ActivateAccount } from "./pages/auth/ActivateAccount";
 import { Dashboard as AdminDashboard } from "./pages/admin/Dashboard";
-import { ClientDashboard } from "./pages/trainer/Dashboard";
+import { ClientDashboard } from "./pages/client/Dashboard";
+import { Rutina } from "./pages/client/Rutina";
+import { Progreso } from "./pages/client/Progreso";
+import { Acceso as ClientAcceso } from "./pages/client/Acceso";
+import { Perfil } from "./pages/client/Perfil";
 import { Clientes } from "./pages/admin/Clientes";
 import { Planes } from "./pages/admin/Planes";
 import { Finanzas } from "./pages/admin/Finanzas";
@@ -68,26 +72,10 @@ function App() {
             <Route element={<ProtectedRoute allowedRoles={["cliente", "3"]} />}>
               <Route element={<ClientLayout />}>
                 <Route path="/client/dashboard" element={<ClientDashboard />} />
-                <Route
-                  path="/client/rutina"
-                  element={
-                    <div className="text-center mt-10">Mi Rutina de Hoy</div>
-                  }
-                />
-                <Route
-                  path="/client/acceso"
-                  element={
-                    <div className="text-center mt-10">Mi Código QR</div>
-                  }
-                />
-                <Route
-                  path="/client/progreso"
-                  element={
-                    <div className="text-center mt-10">
-                      Gráficos de Progreso
-                    </div>
-                  }
-                />
+                <Route path="/client/rutina" element={<Rutina />} />
+                <Route path="/client/acceso" element={<ClientAcceso />} />
+                <Route path="/client/progreso" element={<Progreso />} />
+                <Route path="/client/perfil" element={<Perfil />} />
               </Route>
             </Route>
 
