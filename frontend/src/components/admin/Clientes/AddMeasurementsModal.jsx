@@ -8,7 +8,7 @@ export function AddMeasurementsModal({ isOpen, onClose, client, onSave }) {
   const [formData, setFormData] = useState({
     peso: "",
     altura: "",
-    procentaje_grasa: "",
+    porcentaje_grasa: "",
     circunferencia_cintura: "",
   });
 
@@ -29,8 +29,14 @@ export function AddMeasurementsModal({ isOpen, onClose, client, onSave }) {
 
     setLoading(true);
     try {
-      // POST a la ruta de medidas que crearemos en el backend
-      await axios.post(`/clientes/${client.id}/medidas`, formData);
+      const payload = {
+        peso: parseFloat(formData.peso),
+        altura: formData.altura ? parseFloat(formData.altura) : null,
+        porcentaje_grasa: formData.porcentaje_grasa ? parseFloat(formData.porcentaje_grasa) : null,
+        circunferencia_cintura: formData.circunferencia_cintura ? parseFloat(formData.circunferencia_cintura) : null
+      };
+
+      await axios.post(`/clientes/${client.id}/medidas`, payload);
       toast.success("Medidas Registradas", {
         description: `Nuevos datos guardados para ${client.nombre}.`,
       });
