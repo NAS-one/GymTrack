@@ -54,6 +54,7 @@ export function ClientDetailModal({
   // Estado del modal de rutinas
   const [isRutinaModalOpen, setIsRutinaModalOpen] = useState(false);
   const [showMeasurementsModal, setShowMeasurementsModal] = useState(false);
+  const [rutinaParaEditar, setRutinaParaEditar] = useState(null);
 
   // Estado del Formulario de Pago
   const [paymentData, setPaymentData] = useState({
@@ -69,13 +70,13 @@ export function ClientDetailModal({
   const [weightData, setWeightData] = useState([]);
   const [attendanceData, setAttendanceData] = useState([]);
   const [availablePlans, setAvailablePlans] = useState([]);
-  const [rutinaActual, setRutinaActual] = useState(null); // null = aún cargando, false = sin rutina, objeto = rutina
+  const [rutinasActivas, setRutinasActivas] = useState(null);
 
   // --- CARGA DE DATOS ---
   useEffect(() => {
     if (isOpen && client) {
       setActiveTab(initialTab || "profile");
-      setRutinaActual(null);
+      setRutinasActivas(null);
       fetchStats();
       fetchRutinaActual();
     }
@@ -87,10 +88,9 @@ export function ClientDetailModal({
       const res = await axios.get(`/rutinas/active/${client.id}`);
       let data = res.data.body || res.data;
       if (data?.body) data = data.body;
-      setRutinaActual(data || false);
+      setRutinasActivas(Array.isArray(data) ? data : []);
     } catch {
-      // 404 = sin rutina activa, es válido
-      setRutinaActual(false);
+      setRutinasActivas([]);
     }
   };
 
@@ -523,16 +523,57 @@ export function ClientDetailModal({
                       <ResponsiveContainer width="100%" height="85%">
                         <AreaChart data={weightData}>
                           <defs>
-                            <linearGradient id="colorPeso" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3} />
-                              <stop offset="95%" stopColor="#3B82F6" stopOpacity={0} />
+                            <linearGradient
+                              id="colorPeso"
+                              x1="0"
+                              y1="0"
+                              x2="0"
+                              y2="1"
+                            >
+                              <stop
+                                offset="5%"
+                                stopColor="#3B82F6"
+                                stopOpacity={0.3}
+                              />
+                              <stop
+                                offset="95%"
+                                stopColor="#3B82F6"
+                                stopOpacity={0}
+                              />
                             </linearGradient>
                           </defs>
-                          <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
-                          <XAxis dataKey="fecha" stroke="#666" tick={{ fontSize: 9 }} />
-                          <YAxis domain={["dataMin - 2", "dataMax + 2"]} stroke="#666" tick={{ fontSize: 9 }} width={35} />
-                          <Tooltip contentStyle={{ backgroundColor: "#1a1a1a", border: "1px solid #333", borderRadius: "8px", fontSize: "12px" }} />
-                          <Area type="monotone" dataKey="peso" stroke="#3B82F6" fillOpacity={1} fill="url(#colorPeso)" strokeWidth={2} />
+                          <CartesianGrid
+                            strokeDasharray="3 3"
+                            stroke="#333"
+                            vertical={false}
+                          />
+                          <XAxis
+                            dataKey="fecha"
+                            stroke="#666"
+                            tick={{ fontSize: 9 }}
+                          />
+                          <YAxis
+                            domain={["dataMin - 2", "dataMax + 2"]}
+                            stroke="#666"
+                            tick={{ fontSize: 9 }}
+                            width={35}
+                          />
+                          <Tooltip
+                            contentStyle={{
+                              backgroundColor: "#1a1a1a",
+                              border: "1px solid #333",
+                              borderRadius: "8px",
+                              fontSize: "12px",
+                            }}
+                          />
+                          <Area
+                            type="monotone"
+                            dataKey="peso"
+                            stroke="#3B82F6"
+                            fillOpacity={1}
+                            fill="url(#colorPeso)"
+                            strokeWidth={2}
+                          />
                         </AreaChart>
                       </ResponsiveContainer>
                     ) : (
@@ -552,10 +593,30 @@ export function ClientDetailModal({
                     {attendanceData.length > 0 ? (
                       <ResponsiveContainer width="100%" height="85%">
                         <BarChart data={attendanceData}>
-                          <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
-                          <XAxis dataKey="mes" stroke="#666" tick={{ fontSize: 9 }} />
-                          <Tooltip cursor={{ fill: "transparent" }} contentStyle={{ backgroundColor: "#1a1a1a", border: "1px solid #333", fontSize: "12px" }} />
-                          <Bar dataKey="visitas" fill="#F97316" radius={[4, 4, 0, 0]} barSize={30} />
+                          <CartesianGrid
+                            strokeDasharray="3 3"
+                            stroke="#333"
+                            vertical={false}
+                          />
+                          <XAxis
+                            dataKey="mes"
+                            stroke="#666"
+                            tick={{ fontSize: 9 }}
+                          />
+                          <Tooltip
+                            cursor={{ fill: "transparent" }}
+                            contentStyle={{
+                              backgroundColor: "#1a1a1a",
+                              border: "1px solid #333",
+                              fontSize: "12px",
+                            }}
+                          />
+                          <Bar
+                            dataKey="visitas"
+                            fill="#F97316"
+                            radius={[4, 4, 0, 0]}
+                            barSize={30}
+                          />
                         </BarChart>
                       </ResponsiveContainer>
                     ) : (
@@ -570,29 +631,71 @@ export function ClientDetailModal({
                   <div className="bg-black/20 p-4 rounded-xl border border-white/5 h-52">
                     <div className="flex justify-between items-center mb-2">
                       <p className="text-xs font-bold text-white flex items-center gap-1.5">
-                        <Percent size={14} className="text-orange-400" />
-                        % Grasa Corporal
+                        <Percent size={14} className="text-orange-400" />% Grasa
+                        Corporal
                       </p>
-                      {weightData.length > 0 && weightData[weightData.length - 1].grasa && (
-                        <span className="text-[10px] text-orange-400 font-bold">
-                          {weightData[weightData.length - 1].grasa}%
-                        </span>
-                      )}
+                      {weightData.length > 0 &&
+                        weightData[weightData.length - 1].grasa && (
+                          <span className="text-[10px] text-orange-400 font-bold">
+                            {weightData[weightData.length - 1].grasa}%
+                          </span>
+                        )}
                     </div>
                     {weightData.some((d) => d.grasa) ? (
                       <ResponsiveContainer width="100%" height="85%">
                         <AreaChart data={weightData}>
                           <defs>
-                            <linearGradient id="colorGrasa" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="5%" stopColor="#F97316" stopOpacity={0.3} />
-                              <stop offset="95%" stopColor="#F97316" stopOpacity={0} />
+                            <linearGradient
+                              id="colorGrasa"
+                              x1="0"
+                              y1="0"
+                              x2="0"
+                              y2="1"
+                            >
+                              <stop
+                                offset="5%"
+                                stopColor="#F97316"
+                                stopOpacity={0.3}
+                              />
+                              <stop
+                                offset="95%"
+                                stopColor="#F97316"
+                                stopOpacity={0}
+                              />
                             </linearGradient>
                           </defs>
-                          <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
-                          <XAxis dataKey="fecha" stroke="#666" tick={{ fontSize: 9 }} />
-                          <YAxis domain={["dataMin - 1", "dataMax + 1"]} stroke="#666" tick={{ fontSize: 9 }} width={35} />
-                          <Tooltip contentStyle={{ backgroundColor: "#1a1a1a", border: "1px solid #333", borderRadius: "8px", fontSize: "12px" }} />
-                          <Area type="monotone" dataKey="grasa" stroke="#F97316" fillOpacity={1} fill="url(#colorGrasa)" strokeWidth={2} />
+                          <CartesianGrid
+                            strokeDasharray="3 3"
+                            stroke="#333"
+                            vertical={false}
+                          />
+                          <XAxis
+                            dataKey="fecha"
+                            stroke="#666"
+                            tick={{ fontSize: 9 }}
+                          />
+                          <YAxis
+                            domain={["dataMin - 1", "dataMax + 1"]}
+                            stroke="#666"
+                            tick={{ fontSize: 9 }}
+                            width={35}
+                          />
+                          <Tooltip
+                            contentStyle={{
+                              backgroundColor: "#1a1a1a",
+                              border: "1px solid #333",
+                              borderRadius: "8px",
+                              fontSize: "12px",
+                            }}
+                          />
+                          <Area
+                            type="monotone"
+                            dataKey="grasa"
+                            stroke="#F97316"
+                            fillOpacity={1}
+                            fill="url(#colorGrasa)"
+                            strokeWidth={2}
+                          />
                         </AreaChart>
                       </ResponsiveContainer>
                     ) : (
@@ -610,26 +713,68 @@ export function ClientDetailModal({
                         <Ruler size={14} className="text-purple-400" />
                         Cintura
                       </p>
-                      {weightData.length > 0 && weightData[weightData.length - 1].cintura && (
-                        <span className="text-[10px] text-purple-400 font-bold">
-                          {weightData[weightData.length - 1].cintura}cm
-                        </span>
-                      )}
+                      {weightData.length > 0 &&
+                        weightData[weightData.length - 1].cintura && (
+                          <span className="text-[10px] text-purple-400 font-bold">
+                            {weightData[weightData.length - 1].cintura}cm
+                          </span>
+                        )}
                     </div>
                     {weightData.some((d) => d.cintura) ? (
                       <ResponsiveContainer width="100%" height="85%">
                         <AreaChart data={weightData}>
                           <defs>
-                            <linearGradient id="colorCintura" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.3} />
-                              <stop offset="95%" stopColor="#8B5CF6" stopOpacity={0} />
+                            <linearGradient
+                              id="colorCintura"
+                              x1="0"
+                              y1="0"
+                              x2="0"
+                              y2="1"
+                            >
+                              <stop
+                                offset="5%"
+                                stopColor="#8B5CF6"
+                                stopOpacity={0.3}
+                              />
+                              <stop
+                                offset="95%"
+                                stopColor="#8B5CF6"
+                                stopOpacity={0}
+                              />
                             </linearGradient>
                           </defs>
-                          <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
-                          <XAxis dataKey="fecha" stroke="#666" tick={{ fontSize: 9 }} />
-                          <YAxis domain={["dataMin - 5", "dataMax + 5"]} stroke="#666" tick={{ fontSize: 9 }} width={35} />
-                          <Tooltip contentStyle={{ backgroundColor: "#1a1a1a", border: "1px solid #333", borderRadius: "8px", fontSize: "12px" }} />
-                          <Area type="monotone" dataKey="cintura" stroke="#8B5CF6" fillOpacity={1} fill="url(#colorCintura)" strokeWidth={2} />
+                          <CartesianGrid
+                            strokeDasharray="3 3"
+                            stroke="#333"
+                            vertical={false}
+                          />
+                          <XAxis
+                            dataKey="fecha"
+                            stroke="#666"
+                            tick={{ fontSize: 9 }}
+                          />
+                          <YAxis
+                            domain={["dataMin - 5", "dataMax + 5"]}
+                            stroke="#666"
+                            tick={{ fontSize: 9 }}
+                            width={35}
+                          />
+                          <Tooltip
+                            contentStyle={{
+                              backgroundColor: "#1a1a1a",
+                              border: "1px solid #333",
+                              borderRadius: "8px",
+                              fontSize: "12px",
+                            }}
+                          />
+                          <Area
+                            type="monotone"
+                            dataKey="cintura"
+                            stroke="#8B5CF6"
+                            fillOpacity={1}
+                            fill="url(#colorCintura)"
+                            strokeWidth={2}
+                          />
                         </AreaChart>
                       </ResponsiveContainer>
                     ) : (
@@ -652,109 +797,122 @@ export function ClientDetailModal({
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-orange-500/10 p-5 rounded-xl border border-orange-500/20">
                   <div>
                     <h3 className="text-lg font-bold text-orange-400 mb-1">
-                      {rutinaActual === null
-                        ? "Cargando rutina..."
-                        : rutinaActual
-                          ? `Rutina Activa: ${rutinaActual.nombre}`
-                          : "Sin Rutina Activa"}
+                      Plan de Entrenamiento
                     </h3>
                     <p className="text-sm text-orange-500/80">
-                      {rutinaActual === null
+                      {rutinasActivas === null
                         ? ""
-                        : rutinaActual
-                          ? `Creada el: ${new Date(rutinaActual.created_at).toLocaleDateString()}`
-                          : "El alumno no tiene un plan de entrenamiento asignado."}
+                        : rutinasActivas.length > 0
+                          ? `${rutinasActivas.length} rutina(s) activa(s) — máx. 7`
+                          : "El alumno no tiene rutinas asignadas."}
                     </p>
                   </div>
-                  <button
-                    onClick={() => setIsRutinaModalOpen(true)}
-                    className="bg-gym-orange hover:bg-orange-600 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 shadow-lg transition-all active:scale-95 text-sm whitespace-nowrap"
-                  >
-                    {rutinaActual ? (
-                      <>
-                        <Dumbbell size={18} /> Modificar Rutina
-                      </>
-                    ) : (
-                      <>
-                        <Plus size={18} /> Asignar Nueva Rutina
-                      </>
-                    )}
-                  </button>
-                </div>
-
-                {/* Tabla de ejercicios de la rutina activa */}
-                <div>
-                  <h4 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
-                    <Calendar size={16} className="text-zinc-400" />{" "}
-                    Distribución de la Semana
-                  </h4>
-
-                  {rutinaActual === null ? (
-                    <div className="bg-black/20 border border-white/5 rounded-xl p-8 flex items-center justify-center text-zinc-500 text-sm">
-                      Cargando...
-                    </div>
-                  ) : rutinaActual && rutinaActual.plan?.length > 0 ? (
-                    <div className="bg-black/20 rounded-xl border border-white/5 overflow-hidden">
-                      <table className="w-full text-left text-sm">
-                        <thead className="bg-white/5 text-gym-gray text-xs uppercase tracking-wider">
-                          <tr>
-                            <th className="p-4 font-semibold">Día</th>
-                            <th className="p-4 font-semibold">Músculo</th>
-                            <th className="p-4 font-semibold">Ejercicio</th>
-                            <th className="p-4 font-semibold text-center">
-                              Series
-                            </th>
-                            <th className="p-4 font-semibold text-center">
-                              Reps
-                            </th>
-                            <th className="p-4 font-semibold text-right">
-                              Carga Sugerida
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-white/5">
-                          {rutinaActual.plan.map((row, i) => (
-                            <tr
-                              key={i}
-                              className="hover:bg-white/5 transition-colors"
-                            >
-                              <td className="p-4 font-bold text-white">
-                                {row.dia}
-                              </td>
-                              <td className="p-4 text-zinc-400 text-xs">
-                                {row.grupo_muscular || "--"}
-                              </td>
-                              <td className="p-4 text-zinc-300">
-                                {row.nombre_ejercicio}
-                              </td>
-                              <td className="p-4 text-center text-zinc-400 font-mono">
-                                {row.series}
-                              </td>
-                              <td className="p-4 text-center text-zinc-400 font-mono">
-                                {row.repeticiones}
-                              </td>
-                              <td className="p-4 text-right">
-                                <span className="bg-zinc-800 text-gym-orange px-2 py-1 rounded font-mono border border-zinc-700 text-xs">
-                                  {row.carga_proyectada || "Peso Corporal"}
-                                </span>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  ) : (
-                    <div className="bg-black/20 border border-white/5 rounded-xl p-10 flex flex-col items-center justify-center text-center">
-                      <Dumbbell size={40} className="text-zinc-600 mb-3" />
-                      <p className="text-gym-gray">
-                        Este alumno aún no tiene una rutina asignada.
-                      </p>
-                      <p className="text-xs text-zinc-600 mt-1">
-                        Haz clic en "Asignar Nueva Rutina" para comenzar.
-                      </p>
-                    </div>
+                  {(!rutinasActivas || rutinasActivas.length < 7) && (
+                    <button
+                      onClick={() => {
+                        setRutinaParaEditar(null);
+                        setIsRutinaModalOpen(true);
+                      }}
+                      className="bg-gym-orange hover:bg-orange-600 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 shadow-lg transition-all active:scale-95 text-sm whitespace-nowrap"
+                    >
+                      <Plus size={18} /> Asignar Nueva Rutina
+                    </button>
                   )}
                 </div>
+
+                {/* Lista de rutinas */}
+                {rutinasActivas === null ? (
+                  <div className="bg-black/20 border border-white/5 rounded-xl p-8 flex items-center justify-center text-zinc-500 text-sm">
+                    Cargando...
+                  </div>
+                ) : rutinasActivas.length > 0 ? (
+                  <div className="space-y-4">
+                    {rutinasActivas.map((rutina) => (
+                      <div key={rutina.id} className="bg-black/20 rounded-xl border border-white/5 overflow-hidden">
+                        {/* Cabecera de cada rutina */}
+                        <div className="flex items-center justify-between p-4 border-b border-white/5 bg-white/[0.02]">
+                          <div>
+                            <h4 className="text-sm font-bold text-white">{rutina.nombre}</h4>
+                            <p className="text-[10px] text-zinc-500">
+                              Creada: {new Date(rutina.created_at).toLocaleDateString()}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => {
+                                setRutinaParaEditar(rutina);
+                                setIsRutinaModalOpen(true);
+                              }}
+                              className="px-3 py-1.5 text-xs font-bold text-blue-400 border border-blue-500/30 rounded-lg hover:bg-blue-500/10 transition-all"
+                            >
+                              Editar
+                            </button>
+                            <button
+                              onClick={async () => {
+                                const ok = await confirm({
+                                  title: "¿Eliminar esta rutina?",
+                                  description: `Se eliminará "${rutina.nombre}" permanentemente.`,
+                                  confirmText: "Sí, eliminar",
+                                  cancelText: "Cancelar",
+                                  type: "danger",
+                                });
+                                if (ok) {
+                                  try {
+                                    await axios.delete(`/rutinas/${rutina.id}`);
+                                    toast.success("Rutina eliminada");
+                                    fetchRutinaActual();
+                                  } catch {
+                                    toast.error("Error al eliminar la rutina");
+                                  }
+                                }
+                              }}
+                              className="px-3 py-1.5 text-xs font-bold text-red-400 border border-red-500/30 rounded-lg hover:bg-red-500/10 transition-all"
+                            >
+                              Eliminar
+                            </button>
+                          </div>
+                        </div>
+                        {/* Tabla de ejercicios */}
+                        {rutina.plan?.length > 0 && (
+                          <table className="w-full text-left text-sm">
+                            <thead className="bg-white/5 text-gym-gray text-xs uppercase tracking-wider">
+                              <tr>
+                                <th className="p-3">Día</th>
+                                <th className="p-3">Músculo</th>
+                                <th className="p-3">Ejercicio</th>
+                                <th className="p-3 text-center">Series</th>
+                                <th className="p-3 text-center">Reps</th>
+                                <th className="p-3 text-right">Carga</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-white/5">
+                              {rutina.plan.map((row, i) => (
+                                <tr key={i} className="hover:bg-white/5 transition-colors">
+                                  <td className="p-3 font-bold text-gym-orange text-xs">{row.dia}</td>
+                                  <td className="p-3 text-zinc-400 text-xs">{row.grupo_muscular || "--"}</td>
+                                  <td className="p-3 text-white">{row.nombre_ejercicio}</td>
+                                  <td className="p-3 text-center text-zinc-400 font-mono">{row.series}</td>
+                                  <td className="p-3 text-center text-zinc-400 font-mono">{row.repeticiones}</td>
+                                  <td className="p-3 text-right">
+                                    <span className="bg-zinc-800 text-gym-orange px-2 py-1 rounded font-mono border border-zinc-700 text-xs">
+                                      {row.carga_proyectada || "Peso Corporal"}
+                                    </span>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="bg-black/20 border border-white/5 rounded-xl p-10 flex flex-col items-center justify-center text-center">
+                    <Dumbbell size={40} className="text-zinc-600 mb-3" />
+                    <p className="text-gym-gray">Este alumno aún no tiene rutinas asignadas.</p>
+                    <p className="text-xs text-zinc-600 mt-1">Haz clic en "Asignar Nueva Rutina" para comenzar.</p>
+                  </div>
+                )}
               </div>
             )}
 
@@ -920,12 +1078,15 @@ export function ClientDetailModal({
         </div>
       </div>
 
-      {/* Modal para crear nueva rutina */}
+      {/* Modal para crear/editar rutina */}
       <RutinaModal
         isOpen={isRutinaModalOpen}
-        onClose={() => setIsRutinaModalOpen(false)}
+        onClose={() => {
+          setIsRutinaModalOpen(false);
+          setRutinaParaEditar(null);
+        }}
         client={client}
-        rutinaExistente={rutinaActual || null}
+        rutinaExistente={rutinaParaEditar}
         onSave={() => {
           fetchRutinaActual();
           if (onUpdate) onUpdate();

@@ -40,12 +40,17 @@ export class RutinaModel {
 
           // ----------------------------------------------------------------
 
-          // A. Si esta rutina es activa, desactivamos las anteriores de este cliente
+          //A. Validar máximo 7 rutinas activas por cliente
           if (activa !== false) {
-            await sql`
-             UPDATE rutinas SET activa = false 
-             WHERE id_cliente = ${alumno.id} AND activa = true
-           `;
+            const [count] = await sql`
+              SELECT COUNT(*) as total FROM rutinas
+              WHERE id_cliente = ${alumno.id} AND activa = true`;
+
+            if (parseInt(count.total) >= 7) {
+              throw new Error(
+                "El cliente ya tiene el máximo de 7 rutinas activas",
+              );
+            }
           }
         }
 
@@ -78,27 +83,27 @@ export class RutinaModel {
     }
   };
   // 2. OBTENER RUTINA ACTUAL DE UN CLIENTE (Para la App Móvil)
-  // Devuelve la rutina activa con todos sus ejercicios anidados
-  static getActiveByClient = async ({ id_cliente }) => {
-    // Primero buscamos la rutina activa
-    const [rutina] = await sql`
-      SELECT * FROM rutinas 
+  static getActivaByClient = async ({ id_cliente }) => {
+    //Buscamos todas las rutinas activas del cliente
+    const rutinas = await sql`
+      SELECT * FROM rutinas
       WHERE id_cliente = ${id_cliente} AND activa = true
-      LIMIT 1
-    `;
+      ORDER BY created_at ASC`;
 
-    if (!rutina) return null;
+    if (rutinas.length === 0) return [];
 
-    // Luego buscamos sus detalles uniendo con la tabla ejercicios para saber el nombre
-    const detalles = await sql`
-      SELECT d.*, e.nombre as nombre_ejercicio, e.url_video, e.grupo_muscular
-      FROM detalle_rutina d
-      JOIN ejercicios e ON d.id_ejercicio = e.id
-      WHERE d.id_rutina = ${rutina.id}
-      ORDER BY d.dia, d.id -- Ordenamos por día
-    `;
+    //Para cada rytuba cargamos sus detalles
+    for (let rutina of rutinas) {
+      const detalles = await sql`
+        SELECT d.*, e.nombre as nombre_ejercicio, e.url_video, e.grupo_muscular
+        FROM detalle_rutina d
+        JOIN ejercicios e ON d.id_ejercicio = e.id
+        WHERE d.id_rutina = ${rutina.id}
+        ORDER BY d.dia, d.id`;
 
-    return { ...rutina, plan: detalles };
+      rutina.plan = detalles;
+    }
+    return rutinas;
   };
 
   // 3. Obtener todas (para el admin/entrenador)
@@ -191,8 +196,14 @@ export class RutinaModel {
         const [plantilla] =
           await sql`SELECT * FROM rutinas WHERE id = ${id_plantilla}`;
         if (!plantilla) throw new Error("Plantilla no encontrada");
-        //Desactivar las rutinas anteriores del alumno
-        await sql`UPDATE rutinas SET activa = false WHERE id_cliente = ${id_cliente}`;
+        // Validar máximo 7 rutinas activas
+        const [count] = await sql`
+          SELECT COUNT(*) as total FROM rutinas 
+          WHERE id_cliente = ${id_cliente} AND activa = true
+        `;
+        if (parseInt(count.total) >= 7) {
+          throw new Error("El cliente ya tiene el máximo de 7 rutinas activas");
+        }
 
         //Nueva rutina vinculada al cliente
         const [nuevaRutina] = await sql`
