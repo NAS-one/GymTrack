@@ -440,9 +440,11 @@ export function Clientes({ modoEntrenador = false }) {
                                 <Eye size={18} />
                               </button>
                               <button
-                                onClick={() => setMeasurementsClient(client)}
+                                onClick={() =>
+                                  openModalOnTab(client, "overview")
+                                }
                                 className="p-2 hover:bg-blue-500/10 rounded-lg text-zinc-400 hover:text-blue-400 transition-colors"
-                                title="Anotar Nuevas Medidas"
+                                title="Ver Progreso"
                               >
                                 <Activity size={18} />
                               </button>

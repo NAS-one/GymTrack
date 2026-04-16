@@ -102,6 +102,14 @@ export function RutinaModal({
     });
   };
 
+  //Detectar si la fila actual es un ejercicio de cardio
+  const esCardio = (fila) => {
+    const ej = ejercicios.find(
+      (e) => String(e.id) === String(fila.id_ejercicio),
+    );
+    return ej?.grupo_muscular?.toLowerCase() === "cardio";
+  };
+
   const agregarFila = () => {
     setFilas((prev) => [...prev, { ...EMPTY_ROW }]);
   };
@@ -254,16 +262,21 @@ export function RutinaModal({
               <div className="space-y-2">
                 {/* Cabecera de columnas */}
                 <div className="hidden md:grid grid-cols-[2fr_1fr_60px_100px_120px_36px] gap-2 px-3">
-                  {["Ejercicio", "Día", "Series", "Reps", "Carga (kg)", ""].map(
-                    (h) => (
-                      <span
-                        key={h}
-                        className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider"
-                      >
-                        {h}
-                      </span>
-                    ),
-                  )}
+                  {[
+                    "Ejercicio",
+                    "Día",
+                    "Series / Mín",
+                    "Reps / Intensidad",
+                    "Carga (kg)",
+                    "",
+                  ].map((h) => (
+                    <span
+                      key={h}
+                      className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider"
+                    >
+                      {h}
+                    </span>
+                  ))}
                 </div>
 
                 {/* Filas dinámicas */}
@@ -322,43 +335,88 @@ export function RutinaModal({
                       />
                     </div>
 
-                    {/* Series */}
-                    <input
-                      type="number"
-                      min="1"
-                      max="20"
-                      value={fila.series}
-                      onChange={(e) =>
-                        handleFilaChange(idx, "series", e.target.value)
-                      }
-                      className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm text-white text-center outline-none focus:border-orange-500 transition-colors font-mono"
-                    />
+                    {esCardio(fila) ? (
+                      <>
+                        {/* CARDIO: Duración (minutos) */}
+                        <input
+                          type="number"
+                          min="1"
+                          value={fila.series}
+                          onChange={(e) =>
+                            handleFilaChange(idx, "series", e.target.value)
+                          }
+                          placeholder="Min"
+                          className="w-full bg-black/40 border border-emerald-500/20 rounded-lg px-3 py-2 text-sm text-emerald-400 text-center outline-none focus:border-emerald-500 transition-colors font-mono"
+                        />
 
-                    {/* Repeticiones */}
-                    <input
-                      type="text"
-                      value={fila.repeticiones}
-                      onChange={(e) =>
-                        handleFilaChange(idx, "repeticiones", e.target.value)
-                      }
-                      placeholder="10 / 8-12"
-                      className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm text-white text-center outline-none focus:border-orange-500 transition-colors font-mono placeholder-zinc-600"
-                    />
+                        {/* CARDIO: Intensidad */}
+                        <input
+                          type="text"
+                          value={fila.repeticiones}
+                          onChange={(e) =>
+                            handleFilaChange(
+                              idx,
+                              "repeticiones",
+                              e.target.value,
+                            )
+                          }
+                          placeholder="Baja / Media / Alta"
+                          className="w-full bg-black/40 border border-emerald-500/20 rounded-lg px-3 py-2 text-sm text-emerald-400 text-center outline-none focus:border-emerald-500 transition-colors font-mono placeholder-zinc-600"
+                        />
 
-                    {/* Carga */}
-                    <input
-                      type="text"
-                      value={fila.carga_proyectada}
-                      onChange={(e) =>
-                        handleFilaChange(
-                          idx,
-                          "carga_proyectada",
-                          e.target.value,
-                        )
-                      }
-                      placeholder="60kg / P.C."
-                      className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm text-white text-center outline-none focus:border-orange-500 transition-colors font-mono placeholder-zinc-600"
-                    />
+                        {/* CARDIO: Sin carga, campo oculto */}
+                        <input
+                          type="text"
+                          value="—"
+                          disabled
+                          className="w-full bg-black/40 border border-white/5 rounded-lg px-3 py-2 text-sm text-zinc-600 text-center font-mono cursor-not-allowed"
+                        />
+                      </>
+                    ) : (
+                      <>
+                        {/* FUERZA: Series */}
+                        <input
+                          type="number"
+                          min="1"
+                          max="20"
+                          value={fila.series}
+                          onChange={(e) =>
+                            handleFilaChange(idx, "series", e.target.value)
+                          }
+                          className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm text-white text-center outline-none focus:border-orange-500 transition-colors font-mono"
+                        />
+
+                        {/* FUERZA: Repeticiones */}
+                        <input
+                          type="text"
+                          value={fila.repeticiones}
+                          onChange={(e) =>
+                            handleFilaChange(
+                              idx,
+                              "repeticiones",
+                              e.target.value,
+                            )
+                          }
+                          placeholder="10 / 8-12"
+                          className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm text-white text-center outline-none focus:border-orange-500 transition-colors font-mono placeholder-zinc-600"
+                        />
+
+                        {/* FUERZA: Carga */}
+                        <input
+                          type="text"
+                          value={fila.carga_proyectada}
+                          onChange={(e) =>
+                            handleFilaChange(
+                              idx,
+                              "carga_proyectada",
+                              e.target.value,
+                            )
+                          }
+                          placeholder="60kg / P.C."
+                          className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm text-white text-center outline-none focus:border-orange-500 transition-colors font-mono placeholder-zinc-600"
+                        />
+                      </>
+                    )}
 
                     {/* Eliminar fila */}
                     <button

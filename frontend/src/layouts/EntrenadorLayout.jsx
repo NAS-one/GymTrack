@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
-import { Outlet, NavLink, useNavigate, useLocation } from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
+import { Outlet, NavLink, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useAuth } from "../contexts/useAuth";
+import { useConfirm } from "../contexts/ConfirmContext";
 import {
   LayoutDashboard,
   Users,
@@ -15,12 +16,37 @@ import {
   Bell,
   Settings,
   Zap,
+  Clock,
+  User,
+  UserCog,
+  Shield,
 } from "lucide-react";
 
 export function EntrenadorLayout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const confirm = useConfirm();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const profileRef = useRef(null);
+
+  // Reloj en Tiempo Real
+  const [currentTime, setCurrentTime] = useState(new Date());
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Cerrar menú de perfil al hacer clic afuera
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (profileRef.current && !profileRef.current.contains(event.target)) {
+        setIsProfileMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const menuItems = [
     {
@@ -70,10 +96,34 @@ export function EntrenadorLayout() {
     },
   ];
 
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
+  const handleLogout = async () => {
+    const isConfirmed = await confirm({
+      title: "¿Cerrar Sesión?",
+      description:
+        "Tendrás que volver a ingresar tus credenciales para acceder al panel.",
+      confirmText: "Sí, salir",
+      cancelText: "Cancelar",
+      type: "danger",
+    });
+
+    if (isConfirmed) {
+      logout();
+      navigate("/login");
+    }
   };
+
+  const trainerName = user?.nombre || user?.username || "Entrenador";
+  const timeString = currentTime.toLocaleTimeString("es-CL", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  });
+  const dateString = currentTime.toLocaleDateString("es-CL", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
 
   return (
     <div className="flex h-screen bg-black text-white overflow-hidden font-sans selection:bg-gym-orange/30">
@@ -83,7 +133,7 @@ export function EntrenadorLayout() {
         <div className="absolute bottom-[-10%] right-1/4 w-[600px] h-[600px] bg-blue-500/5 blur-[150px] rounded-full"></div>
       </div>
 
-      {/* === SIDEBAR (Minimalista) === */}
+      {/* === SIDEBAR === */}
       <aside
         className={`${isSidebarOpen ? "w-64" : "w-20"} bg-black flex flex-col transition-all duration-500 ease-in-out relative z-30`}
       >
@@ -130,10 +180,9 @@ export function EntrenadorLayout() {
                   <li key={item.path}>
                     <NavLink
                       to={item.path}
-                      className={({ isActive }) => `
-                                                relative flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-300 group
-                                                ${isActive ? "bg-white/[0.03] text-white shadow-inner" : "text-zinc-500 hover:text-zinc-200"}
-                                            `}
+                      className={({ isActive }) =>
+                        `relative flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-300 group ${isActive ? "bg-white/[0.03] text-white shadow-inner" : "text-zinc-500 hover:text-zinc-200"}`
+                      }
                     >
                       {({ isActive }) => (
                         <>
@@ -159,48 +208,109 @@ export function EntrenadorLayout() {
             </div>
           ))}
         </nav>
-
-        {/* PERFIL */}
-        <div className="p-4 border-t border-white/5">
-          <div
-            className={`flex items-center gap-3 p-2 rounded-2xl bg-white/[0.02] border border-white/5 ${!isSidebarOpen && "justify-center"}`}
-          >
-            <div className="w-8 h-8 rounded-lg bg-zinc-800 flex items-center justify-center text-[10px] font-black border border-white/10">
-              {user?.nombre?.substring(0, 2).toUpperCase() ||
-                user?.username?.substring(0, 2).toUpperCase() ||
-                "EN"}
-            </div>
-            {isSidebarOpen && (
-              <button
-                onClick={handleLogout}
-                className="ml-auto p-2 text-zinc-600 hover:text-rose-500 transition-colors"
-              >
-                <LogOut size={16} />
-              </button>
-            )}
-          </div>
-        </div>
       </aside>
 
-      {/* === MAIN CONTENT (La "Hoja" Premium) === */}
+      {/* === MAIN CONTENT === */}
       <main className="flex-1 relative z-10 flex flex-col bg-black">
-        {/* Contenedor con bordes ultra suaves */}
         <div className="flex-1 bg-[#0c0c0e] my-2 mr-2 rounded-[3.5rem] border border-white/[0.03] flex flex-col overflow-hidden shadow-[0_0_60px_rgba(0,0,0,0.8)]">
-          {/* TOP HEADER (Minimalista - Sin Títulos ni Buscadores redundantes) */}
-          <header className="h-14 flex items-center justify-end px-12 shrink-0">
-            <div className="flex items-center gap-5">
-              <button className="text-zinc-600 hover:text-white transition-all hover:scale-110">
-                <Bell size={18} />
-              </button>
-              <button className="text-zinc-600 hover:text-white transition-all hover:scale-110">
-                <Settings size={18} />
+          {/* ============================================= */}
+          {/* HEADER PREMIUM (Mismo estilo que Admin)       */}
+          {/* ============================================= */}
+          <header className="h-20 flex items-center justify-between px-12 shrink-0 border-b border-white/[0.02]">
+            {/* Reloj */}
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 bg-black/40 px-4 py-2.5 rounded-2xl border border-white/5 shadow-inner">
+                <div className="p-1.5 rounded-xl bg-gym-orange/10 text-gym-orange border border-gym-orange/20 shadow-[0_0_10px_rgba(249,115,22,0.1)]">
+                  <Clock size={16} strokeWidth={2.5} />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-xs font-black text-white tracking-widest uppercase font-mono">
+                    {timeString}
+                  </span>
+                  <span className="text-[10px] font-bold text-zinc-500 capitalize tracking-wide">
+                    {dateString}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Acciones (Notificaciones + Perfil + Logout) */}
+            <div className="flex items-center gap-6">
+              <div className="flex items-center gap-4 bg-black/40 p-1.5 rounded-2xl border border-white/5 shadow-inner">
+                <button
+                  className="relative p-2.5 text-zinc-500 hover:text-white hover:bg-white/5 rounded-xl transition-all group"
+                  title="Notificaciones"
+                >
+                  <Bell size={18} strokeWidth={2} />
+                </button>
+                <button
+                  className="p-2.5 text-zinc-500 hover:text-white hover:bg-white/5 rounded-xl transition-all"
+                  title="Configuración"
+                >
+                  <Settings size={18} strokeWidth={2} />
+                </button>
+              </div>
+
+              <div className="w-px h-8 bg-white/10"></div>
+
+              {/* Perfil del Entrenador */}
+              <div className="relative" ref={profileRef}>
+                <div
+                  onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+                  className="flex items-center gap-3 cursor-pointer group"
+                >
+                  <div className="text-right hidden sm:block">
+                    <p className="text-xs font-black text-white tracking-tight group-hover:text-gym-orange transition-colors">
+                      {trainerName}
+                    </p>
+                    <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">
+                      Entrenador
+                    </p>
+                  </div>
+                  <div
+                    className={`w-10 h-10 rounded-2xl bg-gradient-to-tr from-gym-orange/20 to-orange-500/5 border border-gym-orange/30 flex items-center justify-center text-gym-orange shadow-[0_0_15px_rgba(249,115,22,0.15)] transition-all overflow-hidden ${isProfileMenuOpen ? "ring-2 ring-gym-orange scale-105" : "group-hover:scale-105"}`}
+                  >
+                    <User size={18} strokeWidth={2.5} />
+                  </div>
+                </div>
+
+                {isProfileMenuOpen && (
+                  <div className="absolute right-0 mt-4 w-64 bg-[#09090b]/95 backdrop-blur-xl border border-white/10 rounded-3xl shadow-[0_20px_40px_-10px_rgba(0,0,0,0.8)] py-2 z-50 animate-in slide-in-from-top-2 fade-in duration-200">
+                    <div className="absolute -top-1.5 right-4 w-3 h-3 bg-[#09090b] border-t border-l border-white/10 rotate-45"></div>
+                    <div className="px-5 py-4 border-b border-white/5 relative z-10">
+                      <p className="text-sm font-black text-white truncate">
+                        {user?.email || "correo@gym.com"}
+                      </p>
+                      <p className="text-[9px] font-bold text-gym-orange uppercase tracking-widest mt-1 flex items-center gap-1">
+                        <Shield size={10} /> Entrenador Personal
+                      </p>
+                    </div>
+                    <div className="p-2 space-y-1 relative z-10">
+                      <button className="w-full flex items-center gap-3 px-3 py-2.5 text-xs font-bold text-zinc-400 hover:text-white hover:bg-white/5 rounded-xl transition-all text-left group">
+                        <UserCog
+                          size={16}
+                          className="group-hover:text-gym-orange transition-colors"
+                        />{" "}
+                        Ajustes de Perfil
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <button
+                onClick={handleLogout}
+                className="p-2.5 ml-2 text-zinc-600 hover:text-rose-400 hover:bg-rose-500/10 rounded-2xl transition-all border border-transparent hover:border-rose-500/20"
+                title="Cerrar Sesión"
+              >
+                <LogOut size={18} strokeWidth={2.5} />
               </button>
             </div>
           </header>
 
           {/* ÁREA DE CONTENIDO */}
-          <div className="flex-1 overflow-y-auto px-12 pb-12 custom-scrollbar">
-            <div className="max-w-[1500px] mx-auto pt-4">
+          <div className="flex-1 overflow-y-auto px-12 pb-12 pt-8 custom-scrollbar relative z-0">
+            <div className="max-w-[1500px] mx-auto">
               <Outlet />
             </div>
           </div>
@@ -209,3 +319,4 @@ export function EntrenadorLayout() {
     </div>
   );
 }
+

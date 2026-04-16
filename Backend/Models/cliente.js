@@ -1,9 +1,9 @@
 import { sql } from "../bd.js";
 
 export class ClienteModel {
-  // 1. OBTENER TODOS
-  static async getAll() {
-    return await sql`
+    // 1. OBTENER TODOS
+    static async getAll() {
+        return await sql`
       SELECT 
         c.id, c.rut, c.nombre, c.objetivo, c.fecha_nacimiento, c.genero, c.direccion,
         u.email, u.estado as estado_usuario,
@@ -34,59 +34,59 @@ export class ClienteModel {
       WHERE u.estado != 'inactive'
       ORDER BY c.created_at DESC
     `;
-  }
+    }
 
-  // 2. CREAR
-  static async create(input) {
-    const {
-      rut,
-      nombre,
-      email,
-      password,
-      id_entrenador,
-      objetivo,
-      fecha_nacimiento,
-      genero,
-      direccion,
-    } = input;
+    // 2. CREAR
+    static async create(input) {
+        const {
+            rut,
+            nombre,
+            email,
+            password,
+            id_entrenador,
+            objetivo,
+            fecha_nacimiento,
+            genero,
+            direccion,
+        } = input;
 
-    return await sql.begin(async (sql) => {
-      // Obtener rol
-      const [role] = await sql`SELECT id FROM roles WHERE nombre = 'cliente'`;
-      if (!role) throw new Error("Rol 'cliente' no existe en la BD");
+        return await sql.begin(async (sql) => {
+            // Obtener rol
+            const [role] = await sql`SELECT id FROM roles WHERE nombre = 'cliente'`;
+            if (!role) throw new Error("Rol 'cliente' no existe en la BD");
 
-      // Crear Usuario
-      const baseUsername = email.split("@")[0].replace(/[^a-zA-Z0-9]/g, "");
-      const [newUser] = await sql`
+            // Crear Usuario
+            const baseUsername = email.split("@")[0].replace(/[^a-zA-Z0-9]/g, "");
+            const [newUser] = await sql`
         INSERT INTO usuarios (username, email, password, estado, id_rol)
         VALUES (${baseUsername}, ${email}, ${password}, 'pendiente', ${role.id})
         RETURNING id
       `;
 
-      // Crear Cliente
-      const [newClient] = await sql`
+            // Crear Cliente
+            const [newClient] = await sql`
         INSERT INTO clientes (rut, nombre, objetivo, id_usuario, id_entrenador, fecha_nacimiento, genero, direccion)
         VALUES (${rut}, ${nombre}, ${objetivo}, ${newUser.id}, ${id_entrenador || null}, ${fecha_nacimiento || null}, ${genero || null}, ${direccion || null})
         RETURNING *
       `;
 
-      return newClient;
-    });
-  }
+            return newClient;
+        });
+    }
 
-  // 3. ACTUALIZAR
-  static async update({ id, input }) {
-    const {
-      nombre,
-      rut,
-      objetivo,
-      id_entrenador,
-      fecha_nacimiento,
-      genero,
-      direccion,
-    } = input;
+    // 3. ACTUALIZAR
+    static async update({ id, input }) {
+        const {
+            nombre,
+            rut,
+            objetivo,
+            id_entrenador,
+            fecha_nacimiento,
+            genero,
+            direccion,
+        } = input;
 
-    const [updatedClient] = await sql`
+        const [updatedClient] = await sql`
       UPDATE clientes 
       SET 
         nombre = COALESCE(${nombre}, nombre),
@@ -99,56 +99,74 @@ export class ClienteModel {
       WHERE id = ${id}
       RETURNING *
     `;
-    return updatedClient;
-  }
+        return updatedClient;
+    }
 
-  // 4. ELIMINAR (Soft Delete)
-  static async delete({ id }) {
-    // Desactivamos el usuario asociado
-    const [disabledUser] = await sql`
+    // 4. ELIMINAR (Soft Delete)
+    static async delete({ id }) {
+        // Desactivamos el usuario asociado
+        const [disabledUser] = await sql`
       UPDATE usuarios SET estado = 'inactive'
       FROM clientes
       WHERE usuarios.id = clientes.id_usuario AND clientes.id = ${id}
       RETURNING usuarios.id
     `;
-    return !!disabledUser;
-  }
+        return !!disabledUser;
+    }
 
-  // 5. OBTENER PERFIL 360 (Corregido para Asistencia Universal)
-  static async getStats({ id }) {
-    // Primero obtenemos el id_usuario del cliente para buscar su asistencia
-    const [cliente] =
-      await sql`SELECT id_usuario FROM clientes WHERE id = ${id}`;
-    if (!cliente) throw new Error("Cliente no encontrado");
+    // 5. OBTENER PERFIL 360 (Corregido para Asistencia Universal)
+    static async getStats({ id }) {
+        const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+        
+        let clienteRecords;
+        if (isUUID) {
+            clienteRecords = await sql`SELECT id, id_usuario FROM clientes WHERE id_usuario = ${id}`;
+        } else {
+            clienteRecords = await sql`SELECT id, id_usuario FROM clientes WHERE id = ${id}`;
+        }
 
-    const [pagos, medidas, asistencia, planesDisponibles, rutina] =
-      await Promise.all([
-        // A. Historial de Pagos
-        sql`
+        const cliente = clienteRecords[0];
+        if (!cliente) throw new Error("Cliente no encontrado");
+
+        const resolvedId = cliente.id; // El id_cliente orgánico
+        const resolvedUserId = cliente.id_usuario;
+
+        const [infoPersonal, pagos, medidas, asistencia, planesDisponibles, rutina] =
+            await Promise.all([
+                // Info personal directa
+                sql`
+          SELECT c.nombre, c.rut, u.email, u.username 
+          FROM clientes c 
+          JOIN usuarios u ON c.id_usuario = u.id 
+          WHERE c.id = ${resolvedId}
+        `,
+
+                // A. Historial de Pagos
+                sql`
         SELECT p.monto, p.metodo_pago, p.fecha_pago, pl.nombre as tipo_plan
         FROM pagos p
         JOIN membresias m ON p.id_membresia = m.id
         LEFT JOIN planes pl ON m.id_plan = pl.id
-        WHERE m.id_cliente = ${id}
+        WHERE m.id_cliente = ${resolvedId}
         ORDER BY p.fecha_pago DESC LIMIT 10
       `,
-        // B. Evolución Física (Mantenemos SELECT * para traer los nuevos campos de medidas)
-        sql`SELECT * FROM medidas_fisicas WHERE id_cliente = ${id} ORDER BY fecha_registro ASC`,
+                // B. Evolución Física (Mantenemos SELECT * para traer los nuevos campos de medidas)
+                sql`SELECT * FROM medidas_fisicas WHERE id_cliente = ${resolvedId} ORDER BY fecha_registro ASC`,
 
-        // C. Asistencia (CORREGIDO: Usamos id_usuario)
-        sql`
+                // C. Asistencia (Usamos id_usuario)
+                sql`
         SELECT fecha_entrada 
         FROM asistencia 
-        WHERE id_usuario = ${cliente.id_usuario} 
+        WHERE id_usuario = ${resolvedUserId} 
         AND fecha_entrada > NOW() - INTERVAL '6 months' 
         ORDER BY fecha_entrada ASC
       `,
 
-        // D. Planes Disponibles (Para el select de renovación)
-        sql`SELECT id, nombre, precio, duracion_meses FROM planes WHERE estado = 'active' ORDER BY precio ASC`,
+                // D. Planes Disponibles (Para el select de renovación)
+                sql`SELECT id, nombre, precio, duracion_meses FROM planes WHERE estado = 'active' ORDER BY precio ASC`,
 
-        // E. Rutina activa real
-        sql`SELECT r.nombre as nombre_rutina,
+                // E. Rutina activa real
+                sql`SELECT r.nombre as nombre_rutina,
       r.fecha_inicio,
       dr.dia,
       e.grupo_muscular as musculo,
@@ -159,33 +177,34 @@ export class ClienteModel {
       FROM rutinas r
       JOIN detalle_rutina dr ON r.id = dr.id_rutina
       JOIN ejercicios e ON dr.id_ejercicio = e.id
-      WHERE r.id_cliente = ${id} AND r.activa = true
+      WHERE r.id_cliente = ${resolvedId} AND r.activa = true
       ORDER BY
         CASE dr.dia
             WHEN 'Lunes' THEN 1 WHEN 'Martes' THEN 2 WHEN 'Miércoles' THEN 3
             WHEN 'Jueves' THEN 4 WHEN 'Viernes' THEN 5 WHEN 'Sábado' THEN 6 WHEN 'Domingo' THEN 7
             ELSE 8
           END`,
-      ]);
+            ]);
 
-    return {
-      pagos,
-      medidas,
-      asistencia,
-      planesDisponibles,
-      rutinaActual: rutina,
-    };
-  }
+        return {
+            infoPersonal: infoPersonal[0] || null,
+            pagos,
+            medidas,
+            asistencia,
+            planesDisponibles,
+            rutinaActual: rutina,
+        };
+    }
 
-  // Registrar nuevas medidas fisicas
-  static async addMedidas({
-    id_cliente,
-    peso,
-    altura,
-    porcentaje_grasa,
-    circunferencia_cintura,
-  }) {
-    const [nuevaMedida] = await sql`
+    // Registrar nuevas medidas fisicas
+    static async addMedidas({
+        id_cliente,
+        peso,
+        altura,
+        porcentaje_grasa,
+        circunferencia_cintura,
+    }) {
+        const [nuevaMedida] = await sql`
       INSERT INTO medidas_fisicas (
         id_cliente, 
         peso, 
@@ -203,6 +222,7 @@ export class ClienteModel {
       )
       RETURNING *
     `;
-    return nuevaMedida;
-  }
+        return nuevaMedida;
+    }
 }
+    

@@ -40,12 +40,17 @@ export class RutinaModel {
 
           // ----------------------------------------------------------------
 
-          // A. Si esta rutina es activa, desactivamos las anteriores de este cliente
+          //A. Validar máximo 7 rutinas activas por cliente
           if (activa !== false) {
-            await sql`
-             UPDATE rutinas SET activa = false 
-             WHERE id_cliente = ${alumno.id} AND activa = true
-           `;
+            const [count] = await sql`
+              SELECT COUNT(*) as total FROM rutinas
+              WHERE id_cliente = ${alumno.id} AND activa = true`;
+
+            if (parseInt(count.total) >= 7) {
+              throw new Error(
+                "El cliente ya tiene el máximo de 7 rutinas activas",
+              );
+            }
           }
         }
 
@@ -79,7 +84,7 @@ export class RutinaModel {
   };
   // 2. OBTENER RUTINA ACTUAL DE UN CLIENTE (Para la App Móvil)
   // Devuelve la rutina activa con todos sus ejercicios anidados
-static getActiveByClient = async ({ id_cliente }) => {
+  static getActiveByClient = async ({ id_cliente }) => {
     // 🌟 EL ARREGLO: Hacemos un JOIN con la tabla clientes.
     // Así la base de datos dice: "Busca a este cliente ya sea por su ID propio o por su ID de usuario"
     const [rutina] = await sql`
@@ -102,7 +107,7 @@ static getActiveByClient = async ({ id_cliente }) => {
       ORDER BY d.dia, d.id -- Ordenamos por día
     `;
 
-    // 🌟 PREVENCIÓN DE BUGS: 
+    // 🌟 PREVENCIÓN DE BUGS:
     // Tu código original devolvía "plan: detalles", pero nuestra app móvil busca "detalles".
     // Para no romper NADA en tu panel web actual, devolvemos ambos nombres apuntando a lo mismo.
     return { ...rutina, plan: detalles, detalles: detalles };
@@ -198,8 +203,14 @@ static getActiveByClient = async ({ id_cliente }) => {
         const [plantilla] =
           await sql`SELECT * FROM rutinas WHERE id = ${id_plantilla}`;
         if (!plantilla) throw new Error("Plantilla no encontrada");
-        //Desactivar las rutinas anteriores del alumno
-        await sql`UPDATE rutinas SET activa = false WHERE id_cliente = ${id_cliente}`;
+        // Validar máximo 7 rutinas activas
+        const [count] = await sql`
+          SELECT COUNT(*) as total FROM rutinas 
+          WHERE id_cliente = ${id_cliente} AND activa = true
+        `;
+        if (parseInt(count.total) >= 7) {
+          throw new Error("El cliente ya tiene el máximo de 7 rutinas activas");
+        }
 
         //Nueva rutina vinculada al cliente
         const [nuevaRutina] = await sql`

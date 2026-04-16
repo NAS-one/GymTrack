@@ -15,17 +15,17 @@
   "dependencies": {
     "bcrypt": "^6.0.0",
     "cookie-parser": "^1.4.7",
-    "cors": "^2.8.5",
-    "dotenv": "^17.3.1",
-    "express": "5.2.1",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
     "morgan": "^1.10.1",
-    "nodemailer": "^8.0.4",
-    "postgres": "^3.4.8",
+    "nodemailer": "^8.0.5",
+    "postgres": "^3.4.9",
     "seed": "^0.4.4",
-    "zod": "4.2.1"
+    "zod": "^4.2.1"
   },
   "devDependencies": {
-    "nodemon": "^3.1.11"
+    "nodemon": "^3.1.14"
   }
 }
