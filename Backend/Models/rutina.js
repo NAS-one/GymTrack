@@ -79,17 +79,21 @@ export class RutinaModel {
   };
   // 2. OBTENER RUTINA ACTUAL DE UN CLIENTE (Para la App Móvil)
   // Devuelve la rutina activa con todos sus ejercicios anidados
-  static getActiveByClient = async ({ id_cliente }) => {
-    // Primero buscamos la rutina activa
+static getActiveByClient = async ({ id_cliente }) => {
+    // 🌟 EL ARREGLO: Hacemos un JOIN con la tabla clientes.
+    // Así la base de datos dice: "Busca a este cliente ya sea por su ID propio o por su ID de usuario"
     const [rutina] = await sql`
-      SELECT * FROM rutinas 
-      WHERE id_cliente = ${id_cliente} AND activa = true
+      SELECT r.* FROM rutinas r
+      JOIN clientes c ON r.id_cliente = c.id
+      WHERE (c.id = ${id_cliente} OR c.id_usuario = ${id_cliente}) 
+        AND r.activa = true
       LIMIT 1
     `;
 
+    // Si no encuentra nada, devuelve null limpiamente
     if (!rutina) return null;
 
-    // Luego buscamos sus detalles uniendo con la tabla ejercicios para saber el nombre
+    // 🌟 INTACTO: Tu búsqueda de detalles se mantiene exactamente igual
     const detalles = await sql`
       SELECT d.*, e.nombre as nombre_ejercicio, e.url_video, e.grupo_muscular
       FROM detalle_rutina d
@@ -98,7 +102,10 @@ export class RutinaModel {
       ORDER BY d.dia, d.id -- Ordenamos por día
     `;
 
-    return { ...rutina, plan: detalles };
+    // 🌟 PREVENCIÓN DE BUGS: 
+    // Tu código original devolvía "plan: detalles", pero nuestra app móvil busca "detalles".
+    // Para no romper NADA en tu panel web actual, devolvemos ambos nombres apuntando a lo mismo.
+    return { ...rutina, plan: detalles, detalles: detalles };
   };
 
   // 3. Obtener todas (para el admin/entrenador)

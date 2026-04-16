@@ -213,6 +213,14 @@ npx expo install @react-navigation/native @react-navigation/native-stack @react-
 npx expo start
 ```
 
+4. Diseños
+> npx expo install @react-navigation/bottom-tabs
+> npx expo install react-native-svg lucide-react-native
+
+5. Manejo de Estados
+**Zustand nos servirá para guardar las rutinas en la memoria RAM del celular**
+> npm install zustand
+
 
 
 ### Funcionalidades principales

@@ -5,8 +5,8 @@ import { useAuth } from '../contexts/AuthContext.js';
 import { View, ActivityIndicator } from 'react-native';
 
 // Pantallas
-import LoginScreen from '../screens/auth/LoginScreen';
-import DashboardScreen from '../screens/main/DashboardScreen';
+import LoginScreen from '../features/auth/LoginScreen.js';
+import MainTabNavigator from './MainTabNavigator';
 
 const Stack = createNativeStackNavigator();
 
@@ -26,8 +26,7 @@ export default function AppNavigator() {
             <Stack.Navigator screenOptions={{ headerShown: false }}>
                 {user ? (
                     // Usuario Autenticado
-                    <Stack.Screen name="Dashboard" component={DashboardScreen} />
-                ) : (
+                    <Stack.Screen name="MainTabs" component={MainTabNavigator} />    ) : (
                     // Usuario No Autenticado
                     <Stack.Screen name="Login" component={LoginScreen} />
                 )}
