@@ -157,6 +157,7 @@ npm -v
 ```bash
 npm install express zod postgres cors bcrypt jsonwebtoken cookie-parser dotenv morgan nodemailer
 ```
+npx expo install expo-linear-gradient
 
 3. Instalar dependencias de desarrollo:
 

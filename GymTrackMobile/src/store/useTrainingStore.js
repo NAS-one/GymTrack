@@ -1,3 +1,5 @@
+// Gestor de Estado Global-> guarda los datos en la memoria RAM del cel, para evitar pedirla al backend otra vez.
+
 import { create } from 'zustand';
 import { trainingService } from '../features/training/services/trainingService.js';
 
@@ -29,7 +31,7 @@ export const useTrainingStore = create((set, get) => ({
                     titulo: rutinaActivaDB.nombre,
                     // Como tu BD no devuelve el cálculo de series en este endpoint principal aún, 
                     // ponemos valores por defecto o calculados si vienen en los 'detalles'
-                    ejercicios: rutinaActivaDB.detalles?.length || 0, 
+                    ejercicios: rutinaActivaDB.detalles?.length || 0,
                     series: rutinaActivaDB.detalles?.reduce((acc, det) => acc + det.series, 0) || 0,
                     tiempo: '60 mins' // Puedes agregar esto a tu tabla de rutinas en el futuro
                 };
