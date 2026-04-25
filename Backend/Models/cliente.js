@@ -116,13 +116,11 @@ export class ClienteModel {
 
     // 5. OBTENER PERFIL 360 (Corregido para Asistencia Universal)
     static async getStats({ id }) {
-        const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+        // Intentar buscar por id de cliente primero, luego por id_usuario
+        let clienteRecords = await sql`SELECT id, id_usuario FROM clientes WHERE id = ${id}`;
         
-        let clienteRecords;
-        if (isUUID) {
+        if (clienteRecords.length === 0) {
             clienteRecords = await sql`SELECT id, id_usuario FROM clientes WHERE id_usuario = ${id}`;
-        } else {
-            clienteRecords = await sql`SELECT id, id_usuario FROM clientes WHERE id = ${id}`;
         }
 
         const cliente = clienteRecords[0];

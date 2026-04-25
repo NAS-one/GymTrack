@@ -25,6 +25,7 @@ import { createConfiguracionRouter } from "./Routes/configuracion.js";
 import { createNotificacionesRouter } from "./Routes/notificaciones.js";
 import { createNotificationRouter } from "./Routes/notifications.js";
 import { createSesionRouter } from "./Routes/sesiones.js";
+import { createPlanEntrenamientoRouter } from "./Routes/plan_entrenamiento.js";
 
 //SECCION MOVIL -> CLIENTE
 import { createAppHomeRouter } from "./Routes/app_home.js";
@@ -53,6 +54,7 @@ export const createApp = ({
   PerfilModel,
   ConfiguracionModel,
   SesionModel,
+  PlanEntrenamientoModel,
   AppHomeModel
 }) => {
 
@@ -91,6 +93,8 @@ export const createApp = ({
   //SECCION MOVIL -> CLIENTE
   app.use("/app_home", createAppHomeRouter({ AppHomeModel }));
 
+  //SECCION MOVIL -> ENTRENADOR
+  app.use("/planes-entrenamiento",createPlanEntrenamientoRouter({ PlanEntrenamientoModel }));
 
   const PORT = process.env.PORT || 3000; // Puerto estándar 3000
   app.listen(PORT, () => {

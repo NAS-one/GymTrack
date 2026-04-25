@@ -16,6 +16,7 @@ const rutinaSchema = z.object({
   id_entrenador: z.string().uuid(),
   activa: z.boolean().optional(),
   es_plantilla: z.boolean().optional(),
+  id_plan: z.string().uuid().nullable().optional(),
 
   // Aquí validamos el array de detalles
   detalles: z

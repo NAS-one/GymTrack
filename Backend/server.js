@@ -21,8 +21,12 @@ import { ColaboradorModel } from "./Models/colaborador.js";
 import { PerfilModel } from "./Models/perfil.js";
 import { ConfiguracionModel } from "./Models/configuracion.js";
 import { SesionModel } from "./Models/sesion.js";
+
 //SECCION MOVIL -> CLIENTE
 import { AppHomeModel } from "./Models/app_home.js";
+
+//SECCION MOVIL -> ENTRENADOR
+import { PlanEntrenamientoModel } from "./Models/plan_entrenamiento.js";
 
 
 // Inyectamos el modelo de usuarios
@@ -46,5 +50,6 @@ createApp({
   PerfilModel,
   ConfiguracionModel,
   SesionModel,
-  AppHomeModel
+  AppHomeModel,
+  PlanEntrenamientoModel,
 });
