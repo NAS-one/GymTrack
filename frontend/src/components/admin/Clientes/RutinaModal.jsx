@@ -11,6 +11,7 @@ import {
 import axios from "../../../api/axios";
 import { toast } from "sonner";
 import { AuthContext } from "../../../contexts/AuthContext";
+import { EjercicioCatalogo } from "./EjercicioCatalogo";
 
 const DIAS = [
   "Lunes",
@@ -37,6 +38,7 @@ export function RutinaModal({
   onSave,
   rutinaExistente,
   isTemplate,
+  idPlan,
 }) {
   const { user } = useContext(AuthContext);
   const [nombre, setNombre] = useState("");
@@ -45,6 +47,7 @@ export function RutinaModal({
   const [loadingEjercicios, setLoadingEjercicios] = useState(false);
   const [saving, setSaving] = useState(false);
   const [entrenadorId, setEntrenadorId] = useState(null);
+  const [catalogoOpenIdx, setCatalogoOpenIdx] = useState(null);
 
   // Cargar ejercicios y auto-completar si estamos en modo edición
   useEffect(() => {
@@ -148,6 +151,7 @@ export function RutinaModal({
       es_plantilla: isTemplate || false,
       id_entrenador: entrenadorId,
       activa: true,
+      id_plan: idPlan || undefined,
       detalles: filas.map((f) => ({
         id_ejercicio: f.id_ejercicio,
         dia: f.dia,
@@ -192,7 +196,7 @@ export function RutinaModal({
     }
   };
 
-  if (!isOpen || (!client && !isTemplate)) return null;
+  if (!isOpen || (!client && !isTemplate && !idPlan)) return null;
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[60] p-4 animate-fade-in">
@@ -286,33 +290,27 @@ export function RutinaModal({
                     className="grid grid-cols-1 md:grid-cols-[2fr_1fr_60px_100px_120px_36px] gap-2 bg-white/3 hover:bg-white/5 border border-white/5 rounded-xl p-3 transition-colors group"
                   >
                     {/* Selector de ejercicio */}
-                    <div className="relative">
-                      <select
-                        value={fila.id_ejercicio}
-                        onChange={(e) =>
-                          handleFilaChange(idx, "id_ejercicio", e.target.value)
-                        }
-                        className="w-full appearance-none bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-orange-500 transition-colors cursor-pointer pr-8"
-                        required
-                      >
-                        <option value="">-- Seleccionar ejercicio --</option>
-                        {Object.entries(ejerciciosPorMusculo)
-                          .sort(([a], [b]) => a.localeCompare(b))
-                          .map(([grupo, lista]) => (
-                            <optgroup key={grupo} label={`💪 ${grupo}`}>
-                              {lista.map((ej) => (
-                                <option key={ej.id} value={ej.id}>
-                                  {ej.nombre}
-                                </option>
-                              ))}
-                            </optgroup>
-                          ))}
-                      </select>
-                      <ChevronDown
+                    <button
+                      type="button"
+                      onClick={() => setCatalogoOpenIdx(idx)}
+                      className={`w-full text-left bg-black/40 border rounded-lg px-3 py-2 text-sm outline-none transition-all cursor-pointer hover:border-orange-500/50 flex items-center gap-2 ${
+                        fila.id_ejercicio
+                          ? "border-white/10 text-white"
+                          : "border-dashed border-white/15 text-zinc-500"
+                      }`}
+                    >
+                      <Dumbbell
                         size={14}
-                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none"
+                        className="text-orange-400 shrink-0"
                       />
-                    </div>
+                      <span className="truncate">
+                        {fila.id_ejercicio
+                          ? ejercicios.find(
+                              (e) => String(e.id) === String(fila.id_ejercicio),
+                            )?.nombre || "Ejercicio"
+                          : "Seleccionar ejercicio..."}
+                      </span>
+                    </button>
 
                     {/* Día */}
                     <div className="relative">
@@ -491,6 +489,17 @@ export function RutinaModal({
               </button>
             </div>
           </div>
+
+          {/* Catálogo de ejercicios */}
+          <EjercicioCatalogo
+            isOpen={catalogoOpenIdx !== null}
+            ejercicios={ejercicios}
+            onSelect={(id_ejercicio) => {
+              handleFilaChange(catalogoOpenIdx, "id_ejercicio", id_ejercicio);
+              setCatalogoOpenIdx(null);
+            }}
+            onClose={() => setCatalogoOpenIdx(null)}
+          />
         </form>
       </div>
     </div>

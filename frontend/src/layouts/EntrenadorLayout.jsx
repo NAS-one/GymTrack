@@ -68,8 +68,8 @@ export function EntrenadorLayout() {
           icon: <Users size={18} />,
         },
         {
-          path: "/entrenador/rutinas",
-          label: "Rutinas",
+          path: "/entrenador/planes",
+          label: "Planes",
           icon: <ClipboardList size={18} />,
         },
         {

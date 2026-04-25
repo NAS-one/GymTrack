@@ -17,6 +17,7 @@ import { DashboardModel } from "./Models/dashboard.js";
 import { ColaboradorModel } from "./Models/colaborador.js"; // <--- IMPORTAR
 import { PerfilModel } from "./Models/perfil.js";
 import { ConfiguracionModel } from "./Models/configuracion.js";
+import { PlanEntrenamientoModel } from "./Models/plan_entrenamiento.js";
 
 import { SesionModel } from "./Models/sesion.js";
 
@@ -41,4 +42,5 @@ createApp({
   PerfilModel,
   ConfiguracionModel,
   SesionModel,
+  PlanEntrenamientoModel,
 });

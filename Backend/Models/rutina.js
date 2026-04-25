@@ -56,10 +56,10 @@ export class RutinaModel {
 
         // B. Insertarmos Rutina usando los IDs validados
         const [newRutina] =
-          await sql`INSERT INTO rutinas (nombre, id_cliente, id_entrenador, activa, es_plantilla)
-          VALUES (${nombre}, ${alumno ? alumno.id : null}, ${coach.id}, ${activa ?? true}, ${es_plantilla ?? false})
-          RETURNING id, nombre, created_at
-        `;
+          await sql`INSERT INTO rutinas (nombre, id_cliente, id_entrenador, activa, es_plantilla, id_plan)
+                  VALUES (${nombre}, ${alumno ? alumno.id : null}, ${coach.id}, ${activa ?? true}, ${es_plantilla ?? false}, ${input.id_plan || null})
+                  RETURNING id, nombre, created_at
+                `;
 
         // C. Insertar Detalles (Loop eficiente y Sanitizado)
         const detallesConId = detalles.map((d) => ({
