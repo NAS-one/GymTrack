@@ -10,7 +10,7 @@ import {
 } from "lucide-react-native";
 
 import TrainerAgendaScreen from "../screens/trainer/TrainerAgendaScreen";
-import TrainerStudentsScreen from "../screens/trainer/TrainerStudentsScreen";
+import ClientesStackNavigator from "./ClientesStackNavigator";
 import TrainerHomeScreen from "../screens/trainer/TrainerHomeScreen";
 import TrainerPlansScreen from "../screens/trainer/TrainerPlansScreen";
 import TrainerFinancesScreen from "../screens/trainer/TrainerFinancesScreen";
@@ -44,7 +44,7 @@ export default function TrainerTabNavigator() {
       />
       <Tab.Screen
         name="Clientes"
-        component={TrainerStudentsScreen}
+        component={ClientesStackNavigator}
         options={{
           tabBarIcon: ({ color }) => <Users color={color} size={22} />,
         }}

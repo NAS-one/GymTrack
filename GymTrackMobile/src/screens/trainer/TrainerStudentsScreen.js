@@ -23,7 +23,7 @@ import axios from "../../api/axios";
 import { useAuth } from "../../contexts/AuthContext";
 import ClienteDetailSheet from "../../components/ClienteDetailSheet";
 
-export default function TrainerStudentsScreen({ navegation }) {
+export default function TrainerStudentsScreen({ navigation }) {
   const { user } = useAuth();
   const [alumnos, setAlumnos] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -81,7 +81,7 @@ export default function TrainerStudentsScreen({ navegation }) {
     return (
       <TouchableOpacity
         style={styles.card}
-        onPress={() => toggleExpand(item.id)}
+        onPress={() => navigation.navigate("DetalleCliente", { client: item })}
         activeOpacity={0.7}
       >
         {/* Fila principal */}
