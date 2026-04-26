@@ -177,7 +177,7 @@ CREATE TABLE rutinas (
     fecha_inicio DATE DEFAULT CURRENT_DATE,
     fecha_fin DATE,
     activa BOOLEAN DEFAULT true,
-    id_cliente UUID  DROP NOT NULL REFERENCES clientes(id) ON DELETE CASCADE,
+    id_cliente UUID REFERENCES clientes(id) ON DELETE CASCADE,
     id_entrenador UUID NOT NULL REFERENCES entrenadores(id) ON DELETE CASCADE,
     es_plantilla BOOLEAN DEFAULT false,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -281,6 +281,20 @@ CREATE TABLE auditoria_sesiones (
     estado VARCHAR(20), -- 'success', 'failed'
     dispositivo_confiable BOOLEAN DEFAULT FALSE
 );
+
+-- =============================================================================
+-- FASE 7: PLANES DE ENTRENAMIENTO
+-- =============================================================================
+
+CREATE TABLE planes_entrenamiento (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    nombre VARCHAR(100) NOT NULL,
+    objetivo VARCHAR(100),
+    id_entrenador UUID NOT NULL REFERENCES entrenadores(id) ON DELETE CASCADE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+ALTER TABLE rutinas ADD COLUMN id_plan UUID REFERENCES planes_entrenamiento(id) ON DELETE CASCADE;
 
 -- =============================================================================
 -- DATOS INICIALES OBLIGATORIOS

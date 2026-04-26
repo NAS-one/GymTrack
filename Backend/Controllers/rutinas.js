@@ -35,24 +35,16 @@ export class RutinaController {
     }
   };
 
-  // 2. OBTENER RUTINA ACTIVA DE UN CLIENTE
+  // 2. OBTENER RUTINAS ACTIVAS DE UN CLIENTE
   getActiveByClient = async (req, res) => {
-    // 2.1 Extraer id_cliente de los parámetros
     const { id_cliente } = req.params;
 
     try {
-      // 2.2 Usar el modelo para obtener la rutina activa
-      const rutina = await this.RutinaModel.getActiveByClient({ id_cliente });
+      const rutinas = await this.RutinaModel.getActivaByClient({ id_cliente });
 
-      // 2.3 Si no hay rutina activa
-      if (!rutina) {
-        return error(req, res, "El cliente no tiene rutinas activas", 404);
-      }
-
-      // 2.4 Responder con la rutina encontrada (200 OK)
-      success(req, res, rutina, 200);
+      // Devolvemos el array (puede estar vacío)
+      success(req, res, rutinas, 200);
     } catch (e) {
-      // 2.5 Manejo de errores
       console.error(e);
       error(req, res, "Error interno", 500);
     }

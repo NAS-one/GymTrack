@@ -11,7 +11,9 @@ import {
   User,
   CheckCircle2,
   AlertCircle,
+  Download,
 } from "lucide-react";
+import { toast } from "sonner";
 import {
   BarChart,
   Bar,
@@ -59,6 +61,48 @@ export function EntrenadorFinanzas() {
   const { perfil, sesiones, totalesMes, historico, totalEstimado } = data;
   const esFijo = perfil.modelo_contrato === "sueldo_fijo";
 
+  // --- EXPORTAR CSV ---
+  const descargarCSV = () => {
+    if (!sesiones || sesiones.length === 0) {
+      return toast.warning("No hay sesiones para exportar");
+    }
+
+    const mesActual = new Date().toLocaleDateString("es-CL", { month: "long", year: "numeric" });
+
+    // Resumen arriba del CSV
+    const resumen = [
+      ["REPORTE FINANCIERO - ENTRENADOR"],
+      [`Nombre: ${perfil.nombre || "Entrenador"}`],
+      [`Contrato: ${esFijo ? "Sueldo Fijo" : "Comisión por Porcentaje"}`],
+      [`Período: ${mesActual}`],
+      [`Total Estimado: $${totalEstimado?.toLocaleString() || 0}`],
+      [`Sesiones del Mes: ${totalesMes.total_sesiones || 0}`],
+      [""],
+      ["Fecha", "Hora", "Cliente", "Duración (min)", "Valor Cobrado", "Tu Comisión", "Estado"],
+    ];
+
+    const filas = sesiones.map((s) => [
+      s.fecha_formateada || "",
+      s.hora_formateada || "",
+      `"${(s.cliente || "").replace(/"/g, '""')}"`,
+      s.duracion_minutos || 60,
+      s.valor_cobrado || 0,
+      s.monto_entrenador || 0,
+      s.estado || "pendiente",
+    ]);
+
+    const csvContent = [...resumen, ...filas].map((row) => row.join(",")).join("\n");
+
+    const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `Finanzas_Entrenador_${new Date().toISOString().split("T")[0]}.csv`;
+    link.click();
+    URL.revokeObjectURL(link.href);
+
+    toast.success("CSV descargado exitosamente");
+  };
+
   return (
     <div className="relative min-h-screen pb-20 animate-fade-in select-none">
       {/* CAPA ATMOSFÉRICA */}
@@ -83,6 +127,16 @@ export function EntrenadorFinanzas() {
             Balance financiero del mes actual
           </p>
         </header>
+
+        {/* BOTÓN EXPORTAR CSV */}
+        <div className="px-4 flex justify-end">
+          <button
+            onClick={descargarCSV}
+            className="flex items-center gap-2 bg-green-500/10 hover:bg-green-500 hover:text-white text-green-400 border border-green-500/30 hover:border-green-500 px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all shadow-lg active:scale-95"
+          >
+            <Download size={16} /> Exportar CSV
+          </button>
+        </div>
 
         {/* KPIS ADAPTATIVOS */}
         <section className="grid grid-cols-1 sm:grid-cols-3 gap-5 px-4">

@@ -1,226 +1,239 @@
 import { sql } from "../bd.js";
 
 export class RutinaModel {
-    // 1. CREAR RUTINA COMPLETA
-    static create = async (input) => {
-        const {
-            nombre,
-            id_cliente,
-            id_entrenador,
-            activa,
-            detalles,
-            es_plantilla,
-        } = input;
+  // 1. CREAR RUTINA COMPLETA
+  static create = async (input) => {
+    const {
+      nombre,
+      id_cliente,
+      id_entrenador,
+      activa,
+      detalles,
+      es_plantilla,
+    } = input;
 
-        try {
-            const result = await sql.begin(async (sql) => {
-                //Optimizar: Recibir directamente el id_entrenador y id_cliente
-                //reales desde el payload del Frontend para evitar estas dos consultas
-                // ----------------------------------------------------------------
-                // Si nos mandan el id_usuario, buscamos su id_entrenador real
-                const [coach] = await sql`
+    try {
+      const result = await sql.begin(async (sql) => {
+        //Optimizar: Recibir directamente el id_entrenador y id_cliente
+        //reales desde el payload del Frontend para evitar estas dos consultas
+        // ----------------------------------------------------------------
+        // Si nos mandan el id_usuario, buscamos su id_entrenador real
+        const [coach] = await sql`
           SELECT id FROM entrenadores 
           WHERE id = ${id_entrenador} OR id_usuario = ${id_entrenador} 
           LIMIT 1
         `;
 
-                if (!coach) throw new Error("Entrenador no existe");
+        if (!coach) throw new Error("Entrenador no existe");
 
-                let alumno = null;
+        let alumno = null;
 
-                //Solo pedimos que el alumno exista si no es una plantilla predeterminada
-                if (!es_plantilla) {
-                    const [clienteRecord] = await sql`
+        //Solo pedimos que el alumno exista si no es una plantilla predeterminada
+        if (!es_plantilla) {
+          const [clienteRecord] = await sql`
             SELECT id FROM clientes
             WHERE id = ${id_cliente} or id_usuario = ${id_cliente}
             LIMIT 1`;
 
-                    if (!clienteRecord) throw new Error("Cliente no existe");
-                    alumno = clienteRecord;
+          if (!clienteRecord) throw new Error("Cliente no existe");
+          alumno = clienteRecord;
 
-                    // ----------------------------------------------------------------
+          // ----------------------------------------------------------------
 
-                    // A. Si esta rutina es activa, desactivamos las anteriores de este cliente
-                    if (activa !== false) {
-                        await sql`
-             UPDATE rutinas SET activa = false 
-             WHERE id_cliente = ${alumno.id} AND activa = true
-           `;
-                    }
-                }
+          //A. Validar máximo 7 rutinas activas por cliente
+          if (activa !== false) {
+            const [count] = await sql`
+              SELECT COUNT(*) as total FROM rutinas
+              WHERE id_cliente = ${alumno.id} AND activa = true`;
 
-                // B. Insertarmos Rutina usando los IDs validados
-                const [newRutina] =
-                    await sql`INSERT INTO rutinas (nombre, id_cliente, id_entrenador, activa, es_plantilla)
-          VALUES (${nombre}, ${alumno ? alumno.id : null}, ${coach.id}, ${activa ?? true}, ${es_plantilla ?? false})
-          RETURNING id, nombre, created_at
-        `;
+            if (parseInt(count.total) >= 7) {
+              throw new Error(
+                "El cliente ya tiene el máximo de 7 rutinas activas",
+              );
+            }
+          }
+        }
 
-                // C. Insertar Detalles (Loop eficiente y Sanitizado)
-                const detallesConId = detalles.map((d) => ({
-                    id_rutina: newRutina.id,
-                    id_ejercicio: d.id_ejercicio,
-                    dia: d.dia,
-                    series: d.series,
-                    repeticiones: d.repeticiones,
-                    carga_proyectada: d.carga_proyectada || null,
-                }));
+        // B. Insertarmos Rutina usando los IDs validados
+        const [newRutina] =
+          await sql`INSERT INTO rutinas (nombre, id_cliente, id_entrenador, activa, es_plantilla, id_plan)
+                  VALUES (${nombre}, ${alumno ? alumno.id : null}, ${coach.id}, ${activa ?? true}, ${es_plantilla ?? false}, ${input.id_plan || null})
+                  RETURNING id, nombre, created_at
+                `;
 
-                await sql`
+        // C. Insertar Detalles (Loop eficiente y Sanitizado)
+        const detallesConId = detalles.map((d) => ({
+          id_rutina: newRutina.id,
+          id_ejercicio: d.id_ejercicio,
+          dia: d.dia,
+          series: d.series,
+          repeticiones: d.repeticiones,
+          carga_proyectada: d.carga_proyectada || null,
+        }));
+
+        await sql`
           INSERT INTO detalle_rutina ${sql(detallesConId)}
           RETURNING *
         `;
-            });
+      });
 
-            return result;
-        } catch (error) {
-            throw error;
-        }
-    };
-    // 2. OBTENER RUTINA ACTUAL DE UN CLIENTE (Para la App Móvil)
-    // Devuelve la rutina activa con todos sus ejercicios anidados
-    static getActiveByClient = async ({ id_cliente }) => {
-        // Primero buscamos la rutina activa
-        const [rutina] = await sql`
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  };
+  // 2. OBTENER RUTINA ACTUAL DE UN CLIENTE (Para la App Móvil)
+  static getActivaByClient = async ({ id_cliente }) => {
+    //Buscamos todas las rutinas activas del cliente
+    // Combinado: usamos el JOIN de master para traer datos extra
+    const rutinas = await sql`
       SELECT r.*, en.nombre as entrenador_nombre 
       FROM rutinas r
       JOIN clientes c ON r.id_cliente = c.id
       JOIN entrenadores en ON r.id_entrenador = en.id
       WHERE (c.id = ${id_cliente} OR c.id_usuario = ${id_cliente}) AND r.activa = true
-      LIMIT 1
+      ORDER BY r.created_at ASC
     `;
 
-        if (!rutina) return null;
+    if (rutinas.length === 0) return [];
 
-        // Luego buscamos sus detalles uniendo con la tabla ejercicios para saber el nombre
-        const detalles = await sql`
-      SELECT d.*, e.nombre as nombre_ejercicio, e.url_video, e.grupo_muscular
-      FROM detalle_rutina d
-      JOIN ejercicios e ON d.id_ejercicio = e.id
-      WHERE d.id_rutina = ${rutina.id}
-      ORDER BY d.dia, d.id -- Ordenamos por día
-    `;
+    //Para cada rutina cargamos sus detalles
+    for (let rutina of rutinas) {
+      const detalles = await sql`
+        SELECT d.*, e.nombre as nombre_ejercicio, e.url_video, e.grupo_muscular
+        FROM detalle_rutina d
+        JOIN ejercicios e ON d.id_ejercicio = e.id
+        WHERE d.id_rutina = ${rutina.id}
+        ORDER BY d.dia, d.id`;
 
-        return { ...rutina, plan: detalles };
-    };
+      rutina.plan = detalles;
+    }
+    return rutinas;
+  };
 
-    // 3. Obtener todas (para el admin/entrenador)
-    static getAll = async () => {
-        return await sql`SELECT * FROM rutinas`;
-    };
+  // 3. Obtener todas (para el admin/entrenador)
+  static getAll = async () => {
+    return await sql`SELECT * FROM rutinas`;
+  };
 
-    static update = async ({ id, input }) => {
-        const { nombre, detalles } = input;
+  static update = async ({ id, input }) => {
+    const { nombre, detalles } = input;
 
-        try {
-            await sql.begin(async (sql) => {
-                //1. Actualizamos el nombre de la rutina
-                await sql`
+    try {
+      await sql.begin(async (sql) => {
+        //1. Actualizamos el nombre de la rutina
+        await sql`
         UPDATE rutinas
         SET nombre = ${nombre}
         WHERE id = ${id}`;
 
-                //2. Eliminamos el detalle de la rutina vieja
-                await sql`
+        //2. Eliminamos el detalle de la rutina vieja
+        await sql`
         DELETE FROM detalle_rutina
         WHERE id_rutina = ${id}`;
 
-                //3. Insertamos la nueva distribucion de ejercicios
-                if (detalles && detalles.length > 0) {
-                    const detallesConId = detalles.map((d) => ({
-                        id_rutina: id,
-                        id_ejercicio: d.id_ejercicio,
-                        dia: d.dia,
-                        series: d.series,
-                        repeticiones: d.repeticiones,
-                        carga_proyectada: d.carga_proyectada || null,
-                    }));
+        //3. Insertamos la nueva distribucion de ejercicios
+        if (detalles && detalles.length > 0) {
+          const detallesConId = detalles.map((d) => ({
+            id_rutina: id,
+            id_ejercicio: d.id_ejercicio,
+            dia: d.dia,
+            series: d.series,
+            repeticiones: d.repeticiones,
+            carga_proyectada: d.carga_proyectada || null,
+          }));
 
-                    await sql`INSERT INTO detalle_rutina ${sql(detallesConId)}`;
-                }
-            });
-
-            return { success: true };
-        } catch (error) {
-            console.error(error);
-            throw new Error("Error al actualizar la rutina");
+          await sql`INSERT INTO detalle_rutina ${sql(detallesConId)}`;
         }
-    };
+      });
 
-    static getPlantillas = async ({ id_entrenador }) => {
-        const plantillas = await sql`
+      return { success: true };
+    } catch (error) {
+      console.error(error);
+      throw new Error("Error al actualizar la rutina");
+    }
+  };
+
+  static getPlantillas = async ({ id_entrenador }) => {
+    const plantillas = await sql`
       SELECT r.*
       FROM rutinas r
       JOIN entrenadores e ON r.id_entrenador = e.id
       WHERE r.es_plantilla = true AND (e.id = ${id_entrenador} OR e.id_usuario=${id_entrenador})
       ORDER BY r.created_at ASC`;
 
-        if (plantillas.length > 0) {
-            for (let p of plantillas) {
-                const detalles = await sql`
+    if (plantillas.length > 0) {
+      for (let p of plantillas) {
+        const detalles = await sql`
         SELECT d.*, e.nombre as nombre_ejercicio 
         FROM detalle_rutina d
         JOIN ejercicios e ON d.id_ejercicio = e.id
         WHERE d.id_rutina = ${p.id}`;
 
-                p.plan = detalles;
-                p.total_ejercicios = detalles.length;
-            }
-        }
+        p.plan = detalles;
+        p.total_ejercicios = detalles.length;
+      }
+    }
 
-        return plantillas;
-    };
+    return plantillas;
+  };
 
-    //Eliminar Rutina
-    static delete = async ({ id }) => {
-        try {
-            const result = await sql`
+  //Eliminar Rutina
+  static delete = async ({ id }) => {
+    try {
+      const result = await sql`
       DELETE FROM rutinas
       WHERE id = ${id}
       RETURNING id`;
 
-            if (result.length === 0) throw new Error("Rutina no encontrada");
-            return { success: true };
-        } catch (error) {
-            throw error;
+      if (result.length === 0) throw new Error("Rutina no encontrada");
+      return { success: true };
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  //Clonar plantilla a un alumno
+  static asignarPlantilla = async ({ id_plantilla, id_cliente }) => {
+    try {
+      return await sql.begin(async (sql) => {
+        //Traer informacion de la plantilla original
+        const [plantilla] =
+          await sql`SELECT * FROM rutinas WHERE id = ${id_plantilla}`;
+        if (!plantilla) throw new Error("Plantilla no encontrada");
+        // Validar máximo 7 rutinas activas
+        const [count] = await sql`
+          SELECT COUNT(*) as total FROM rutinas 
+          WHERE id_cliente = ${id_cliente} AND activa = true
+        `;
+        if (parseInt(count.total) >= 7) {
+          throw new Error("El cliente ya tiene el máximo de 7 rutinas activas");
         }
-    };
 
-    //Clonar plantilla a un alumno
-    static asignarPlantilla = async ({ id_plantilla, id_cliente }) => {
-        try {
-            return await sql.begin(async (sql) => {
-                //Traer informacion de la plantilla original
-                const [plantilla] =
-                    await sql`SELECT * FROM rutinas WHERE id = ${id_plantilla}`;
-                if (!plantilla) throw new Error("Plantilla no encontrada");
-                //Desactivar las rutinas anteriores del alumno
-                await sql`UPDATE rutinas SET activa = false WHERE id_cliente = ${id_cliente}`;
-
-                //Nueva rutina vinculada al cliente
-                const [nuevaRutina] = await sql`
+        //Nueva rutina vinculada al cliente
+        const [nuevaRutina] = await sql`
         INSERT INTO rutinas (nombre, id_cliente, id_entrenador, activa, es_plantilla)
         VALUES (${plantilla.nombre}, ${id_cliente}, ${plantilla.id_entrenador}, true, false)
         RETURNING id`;
 
-                //Traer los ejericios de la plantilla y clonarlos en la nueva
-                const detalles =
-                    await sql`SELECT * FROM detalle_rutina WHERE id_rutina = ${id_plantilla}`;
-                if (detalles.length > 0) {
-                    const detallesClonados = detalles.map((d) => ({
-                        id_rutina: nuevaRutina.id,
-                        id_ejercicio: d.id_ejercicio,
-                        dia: d.dia,
-                        series: d.series,
-                        repeticiones: d.repeticiones,
-                        carga_proyectada: d.carga_proyectada || null,
-                    }));
-                    await sql`INSERT INTO detalle_rutina ${sql(detallesClonados)}`;
-                }
-                return { success: true, id_nueva_rutina: nuevaRutina.id };
-            });
-        } catch (error) {
-            throw error;
+        //Traer los ejericios de la plantilla y clonarlos en la nueva
+        const detalles =
+          await sql`SELECT * FROM detalle_rutina WHERE id_rutina = ${id_plantilla}`;
+        if (detalles.length > 0) {
+          const detallesClonados = detalles.map((d) => ({
+            id_rutina: nuevaRutina.id,
+            id_ejercicio: d.id_ejercicio,
+            dia: d.dia,
+            series: d.series,
+            repeticiones: d.repeticiones,
+            carga_proyectada: d.carga_proyectada || null,
+          }));
+          await sql`INSERT INTO detalle_rutina ${sql(detallesClonados)}`;
         }
-    };
+        return { success: true, id_nueva_rutina: nuevaRutina.id };
+      });
+    } catch (error) {
+      throw error;
+    }
+  };
 }

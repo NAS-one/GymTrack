@@ -32,7 +32,7 @@ import { Reportes } from "./pages/admin/Reportes";
 import { EntrenadorDashboard } from "./pages/trainer/EntrenadorDashboard";
 import { MisAlumnos } from "./pages/trainer/MisAlumnos";
 import { AgendaDiaria } from "./components/admin/Entrenadores/AgendaDiaria";
-import { EntrenadorRutinas } from "./pages/trainer/EntrenadorRutinas";
+import { EntrenadorPlanes } from "./pages/trainer/EntrenadorPlanes";
 import { EntrenadorFinanzas } from "./pages/trainer/EntrenadorFinanzas";
 
 function App() {
@@ -99,8 +99,8 @@ function App() {
                 {/* Vistas temporales para que no se rompa la app al hacer clic en el menú */}
                 <Route path="/entrenador/clientes" element={<MisAlumnos />} />
                 <Route
-                  path="entrenador/rutinas"
-                  element={<EntrenadorRutinas />}
+                  path="entrenador/planes"
+                  element={<EntrenadorPlanes />}
                 />
                 <Route path="/entrenador/agenda" element={<AgendaDiaria />} />
                 <Route path="/entrenador/ejercicios" element={<Ejercicios />} />
