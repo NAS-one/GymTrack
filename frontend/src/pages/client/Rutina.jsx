@@ -7,27 +7,51 @@ export const Rutina = () => {
     const { user } = useAuth();
     const [rutinaDelDia, setRutinaDelDia] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [fetchError, setFetchError] = useState(null);
 
     useEffect(() => {
         const fetchRutina = async () => {
-            if (!user?.id) return;
+            const userId = user?.id || user?.id_usuario;
+            if (!userId) {
+                setFetchError("No se encontró el ID del cliente.");
+                setIsLoading(false);
+                return;
+            }
+
             try {
-                const response = await axios.get(`/rutinas/active/${user.id}`);
+                const response = await axios.get(`/rutinas/active/${userId}`);
                 setRutinaDelDia(response.data.body);
             } catch (error) {
                 console.error("Error al obtener la rutina:", error);
+                if (error.response?.status !== 404) {
+                    setFetchError(
+                        error.response?.data?.body ||
+                        error.response?.data?.message ||
+                        "No se pudo cargar la rutina."
+                    );
+                }
             } finally {
                 setIsLoading(false);
             }
         };
 
         fetchRutina();
-    }, [user?.id]);
+    }, [user?.id, user?.id_usuario]);
 
     if (isLoading) {
         return (
             <div className="flex items-center justify-center h-full">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gym-orange"></div>
+            </div>
+        );
+    }
+
+    if (fetchError) {
+        return (
+            <div className="flex flex-col items-center justify-center h-full p-4 text-center">
+                <Dumbbell size={48} className="text-gray-600 mb-4" />
+                <h2 className="text-xl font-bold text-white mb-2">Error al cargar la rutina</h2>
+                <p className="text-gray-400 text-sm">{fetchError}</p>
             </div>
         );
     }
@@ -66,7 +90,7 @@ export const Rutina = () => {
                 </div>
                 <div className="text-right">
                     <p className="text-xs text-gray-500 uppercase font-bold tracking-widest">Ejercicios</p>
-                    <p className="text-xl text-white font-bold">{(rutinaDelDia.detalles || rutinaDelDia.ejercicios || []).length}</p>
+                    <p className="text-xl text-white font-bold">{(rutinaDelDia.plan || rutinaDelDia.detalles || rutinaDelDia.ejercicios || []).length}</p>
                 </div>
             </div>
 
