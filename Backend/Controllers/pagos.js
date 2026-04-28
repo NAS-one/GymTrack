@@ -1,6 +1,6 @@
 import { success, error } from "../Utils/responses.js";
 import { dispararAlertaStaff } from "../Utils/alertas.js"; // 🌟 Importamos el nuevo coordinador unificado
-// import { validatePago } from "../Schemas/pagos.js"; 
+// import { validatePago } from "../Schemas/pagos.js";
 
 export class PagoController {
   constructor({ PagoModel }) {
@@ -22,18 +22,18 @@ export class PagoController {
   create = async (req, res) => {
     try {
       const input = req.body;
-      
+
       if (!input.monto || !input.id_membresia) {
         return error(req, res, "Faltan datos del pago", 400);
       }
 
       const newPago = await this.PagoModel.create(input);
 
-      // 🌟 REEMPLAZADO: Ahora usa el servicio de persistencia + SSE
+      // Ahora usa el servicio de persistencia + SSE
       dispararAlertaStaff(
-        "Pago Registrado", 
-        `Se ha registrado un pago manual por $${input.monto}.`, 
-        "pago_recibido"
+        "Pago Registrado",
+        `Se ha registrado un pago manual por $${input.monto}.`,
+        "pago_recibido",
       );
 
       success(req, res, newPago, 201);
@@ -46,19 +46,22 @@ export class PagoController {
   // 3. RENOVAR MEMBRESÍA
   renovarPlan = async (req, res) => {
     try {
-      // req.body trae: { id_cliente, id_plan, meses_duracion, monto, metodo_pago }
-      
       if (!req.body.id_cliente || !req.body.id_plan) {
-          return error(req, res, "Faltan datos para renovar (Cliente o Plan)", 400);
+        return error(
+          req,
+          res,
+          "Faltan datos para renovar (Cliente o Plan)",
+          400,
+        );
       }
-      
+
       const resultado = await this.PagoModel.procesarRenovacion(req.body);
-      
-      // 🌟 REEMPLAZADO: Ahora usa el servicio de persistencia + SSE
+
+      // Ahora usa el servicio de persistencia + SSE
       dispararAlertaStaff(
-        "Renovación Exitosa", 
-        `Un cliente ha renovado su plan (Monto: $${req.body.monto || 'N/A'}).`, 
-        "pago_recibido"
+        "Renovación Exitosa",
+        `Un cliente ha renovado su plan (Monto: $${req.body.monto || "N/A"}).`,
+        "pago_recibido",
       );
 
       success(req, res, resultado, 201);
@@ -72,28 +75,30 @@ export class PagoController {
   cancelarPlan = async (req, res) => {
     try {
       const { id_cliente } = req.body;
-      
+
       if (!id_cliente) {
-          return error(req, res, "ID de cliente faltante", 400);
+        return error(req, res, "ID de cliente faltante", 400);
       }
 
       const cancelado = await this.PagoModel.cancelarMembresia(id_cliente);
-      
+
       if (!cancelado) {
-          console.warn("⚠️ No se encontró membresía activa para cancelar:", id_cliente);
-          // Opcional: Podrías devolver 404 si prefieres ser estricto
+        console.warn(
+          "No se encontró membresía activa para cancelar:",
+          id_cliente,
+        );
       } else {
-          // 🌟 REEMPLAZADO: Usa el tag "alerta_sistema" para el color naranja
-          dispararAlertaStaff(
-            "Membresía Cancelada", 
-            `Se ha dado de baja la membresía del cliente ID: ${id_cliente}.`, 
-            "alerta_sistema"
-          );
+        // Usa el tag "alerta_sistema" para el color naranja
+        dispararAlertaStaff(
+          "Membresía Cancelada",
+          `Se ha dado de baja la membresía del cliente ID: ${id_cliente}.`,
+          "alerta_sistema",
+        );
       }
 
       success(req, res, { message: "Membresía cancelada correctamente" }, 200);
     } catch (e) {
-      console.error("🔴 Error Cancelar:", e); 
+      console.error("🔴 Error Cancelar:", e);
       error(req, res, "Error interno al cancelar membresía", 500);
     }
   };

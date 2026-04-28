@@ -40,14 +40,13 @@ export class EntrenadorController {
 
       res.status(201).json({ message: "Entrenador creado", body: newTrainer });
     } catch (e) {
-      // 🔍 DIAGNÓSTICO EN TERMINAL (Esto te ayudará a ver el nombre real)
       console.error("--- ERROR AL CREAR ENTRENADOR ---");
       console.error("Código SQL:", e.code);
       console.error("Constraint:", e.constraint_name);
       console.error("Detalle:", e.detail);
       console.error("---------------------------------");
 
-      // MANEJO DE DUPLICADOS (Código 23505 en Postgres)
+      // MANEJO DE DUPLICADOS
       if (e.code === "23505") {
         // Concatenamos todo el texto del error y lo pasamos a minúsculas para buscar mejor
         const errorInfo = (
@@ -70,7 +69,7 @@ export class EntrenadorController {
             .json({ error: "Este correo electrónico ya está registrado." });
         }
 
-        // 3. Detección de Username duplicado (colisión en tabla usuarios)
+        // 3. Detección de Username duplicado
         if (
           errorInfo.includes("username") ||
           errorInfo.includes("usuarios_username_key")
@@ -161,7 +160,7 @@ export class EntrenadorController {
   //7. Dashboard del entrenador
   getDashboardSummary = async (req, res) => {
     try {
-      // 1. Extraemos el id del token (ahora que el guardia ya nos dejó pasar)
+      // 1. Extraemos el id del token
       const id_usuario = req.user?.id || req.user?.id_usuario;
 
       if (!id_usuario) {

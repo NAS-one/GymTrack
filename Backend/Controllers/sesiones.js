@@ -6,7 +6,7 @@ export class SesionController {
   getAgendaDia = async (req, res) => {
     try {
       const { id_entrenador } = req.params;
-      const { fecha } = req.query; //Sacamos la fecha que manda el React por la URL
+      const { fecha } = req.query;
 
       if (!id_entrenador || !fecha) {
         return res

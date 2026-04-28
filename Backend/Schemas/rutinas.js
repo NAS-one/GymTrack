@@ -3,7 +3,7 @@ import z from "zod";
 // 1. Esquema para CADA ejercicio dentro de la rutina
 const detalleSchema = z.object({
   id_ejercicio: z.string().uuid(),
-  dia: z.string().min(1, "Debes especificar el día (ej: Lunes)"),
+  dia: z.string().trim().min(1, "Debes especificar el día (ej: Lunes)"),
   series: z.number().int().positive(),
   repeticiones: z.string(), // String para permitir "12" o "10-12"
   carga_proyectada: z.string().optional(),
@@ -11,7 +11,7 @@ const detalleSchema = z.object({
 
 // 2. Esquema para la Rutina COMPLETA (Cabecera + Detalles)
 const rutinaSchema = z.object({
-  nombre: z.string().min(3),
+  nombre: z.string().trim().min(3),
   id_cliente: z.string().uuid().nullable().optional(),
   id_entrenador: z.string().uuid(),
   activa: z.boolean().optional(),

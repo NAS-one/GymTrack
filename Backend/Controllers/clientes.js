@@ -2,7 +2,6 @@ import { success, error } from "../Utils/responses.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { sendActivationEmail } from "../Utils/email.js";
-// Asegúrate de tener este schema, si no, comenta la validación
 import {
   validateCliente,
   validatePartialCliente,
@@ -24,7 +23,7 @@ export class ClienteController {
   };
 
   create = async (req, res) => {
-    // Validación Zod (Opcional si no tienes el archivo schema aún)
+    // Validación Zod
     const result = validateCliente(req.body);
     if (!result.success)
       return res.status(400).json(JSON.parse(result.error.message));

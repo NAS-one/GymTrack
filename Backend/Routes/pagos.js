@@ -9,7 +9,7 @@ export const createPagoRouter = ({ PagoModel }) => {
   // Verifica que 'controller.renovarPlan' NO sea undefined aquí
   router.get("/", controller.getAll);
   router.post("/", controller.create); 
-  router.post("/renovar", controller.renovarPlan); // <--- Aquí fallaba si el nombre estaba mal
+  router.post("/renovar", controller.renovarPlan);
   router.post("/cancelar", controller.cancelarPlan);
 
   return router;

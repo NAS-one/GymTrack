@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import axios from '../../api/axios';
-import { toast } from 'sonner'; // 🔥 Para las notificaciones de éxito
+import { toast } from 'sonner';
 import { Search, FilterX, MousePointerClick, CheckCircle2, XCircle, User, Briefcase, Dumbbell, Filter, Clock, Users, Activity, Target, Download } from 'lucide-react';
 
 export function Asistencia() {

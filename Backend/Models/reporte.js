@@ -73,7 +73,7 @@ export class ReporteModel {
   // 4. COMUNIDAD / CLIENTES
   // ==========================================
   static getClientesData = async (inicio, fin, estado) => {
-    // ⚠️ ATENCIÓN: Si tu base de datos NO tiene la columna "created_at", el servidor dará error 500.
+    // ATENCIÓN: Si tu base de datos NO tiene la columna "created_at", el servidor dará error 500.
     // Si ese es el caso, simplemente borra la línea que dice "WHERE c.created_at >= ${inicio}..." de aquí abajo.
     
     if (estado === 'active') {

@@ -6,13 +6,13 @@ import z from "zod";
 //Esquema objeto json para Administrador
 const administradorSchema = z.object({
   // --- Datos de Usuario Base (Credenciales) ---
-  username: z.string().min(3),
-  email: z.string().email(),
-  password: z.string().min(6),
+  username: z.string().trim().min(3),
+  email: z.string().trim().email(),
+  password: z.string().min(8),
 
   // --- Datos de Perfil (Administrador) ---
-  nombre: z.string().min(1, "El nombre es obligatorio"),
-  cargo: z.string().optional(), // Ej: 'Gerente', 'Recepción'
+  nombre: z.string().trim().min(1, "El nombre es obligatorio"),
+  cargo: z.string().trim().optional(),
 });
 
 // 8. Exportamos la función para validar un registro completo (POST)

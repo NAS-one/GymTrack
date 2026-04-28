@@ -123,7 +123,7 @@ export function AgendaDiaria() {
           </div>
         ) : sesiones.length === 0 ? (
           <div className="pl-8 text-zinc-500 italic flex items-center gap-2">
-            No tienes sesiones agendadas para este día. ¡Día libre! 🎉
+            No tienes sesiones agendadas para este día. ¡Día libre!
           </div>
         ) : (
           sesiones.map((sesion) => (

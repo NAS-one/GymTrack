@@ -16,13 +16,12 @@ export class MaquinaController {
 
   create = async (req, res) => {
     try {
-      // 👇 1. EXTRAEMOS EL ID DEL USUARIO DESDE EL TOKEN
-      // (Asegúrate de que tu JWT guarda el id como 'id')
+      // 1. EXTRAEMOS EL ID DEL USUARIO DESDE EL TOKEN
       const userId = req.user.id;
 
       if (!userId) return error(req, res, "Usuario no identificado", 401);
 
-      // 👇 2. Pasamos el userId al modelo junto con los datos del formulario
+      // 2. Pasamos el userId al modelo junto con los datos del formulario
       const nueva = await this.MaquinaModel.create({
         ...req.body,
         id_usuario: userId,

@@ -2,7 +2,7 @@ import z from "zod";
 
 const clienteSchema = z.object({
     // 1. Datos obligatorios
-    nombre: z.string().min(1, { message: "El nombre es requerido" }),
+    nombre: z.string().trim().min(1, { message: "El nombre es requerido" }),
     rut: z
         .string()
         .min(9, { message: "RUT inválido" })
@@ -30,13 +30,13 @@ const clienteSchema = z.object({
         .or(z.literal('')),
 
     // 3. Opcionales existentes
-    objetivo: z.string().optional(),
+    objetivo: z.string().trim().optional(),
 
     // 4. NUEVOS CAMPOS (Importante agregarlos para que pasen)
     // Aceptamos string o null (el input date envía string "YYYY-MM-DD" o vacío)
     fecha_nacimiento: z.string().nullable().optional().or(z.literal("")),
     genero: z.string().nullable().optional().or(z.literal("")),
-    direccion: z.string().nullable().optional().or(z.literal("")),
+    direccion: z.string().trim().nullable().optional().or(z.literal("")),
 
     // 5. Entrenador (Lógica de UUID, vacío o null)
     id_entrenador: z
@@ -44,7 +44,7 @@ const clienteSchema = z.object({
         .optional()
         .transform((val) => (val === "" ? null : val)),
 
-    // ❌ IMPORTANTE: NO incluimos 'username' aquí,
+    // IMPORTANTE: NO incluimos 'username' aquí,
     // porque el usuario no lo escribe, se genera solo en la BD.
 });
 

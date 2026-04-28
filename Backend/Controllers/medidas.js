@@ -13,13 +13,13 @@ export class MedidaController {
     const result = validateMedida(req.body);
 
     if (!result.success) {
-      // Estandarizado: 400 Bad Request
+      // Estandarizado
       return error(req, res, JSON.parse(result.error.message), 400);
     }
 
     try {
       const registro = await this.MedidaModel.create(result.data);
-      // Estandarizado: 201 Created
+      // Estandarizado
       success(req, res, registro, 201);
     } catch (e) {
       // Manejo de error si el ID del cliente no existe
@@ -36,7 +36,6 @@ export class MedidaController {
     const { id_cliente } = req.params;
     try {
       const historial = await this.MedidaModel.getByCliente({ id_cliente });
-      // Estandarizado: 200 OK
       success(req, res, historial, 200);
     } catch (e) {
       console.error(e);
@@ -44,7 +43,7 @@ export class MedidaController {
     }
   };
 
-  // 3. ACTUALIZAR (CORREGIR) MEDIDA
+  // 3. ACTUALIZAR MEDIDA
   update = async (req, res) => {
     const { id } = req.params;
     const result = validatePartialMedida(req.body);
@@ -72,7 +71,6 @@ export class MedidaController {
   // 4. ELIMINAR MEDIDA
   delete = async (req, res) => {
     const { id } = req.params;
-    // Agregamos try/catch para seguridad
     try {
       const result = await this.MedidaModel.delete({ id });
 
@@ -80,7 +78,6 @@ export class MedidaController {
         return error(req, res, "Registro no encontrado", 404);
       }
 
-      // Estandarizado: 200 OK
       success(req, res, { message: "Medida eliminada correctamente" }, 200);
     } catch (e) {
       console.error(e);

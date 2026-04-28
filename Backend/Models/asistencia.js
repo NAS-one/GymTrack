@@ -1,6 +1,6 @@
 import { sql } from "../bd.js";
 
-// --- HELPER: Formateador RUT (Visual) ---
+// --- HELPER: Formateador RUT  ---
 const formatearRut = (rutRaw) => {
   const valor = rutRaw.replace(/[^0-9kK]/g, "");
   if (valor.length < 2) return rutRaw;
@@ -10,8 +10,7 @@ const formatearRut = (rutRaw) => {
 };
 
 export class AsistenciaModel {
-  
-  // 1. OBTENER HISTORIAL (Universal)
+  // 1. OBTENER HISTORIAL
   static async getAll({ year, month, day, type }) {
     let query = sql`
       SELECT 
@@ -33,33 +32,36 @@ export class AsistenciaModel {
     `;
 
     const conditions = [];
-    
+
     if (year && month) {
       if (day) {
-         conditions.push(sql`DATE(a.fecha_entrada) = ${`${year}-${month}-${day}`}`);
+        conditions.push(
+          sql`DATE(a.fecha_entrada) = ${`${year}-${month}-${day}`}`,
+        );
       } else {
-         conditions.push(sql`EXTRACT(YEAR FROM a.fecha_entrada) = ${year} AND EXTRACT(MONTH FROM a.fecha_entrada) = ${month}`);
+        conditions.push(
+          sql`EXTRACT(YEAR FROM a.fecha_entrada) = ${year} AND EXTRACT(MONTH FROM a.fecha_entrada) = ${month}`,
+        );
       }
     }
 
-    if (type && type !== 'all') {
-        if (type === 'cliente') conditions.push(sql`c.id IS NOT NULL`);
-        if (type === 'staff') conditions.push(sql`col.id IS NOT NULL`);
-        if (type === 'entrenador') conditions.push(sql`e.id IS NOT NULL`);
+    if (type && type !== "all") {
+      if (type === "cliente") conditions.push(sql`c.id IS NOT NULL`);
+      if (type === "staff") conditions.push(sql`col.id IS NOT NULL`);
+      if (type === "entrenador") conditions.push(sql`e.id IS NOT NULL`);
     }
 
     if (conditions.length > 0) {
-        query = sql`${query} WHERE ${conditions.reduce((a, b) => sql`${a} AND ${b}`)}`;
+      query = sql`${query} WHERE ${conditions.reduce((a, b) => sql`${a} AND ${b}`)}`;
     }
 
-    const limitClause = (year && month) ? sql`` : sql`LIMIT 100`;
+    const limitClause = year && month ? sql`` : sql`LIMIT 100`;
     return await sql`${query} ORDER BY a.fecha_entrada DESC ${limitClause}`;
   }
 
-  // 2. REGISTRAR ACCESO (CORREGIDO: COMPARACIÓN ROBUSTA)
+  // 2. REGISTRAR ACCESO
   static async registrarNuevoAcceso(identificador) {
     return await sql.begin(async (sql) => {
-      
       // A. PREPARACIÓN DE DATOS
       // 1. Versión Formateada (12.345.678-K) - Para estética o coincidencias exactas
       let rutFormateado = identificador;
@@ -67,7 +69,7 @@ export class AsistenciaModel {
         rutFormateado = formatearRut(identificador);
       }
 
-      // 2. Versión Limpia (12345678K) - PARA COMPARACIÓN INFALIBLE
+      // 2. Versión Limpia  PARA COMPARACIÓN INFALIBLE
       // Quitamos puntos, guiones y espacios, y pasamos a mayúscula
       const rutLimpio = identificador.replace(/[^0-9kK]/g, "").toUpperCase();
 
@@ -97,19 +99,19 @@ export class AsistenciaModel {
       `;
 
       if (!usuario) {
-        console.log("❌ No encontrado en ninguna tabla.");
+        console.log("No encontrado en ninguna tabla.");
         throw new Error("USUARIO_NO_ENCONTRADO");
       }
 
-      console.log(`✅ Encontrado: ${usuario.nombre} (${usuario.tipo})`);
+      console.log(`Encontrado: ${usuario.nombre} (${usuario.tipo})`);
 
       // C. VALIDACIÓN DE ACCESO
       let estado_acceso = "denegado";
       let mensaje = "";
 
-      if (usuario.tipo === 'cliente') {
-          // Lógica Clientes (Membresía)
-          const [membresia] = await sql`
+      if (usuario.tipo === "cliente") {
+        // Lógica Clientes (Membresía)
+        const [membresia] = await sql`
             SELECT m.estado, m.fecha_fin, p.nombre as plan
             FROM membresias m
             JOIN planes p ON m.id_plan = p.id
@@ -117,21 +119,21 @@ export class AsistenciaModel {
             ORDER BY m.fecha_fin DESC LIMIT 1
           `;
 
-          const hoy = new Date(); 
-          hoy.setHours(0,0,0,0);
-          
-          if (!membresia) {
-              mensaje = "Sin membresía activa";
-          } else if (new Date(membresia.fecha_fin) < hoy) {
-              mensaje = "Plan vencido";
-          } else {
-              estado_acceso = "aprobado";
-              mensaje = `Bienvenido ${usuario.nombre}`;
-          }
-      } else {
-          // Lógica Staff/Entrenadores (Pase Libre)
+        const hoy = new Date();
+        hoy.setHours(0, 0, 0, 0);
+
+        if (!membresia) {
+          mensaje = "Sin membresía activa";
+        } else if (new Date(membresia.fecha_fin) < hoy) {
+          mensaje = "Plan vencido";
+        } else {
           estado_acceso = "aprobado";
-          mensaje = `Hola ${usuario.nombre}`;
+          mensaje = `Bienvenido ${usuario.nombre}`;
+        }
+      } else {
+        // Lógica Staff/Entrenadores (Pase Libre)
+        estado_acceso = "aprobado";
+        mensaje = `Hola ${usuario.nombre}`;
       }
 
       // D. REGISTRAR
@@ -146,8 +148,9 @@ export class AsistenciaModel {
         estado_acceso,
         mensaje,
         // Datos extra para el frontend
-        nombre_plan: usuario.tipo === 'cliente' ? 'Sin Plan' : 'Personal Interno', 
-        fecha_fin: null 
+        nombre_plan:
+          usuario.tipo === "cliente" ? "Sin Plan" : "Personal Interno",
+        fecha_fin: null,
       };
     });
   }

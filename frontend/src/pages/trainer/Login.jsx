@@ -2,7 +2,6 @@ import { useState } from "react";
 import axios from "../../api/axios";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/useAuth";
-// Importamos iconos de la librería que instalaste
 import { FaGoogle } from "react-icons/fa";
 import { HiEye, HiEyeOff } from "react-icons/hi";
 import { BiDumbbell } from "react-icons/bi";
@@ -19,21 +18,16 @@ export function Login() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    // 1. Verificamos si la función al menos se dispara
-    console.log("🔘 BOTÓN PRESIONADO. Intentando enviar:", { email, password });
+    console.log("Intentando login:", { email });
     setError(null);
-    setLoading(true); // Activa spinner
+    setLoading(true);
 
     try {
-      console.log("🚀 Enviando petición a la API...");
       const response = await axios.post("auth/login", {
         username: email,
         password,
       });
-      console.log("✅ Respuesta exitosa del backend:", response.data);
       const { token, user } = response.data.body;
-
-      console.log("🕵️ DATOS DEL USUARIO QUE LLEGAN DEL BACKEND:", user);
 
       // Guardamos la sesión en el contexto
       login(user, token);
@@ -44,8 +38,6 @@ export function Login() {
       const rolDelUsuario = (user?.role || user?.rol || user?.id_rol || "")
         .toString()
         .toLowerCase();
-
-      console.log("🔍 EL ROL DETECTADO ES EXACTAMENTE:", `"${rolDelUsuario}"`);
 
       if (rolDelUsuario === "entrenador" || rolDelUsuario === "2") {
         navigate("/entrenador/dashboard");
@@ -63,7 +55,7 @@ export function Login() {
         setError("No se pudo conectar con el servidor");
       }
     } finally {
-      setLoading(false); // Desactiva spinner
+      setLoading(false);
     }
   };
 

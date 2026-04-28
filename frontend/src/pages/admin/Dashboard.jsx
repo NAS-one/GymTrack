@@ -21,7 +21,7 @@ export function Dashboard() {
   const currentYear = now.getFullYear();
   const currentMonth = now.getMonth() + 1;
 
-  // 🎯 2. CONFIGURACIÓN DE METAS (Para la barra de progreso)
+  // 2. CONFIGURACIÓN DE METAS (Para la barra de progreso)
   const INCOME_GOAL = 5000000;
   const incomeProgress = stats ? Math.min(100, Math.round((stats.kpi.income / INCOME_GOAL) * 100)) : 0;
 
