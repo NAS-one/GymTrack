@@ -5,7 +5,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { View, ActivityIndicator } from "react-native";
 
 // Pantallas
-import LoginScreen from "../screens/auth/LoginScreen";
+import LoginScreen from "../features/auth/LoginScreen";
 
 // Navegadores
 import ClientTabNavigator from "./ClientTabNavigator";

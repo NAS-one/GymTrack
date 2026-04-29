@@ -2,6 +2,8 @@ import express, { json } from "express";
 import { corsMiddleware } from "./Middlewares/cors.js";
 import morgan from "morgan";
 
+
+//SECCION WEB -> ADMIN
 import { createAuthRouter } from "./Routes/auth.js";
 import { createEntrenadorRouter } from "./Routes/entrenadores.js";
 import { createClienteRouter } from "./Routes/clientes.js";
@@ -25,6 +27,12 @@ import { createNotificationRouter } from "./Routes/notifications.js";
 import { createSesionRouter } from "./Routes/sesiones.js";
 import { createPlanEntrenamientoRouter } from "./Routes/plan_entrenamiento.js";
 
+//SECCION MOVIL -> CLIENTE
+import { createAppHomeRouter } from "./Routes/app_home.js";
+
+
+
+
 // Actualizamos la función para recibir UserModel
 export const createApp = ({
   UserModel,
@@ -47,7 +55,9 @@ export const createApp = ({
   ConfiguracionModel,
   SesionModel,
   PlanEntrenamientoModel,
+  AppHomeModel
 }) => {
+
   const app = express();
   app.disable("x-powered-by");
   app.use(json());
@@ -82,10 +92,12 @@ export const createApp = ({
   app.use("/notificaciones", createNotificacionesRouter());
   app.use("/notifications", createNotificationRouter());
   app.use("/sesiones", createSesionRouter({ SesionModel }));
-  app.use(
-    "/planes-entrenamiento",
-    createPlanEntrenamientoRouter({ PlanEntrenamientoModel }),
-  );
+
+  //SECCION MOVIL -> CLIENTE
+  app.use("/app_home", createAppHomeRouter({ AppHomeModel }));
+
+  //SECCION MOVIL -> ENTRENADOR
+  app.use("/planes-entrenamiento",createPlanEntrenamientoRouter({ PlanEntrenamientoModel }));
 
   const PORT = process.env.PORT || 3000;
   app.listen(PORT, () => {

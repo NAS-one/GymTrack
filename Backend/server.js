@@ -1,4 +1,6 @@
 import { createApp } from "./app.js";
+
+// Modelos Web
 import { UserModel } from "./Models/user.js";
 import { EntrenadorModel } from "./Models/entrenador.js";
 import { ClienteModel } from "./Models/cliente.js";
@@ -17,8 +19,11 @@ import { DashboardModel } from "./Models/dashboard.js";
 import { ColaboradorModel } from "./Models/colaborador.js";
 import { PerfilModel } from "./Models/perfil.js";
 import { ConfiguracionModel } from "./Models/configuracion.js";
-import { PlanEntrenamientoModel } from "./Models/plan_entrenamiento.js";
 import { SesionModel } from "./Models/sesion.js";
+
+// Modelos Móvil
+import { AppHomeModel } from "./Models/app_home.js";
+import { PlanEntrenamientoModel } from "./Models/plan_entrenamiento.js";
 
 createApp({
   UserModel,
@@ -40,5 +45,6 @@ createApp({
   PerfilModel,
   ConfiguracionModel,
   SesionModel,
+  AppHomeModel,
   PlanEntrenamientoModel,
 });
