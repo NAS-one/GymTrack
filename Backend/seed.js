@@ -722,42 +722,42 @@ async function seed() {
     console.log("ðŸ‹ï¸ Creando Biblioteca de Ejercicios profesional (30 ejercicios)...");
     const ejerciciosDb = [
       // â”€â”€ PECHO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-      { nombre: "Press de Banca Plano",          grupo_muscular: "Pecho",    url_video: "https://youtu.be/rT7DgCr-3pg", descripcion: "Ejercicio compuesto rey del pecho. Activa pectoral mayor, deltoides anterior y trÃ­ceps. TÃ©cnica: escÃ¡pulas retraÃ­das, arco lumbar controlado, barra baja hacia el esternÃ³n." },
-      { nombre: "Press de Banca Inclinado",       grupo_muscular: "Pecho",    url_video: "https://youtu.be/DbFgADa2PL8", descripcion: "Variante inclinada (30-45Â°) que aÃ­sla la porciÃ³n clavicular del pectoral. Excelente para la parte alta del pecho." },
-      { nombre: "Aperturas con Mancuernas",        grupo_muscular: "Pecho",    url_video: "https://youtu.be/eozdVDA78K0", descripcion: "Aislamiento del pectoral en el plano horizontal. Emphasize el estiramiento mÃ¡ximo y la contracciÃ³n en cima." },
-      { nombre: "Fondos en Paralelas",             grupo_muscular: "Pecho",    url_video: "https://youtu.be/2z8JmcrW-As", descripcion: "Compuesto de empuje que maximiza el rango de movimiento del pectoral inferior. Inclinarse hacia adelante para mayor activaciÃ³n del pecho." },
+      { nombre: "Press de Banca Plano", grupo_muscular: "Pecho", url_video: "https://youtu.be/rT7DgCr-3pg", descripcion: "Ejercicio compuesto rey del pecho. Activa pectoral mayor, deltoides anterior y trÃ­ceps. TÃ©cnica: escÃ¡pulas retraÃ­das, arco lumbar controlado, barra baja hacia el esternÃ³n." },
+      { nombre: "Press de Banca Inclinado", grupo_muscular: "Pecho", url_video: "https://youtu.be/DbFgADa2PL8", descripcion: "Variante inclinada (30-45Â°) que aÃ­sla la porciÃ³n clavicular del pectoral. Excelente para la parte alta del pecho." },
+      { nombre: "Aperturas con Mancuernas", grupo_muscular: "Pecho", url_video: "https://youtu.be/eozdVDA78K0", descripcion: "Aislamiento del pectoral en el plano horizontal. Emphasize el estiramiento mÃ¡ximo y la contracciÃ³n en cima." },
+      { nombre: "Fondos en Paralelas", grupo_muscular: "Pecho", url_video: "https://youtu.be/2z8JmcrW-As", descripcion: "Compuesto de empuje que maximiza el rango de movimiento del pectoral inferior. Inclinarse hacia adelante para mayor activaciÃ³n del pecho." },
       // â”€â”€ ESPALDA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-      { nombre: "Dominadas Supinas",               grupo_muscular: "Espalda",  url_video: "https://youtu.be/eGo4IYlbE5g", descripcion: "TracciÃ³n vertical con agarre supino. Activa dorsales y bÃ­ceps con alta intensidad. Bajar hasta extensiÃ³n completa del codo." },
-      { nombre: "Remo con Barra",                  grupo_muscular: "Espalda",  url_video: "https://youtu.be/G8l_8chR5BE", descripcion: "TracciÃ³n horizontal pesada enfocada en grosor de la espalda media. Torso a 45Â°, barra hacia el ombligo." },
-      { nombre: "Peso Muerto Convencional",         grupo_muscular: "Espalda",  url_video: "https://youtu.be/op9kVnSso6Q", descripcion: "Ejercicio fundamental para toda la cadena posterior. Columna neutra, cadera como eje. Base de cualquier programa serio de fuerza." },
-      { nombre: "JalÃ³n al Pecho en Polea",          grupo_muscular: "Espalda",  url_video: "https://youtu.be/CAwf7n6Luuc", descripcion: "TracciÃ³n vertical asistida para desarrollo de dorsales. Barra hacia la clavÃ­cula, codos hacia la cadera al bajar." },
-      { nombre: "Remo en Polea Baja",               grupo_muscular: "Espalda",  url_video: "https://youtu.be/GZbfZ033f74", descripcion: "Remo sentado con polea. Control total del movimiento. Ideal para grosor medio de la espalda y romboides." },
+      { nombre: "Dominadas Supinas", grupo_muscular: "Espalda", url_video: "https://youtu.be/eGo4IYlbE5g", descripcion: "TracciÃ³n vertical con agarre supino. Activa dorsales y bÃ­ceps con alta intensidad. Bajar hasta extensiÃ³n completa del codo." },
+      { nombre: "Remo con Barra", grupo_muscular: "Espalda", url_video: "https://youtu.be/G8l_8chR5BE", descripcion: "TracciÃ³n horizontal pesada enfocada en grosor de la espalda media. Torso a 45Â°, barra hacia el ombligo." },
+      { nombre: "Peso Muerto Convencional", grupo_muscular: "Espalda", url_video: "https://youtu.be/op9kVnSso6Q", descripcion: "Ejercicio fundamental para toda la cadena posterior. Columna neutra, cadera como eje. Base de cualquier programa serio de fuerza." },
+      { nombre: "JalÃ³n al Pecho en Polea", grupo_muscular: "Espalda", url_video: "https://youtu.be/CAwf7n6Luuc", descripcion: "TracciÃ³n vertical asistida para desarrollo de dorsales. Barra hacia la clavÃ­cula, codos hacia la cadera al bajar." },
+      { nombre: "Remo en Polea Baja", grupo_muscular: "Espalda", url_video: "https://youtu.be/GZbfZ033f74", descripcion: "Remo sentado con polea. Control total del movimiento. Ideal para grosor medio de la espalda y romboides." },
       // â”€â”€ PIERNAS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-      { nombre: "Sentadilla Libre",                 grupo_muscular: "Piernas",  url_video: "https://youtu.be/ultWZbUMPL8", descripcion: "Rey del tren inferior. Activa cuÃ¡driceps, glÃºteos, isquios y core. Rodillas en lÃ­nea con pies, espalda recta, profundidad mÃ­nima al paralelo." },
-      { nombre: "Prensa de Piernas 45Â°",             grupo_muscular: "Piernas",  url_video: "https://youtu.be/IZxyjW7MPJQ", descripcion: "MÃ¡quina de empuje para hipertrofia del cuÃ¡driceps. PosiciÃ³n del pie varÃ­a el Ã©nfasis: alto=isquios/glÃºteos, bajo=cuÃ¡driceps." },
-      { nombre: "Hip Thrust con Barra",              grupo_muscular: "Piernas",  url_video: "https://youtu.be/LM8XHLYJoYs", descripcion: "Ejercicio de extensiÃ³n de cadera por excelencia para glÃºteo mayor. Hombros sobre banco, barra en caderas, mÃ¡xima contracciÃ³n arriba." },
-      { nombre: "Curl Femoral Tumbado",              grupo_muscular: "Piernas",  url_video: "https://youtu.be/1Tq3QdYUuHs", descripcion: "Aislamiento de isquiotibiales en mÃ¡quina. FlexiÃ³n de rodilla hasta ~120Â°. Fundamental para equilibrio anterior/posterior del muslo." },
-      { nombre: "ExtensiÃ³n de CuÃ¡driceps",           grupo_muscular: "Piernas",  url_video: "https://youtu.be/YyvSfVjQeL0", descripcion: "Aislamiento de cuÃ¡driceps en mÃ¡quina. ExtensiÃ³n completa al tope. Utilizar en fase de pump o calentamiento." },
-      { nombre: "Peso Muerto Rumano",                grupo_muscular: "Piernas",  url_video: "https://youtu.be/JCXUYuzwNrM", descripcion: "Variante de peso muerto que aÃ­sla la cadena posterior: isquiotibiales y glÃºteos. Rodillas semi-flexionadas, cadera hacia atrÃ¡s." },
+      { nombre: "Sentadilla Libre", grupo_muscular: "Piernas", url_video: "https://youtu.be/ultWZbUMPL8", descripcion: "Rey del tren inferior. Activa cuÃ¡driceps, glÃºteos, isquios y core. Rodillas en lÃ­nea con pies, espalda recta, profundidad mÃ­nima al paralelo." },
+      { nombre: "Prensa de Piernas 45Â°", grupo_muscular: "Piernas", url_video: "https://youtu.be/IZxyjW7MPJQ", descripcion: "MÃ¡quina de empuje para hipertrofia del cuÃ¡driceps. PosiciÃ³n del pie varÃ­a el Ã©nfasis: alto=isquios/glÃºteos, bajo=cuÃ¡driceps." },
+      { nombre: "Hip Thrust con Barra", grupo_muscular: "Piernas", url_video: "https://youtu.be/LM8XHLYJoYs", descripcion: "Ejercicio de extensiÃ³n de cadera por excelencia para glÃºteo mayor. Hombros sobre banco, barra en caderas, mÃ¡xima contracciÃ³n arriba." },
+      { nombre: "Curl Femoral Tumbado", grupo_muscular: "Piernas", url_video: "https://youtu.be/1Tq3QdYUuHs", descripcion: "Aislamiento de isquiotibiales en mÃ¡quina. FlexiÃ³n de rodilla hasta ~120Â°. Fundamental para equilibrio anterior/posterior del muslo." },
+      { nombre: "ExtensiÃ³n de CuÃ¡driceps", grupo_muscular: "Piernas", url_video: "https://youtu.be/YyvSfVjQeL0", descripcion: "Aislamiento de cuÃ¡driceps en mÃ¡quina. ExtensiÃ³n completa al tope. Utilizar en fase de pump o calentamiento." },
+      { nombre: "Peso Muerto Rumano", grupo_muscular: "Piernas", url_video: "https://youtu.be/JCXUYuzwNrM", descripcion: "Variante de peso muerto que aÃ­sla la cadena posterior: isquiotibiales y glÃºteos. Rodillas semi-flexionadas, cadera hacia atrÃ¡s." },
       // â”€â”€ HOMBROS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-      { nombre: "Press Militar con Barra",           grupo_muscular: "Hombros",  url_video: "https://youtu.be/2yjwXTZQDDI", descripcion: "Empuje vertical compuesto para deltoides anterior y medio. De pie o sentado. Core activado. Barra desde la clavÃ­cula al bloqueo." },
-      { nombre: "Elevaciones Laterales con Mancuernas",grupo_muscular: "Hombros",url_video: "https://youtu.be/3VcKaXpzqRo", descripcion: "Aislamiento del deltoides lateral. Codos ligeramente flexionados, elevar hasta paralelo al suelo. No balancear el torso." },
-      { nombre: "PÃ¡jaro (Reverse Fly)",               grupo_muscular: "Hombros",  url_video: "https://youtu.be/ttvAYqd5qiI", descripcion: "Aislamiento del deltoides posterior y romboides. Torso inclinado, brazos en arco hacia arriba. Clave para postura y simetrÃ­a." },
+      { nombre: "Press Militar con Barra", grupo_muscular: "Hombros", url_video: "https://youtu.be/2yjwXTZQDDI", descripcion: "Empuje vertical compuesto para deltoides anterior y medio. De pie o sentado. Core activado. Barra desde la clavÃ­cula al bloqueo." },
+      { nombre: "Elevaciones Laterales con Mancuernas", grupo_muscular: "Hombros", url_video: "https://youtu.be/3VcKaXpzqRo", descripcion: "Aislamiento del deltoides lateral. Codos ligeramente flexionados, elevar hasta paralelo al suelo. No balancear el torso." },
+      { nombre: "PÃ¡jaro (Reverse Fly)", grupo_muscular: "Hombros", url_video: "https://youtu.be/ttvAYqd5qiI", descripcion: "Aislamiento del deltoides posterior y romboides. Torso inclinado, brazos en arco hacia arriba. Clave para postura y simetrÃ­a." },
       // â”€â”€ BRAZOS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-      { nombre: "Curl de BÃ­ceps con Barra",          grupo_muscular: "Brazos",   url_video: "https://youtu.be/kwG2ipFRgfo", descripcion: "Aislamiento clÃ¡sico para el bÃ­ceps braquial. Codos fijos al costado del torso. SupinaciÃ³n completa al subir. Bajar controlado." },
-      { nombre: "Curl Martillo con Mancuernas",       grupo_muscular: "Brazos",   url_video: "https://youtu.be/zC3nLlEvin4", descripcion: "Trabaja bÃ­ceps braquial y braquiorradial (agarre neutro). Excelente para grosor y amplitud del brazo." },
-      { nombre: "ExtensiÃ³n de TrÃ­ceps en Polea Alta", grupo_muscular: "Brazos",   url_video: "https://youtu.be/vB5OHsJ3EME", descripcion: "Aislamiento de las 3 cabezas del trÃ­ceps. Codos fijos, extensiÃ³n completa. Usar cuerda para mayor rango de movimiento." },
-      { nombre: "Press de TrÃ­ceps en Banco",          grupo_muscular: "Brazos",   url_video: "https://youtu.be/6kALZikXxLc", descripcion: "Fondos de trÃ­ceps en banco (Skull Crusher alternativo). AÃ­sla la cabeza larga del trÃ­ceps eficazmente." },
+      { nombre: "Curl de BÃ­ceps con Barra", grupo_muscular: "Brazos", url_video: "https://youtu.be/kwG2ipFRgfo", descripcion: "Aislamiento clÃ¡sico para el bÃ­ceps braquial. Codos fijos al costado del torso. SupinaciÃ³n completa al subir. Bajar controlado." },
+      { nombre: "Curl Martillo con Mancuernas", grupo_muscular: "Brazos", url_video: "https://youtu.be/zC3nLlEvin4", descripcion: "Trabaja bÃ­ceps braquial y braquiorradial (agarre neutro). Excelente para grosor y amplitud del brazo." },
+      { nombre: "ExtensiÃ³n de TrÃ­ceps en Polea Alta", grupo_muscular: "Brazos", url_video: "https://youtu.be/vB5OHsJ3EME", descripcion: "Aislamiento de las 3 cabezas del trÃ­ceps. Codos fijos, extensiÃ³n completa. Usar cuerda para mayor rango de movimiento." },
+      { nombre: "Press de TrÃ­ceps en Banco", grupo_muscular: "Brazos", url_video: "https://youtu.be/6kALZikXxLc", descripcion: "Fondos de trÃ­ceps en banco (Skull Crusher alternativo). AÃ­sla la cabeza larga del trÃ­ceps eficazmente." },
       // â”€â”€ CORE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-      { nombre: "Plancha IsomÃ©trica",                grupo_muscular: "Core",     url_video: "https://youtu.be/pSHjTRCQxIw", descripcion: "Ejercicio isomÃ©trico de estabilidad para el core completo. Cadera neutra, glÃºteos activos. Clave para transferir fuerza en multiarticulares." },
-      { nombre: "Crunch Abdominal",                   grupo_muscular: "Core",     url_video: "https://youtu.be/Xyd_fa5zoEU", descripcion: "FlexiÃ³n de columna para el recto abdominal. Manos detrÃ¡s de la cabeza sin halar. Exhalar al subir, inhalar al bajar." },
-      { nombre: "Rueda Abdominal (Ab Wheel)",          grupo_muscular: "Core",     url_video: "https://youtu.be/rq5--KFlpU4", descripcion: "Ejercicio avanzado de anti-extensiÃ³n lumbar. Activa recto abdominal, oblicuos y serrato. Nivel Ã©lite de estabilidad central." },
+      { nombre: "Plancha IsomÃ©trica", grupo_muscular: "Core", url_video: "https://youtu.be/pSHjTRCQxIw", descripcion: "Ejercicio isomÃ©trico de estabilidad para el core completo. Cadera neutra, glÃºteos activos. Clave para transferir fuerza en multiarticulares." },
+      { nombre: "Crunch Abdominal", grupo_muscular: "Core", url_video: "https://youtu.be/Xyd_fa5zoEU", descripcion: "FlexiÃ³n de columna para el recto abdominal. Manos detrÃ¡s de la cabeza sin halar. Exhalar al subir, inhalar al bajar." },
+      { nombre: "Rueda Abdominal (Ab Wheel)", grupo_muscular: "Core", url_video: "https://youtu.be/rq5--KFlpU4", descripcion: "Ejercicio avanzado de anti-extensiÃ³n lumbar. Activa recto abdominal, oblicuos y serrato. Nivel Ã©lite de estabilidad central." },
       // â”€â”€ CARDIO / FUNCIONAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-      { nombre: "Remo en MÃ¡quina Concept2",           grupo_muscular: "Cardio",   url_video: "https://youtu.be/H0r1hfhPuOQ", descripcion: "Cardio de bajo impacto de alta exigencia. Trabaja el 86% de los mÃºsculos del cuerpo. Perfecto para warm-up o HIIT." },
-      { nombre: "Farmer's Walk",                      grupo_muscular: "Core",     url_video: "https://youtu.be/rt17lmnaLSM", descripcion: "Caminata con carga pesada en cada mano. Desarrolla agarre, trapecio y estabilidad lumbar. Funcional y efectivo." },
-      { nombre: "Face Pull en Polea",                 grupo_muscular: "Hombros",  url_video: "https://youtu.be/d_vIQEMoTqY", descripcion: "TracciÃ³n hacia la cara para deltoides posterior y manguito rotador. Salud Ã³ptima del hombro. Clave preventivo y correctivo." },
-      { nombre: "Sentadilla BÃºlgara",                  grupo_muscular: "Piernas",  url_video: "https://youtu.be/2C-uNgKwPLE", descripcion: "Sentadilla unilateral con pie posterior elevado. MÃ¡ximo estÃ­mulo para cuÃ¡driceps y glÃºteo. Corrige desequilibrios laterales." },
-      { nombre: "DÃ©ficit Push-Up",                     grupo_muscular: "Pecho",    url_video: "https://youtu.be/9GkGXuJMdrg", descripcion: "FlexiÃ³n de brazos con rango de movimiento extendido usando plataformas. MÃ¡ximo estiramiento del pectoral menor y mayor." },
+      { nombre: "Remo en MÃ¡quina Concept2", grupo_muscular: "Cardio", url_video: "https://youtu.be/H0r1hfhPuOQ", descripcion: "Cardio de bajo impacto de alta exigencia. Trabaja el 86% de los mÃºsculos del cuerpo. Perfecto para warm-up o HIIT." },
+      { nombre: "Farmer's Walk", grupo_muscular: "Core", url_video: "https://youtu.be/rt17lmnaLSM", descripcion: "Caminata con carga pesada en cada mano. Desarrolla agarre, trapecio y estabilidad lumbar. Funcional y efectivo." },
+      { nombre: "Face Pull en Polea", grupo_muscular: "Hombros", url_video: "https://youtu.be/d_vIQEMoTqY", descripcion: "TracciÃ³n hacia la cara para deltoides posterior y manguito rotador. Salud Ã³ptima del hombro. Clave preventivo y correctivo." },
+      { nombre: "Sentadilla BÃºlgara", grupo_muscular: "Piernas", url_video: "https://youtu.be/2C-uNgKwPLE", descripcion: "Sentadilla unilateral con pie posterior elevado. MÃ¡ximo estÃ­mulo para cuÃ¡driceps y glÃºteo. Corrige desequilibrios laterales." },
+      { nombre: "DÃ©ficit Push-Up", grupo_muscular: "Pecho", url_video: "https://youtu.be/9GkGXuJMdrg", descripcion: "FlexiÃ³n de brazos con rango de movimiento extendido usando plataformas. MÃ¡ximo estiramiento del pectoral menor y mayor." },
     ];
     await sql`INSERT INTO ejercicios ${sql(ejerciciosDb, "nombre", "grupo_muscular", "url_video", "descripcion")}`;
     // Mapa por nombre para referenciarlos en rutinas
@@ -784,20 +784,20 @@ async function seed() {
       ) RETURNING id
     `;
     const detallePush = [
-      { dia: "Lunes",   series: 4, repeticiones: "6-8",  carga_proyectada: "80 kg",  id_rutina: rutinaPush.id, id_ejercicio: ej["Press de Banca Plano"] },
-      { dia: "Lunes",   series: 3, repeticiones: "8-10", carga_proyectada: "60 kg",  id_rutina: rutinaPush.id, id_ejercicio: ej["Press de Banca Inclinado"] },
-      { dia: "Lunes",   series: 3, repeticiones: "10-12",carga_proyectada: "16 kg c/u", id_rutina: rutinaPush.id, id_ejercicio: ej["Aperturas con Mancuernas"] },
-      { dia: "Lunes",   series: 4, repeticiones: "8-10", carga_proyectada: "60 kg",  id_rutina: rutinaPush.id, id_ejercicio: ej["Press Militar con Barra"] },
-      { dia: "Lunes",   series: 3, repeticiones: "12-15",carga_proyectada: "10 kg c/u", id_rutina: rutinaPush.id, id_ejercicio: ej["Elevaciones Laterales con Mancuernas"] },
-      { dia: "Lunes",   series: 3, repeticiones: "10-12",carga_proyectada: "30 kg",  id_rutina: rutinaPush.id, id_ejercicio: ej["ExtensiÃ³n de TrÃ­ceps en Polea Alta"] },
-      { dia: "Lunes",   series: 2, repeticiones: "12-15",carga_proyectada: "Peso corporal", id_rutina: rutinaPush.id, id_ejercicio: ej["Fondos en Paralelas"] },
-      { dia: "Jueves",  series: 4, repeticiones: "6-8",  carga_proyectada: "82 kg",  id_rutina: rutinaPush.id, id_ejercicio: ej["Press de Banca Plano"] },
-      { dia: "Jueves",  series: 3, repeticiones: "8-10", carga_proyectada: "62 kg",  id_rutina: rutinaPush.id, id_ejercicio: ej["Press de Banca Inclinado"] },
-      { dia: "Jueves",  series: 3, repeticiones: "10-12",carga_proyectada: "18 kg c/u", id_rutina: rutinaPush.id, id_ejercicio: ej["Aperturas con Mancuernas"] },
-      { dia: "Jueves",  series: 4, repeticiones: "8-10", carga_proyectada: "62 kg",  id_rutina: rutinaPush.id, id_ejercicio: ej["Press Militar con Barra"] },
-      { dia: "Jueves",  series: 3, repeticiones: "12-15",carga_proyectada: "12 kg c/u", id_rutina: rutinaPush.id, id_ejercicio: ej["Elevaciones Laterales con Mancuernas"] },
-      { dia: "Jueves",  series: 3, repeticiones: "10-12",carga_proyectada: "32 kg",  id_rutina: rutinaPush.id, id_ejercicio: ej["ExtensiÃ³n de TrÃ­ceps en Polea Alta"] },
-      { dia: "Jueves",  series: 2, repeticiones: "12-15",carga_proyectada: "Peso corporal", id_rutina: rutinaPush.id, id_ejercicio: ej["Fondos en Paralelas"] },
+      { dia: "Lunes", series: 4, repeticiones: "6-8", carga_proyectada: "80 kg", id_rutina: rutinaPush.id, id_ejercicio: ej["Press de Banca Plano"] },
+      { dia: "Lunes", series: 3, repeticiones: "8-10", carga_proyectada: "60 kg", id_rutina: rutinaPush.id, id_ejercicio: ej["Press de Banca Inclinado"] },
+      { dia: "Lunes", series: 3, repeticiones: "10-12", carga_proyectada: "16 kg c/u", id_rutina: rutinaPush.id, id_ejercicio: ej["Aperturas con Mancuernas"] },
+      { dia: "Lunes", series: 4, repeticiones: "8-10", carga_proyectada: "60 kg", id_rutina: rutinaPush.id, id_ejercicio: ej["Press Militar con Barra"] },
+      { dia: "Lunes", series: 3, repeticiones: "12-15", carga_proyectada: "10 kg c/u", id_rutina: rutinaPush.id, id_ejercicio: ej["Elevaciones Laterales con Mancuernas"] },
+      { dia: "Lunes", series: 3, repeticiones: "10-12", carga_proyectada: "30 kg", id_rutina: rutinaPush.id, id_ejercicio: ej["ExtensiÃ³n de TrÃ­ceps en Polea Alta"] },
+      { dia: "Lunes", series: 2, repeticiones: "12-15", carga_proyectada: "Peso corporal", id_rutina: rutinaPush.id, id_ejercicio: ej["Fondos en Paralelas"] },
+      { dia: "Jueves", series: 4, repeticiones: "6-8", carga_proyectada: "82 kg", id_rutina: rutinaPush.id, id_ejercicio: ej["Press de Banca Plano"] },
+      { dia: "Jueves", series: 3, repeticiones: "8-10", carga_proyectada: "62 kg", id_rutina: rutinaPush.id, id_ejercicio: ej["Press de Banca Inclinado"] },
+      { dia: "Jueves", series: 3, repeticiones: "10-12", carga_proyectada: "18 kg c/u", id_rutina: rutinaPush.id, id_ejercicio: ej["Aperturas con Mancuernas"] },
+      { dia: "Jueves", series: 4, repeticiones: "8-10", carga_proyectada: "62 kg", id_rutina: rutinaPush.id, id_ejercicio: ej["Press Militar con Barra"] },
+      { dia: "Jueves", series: 3, repeticiones: "12-15", carga_proyectada: "12 kg c/u", id_rutina: rutinaPush.id, id_ejercicio: ej["Elevaciones Laterales con Mancuernas"] },
+      { dia: "Jueves", series: 3, repeticiones: "10-12", carga_proyectada: "32 kg", id_rutina: rutinaPush.id, id_ejercicio: ej["ExtensiÃ³n de TrÃ­ceps en Polea Alta"] },
+      { dia: "Jueves", series: 2, repeticiones: "12-15", carga_proyectada: "Peso corporal", id_rutina: rutinaPush.id, id_ejercicio: ej["Fondos en Paralelas"] },
     ];
     await sql`INSERT INTO detalle_rutina ${sql(detallePush, "dia", "series", "repeticiones", "carga_proyectada", "id_rutina", "id_ejercicio")}`;
 
@@ -814,21 +814,21 @@ async function seed() {
       ) RETURNING id
     `;
     const detallePull = [
-      { dia: "Martes",  series: 4, repeticiones: "6-8",  carga_proyectada: "120 kg", id_rutina: rutinaPull.id, id_ejercicio: ej["Peso Muerto Convencional"] },
-      { dia: "Martes",  series: 4, repeticiones: "6-8",  carga_proyectada: "Peso corporal", id_rutina: rutinaPull.id, id_ejercicio: ej["Dominadas Supinas"] },
-      { dia: "Martes",  series: 4, repeticiones: "8-10", carga_proyectada: "75 kg",  id_rutina: rutinaPull.id, id_ejercicio: ej["Remo con Barra"] },
-      { dia: "Martes",  series: 3, repeticiones: "10-12",carga_proyectada: "55 kg",  id_rutina: rutinaPull.id, id_ejercicio: ej["JalÃ³n al Pecho en Polea"] },
-      { dia: "Martes",  series: 3, repeticiones: "10-12",carga_proyectada: "50 kg",  id_rutina: rutinaPull.id, id_ejercicio: ej["Remo en Polea Baja"] },
-      { dia: "Martes",  series: 3, repeticiones: "10-12",carga_proyectada: "35 kg",  id_rutina: rutinaPull.id, id_ejercicio: ej["Curl de BÃ­ceps con Barra"] },
-      { dia: "Martes",  series: 3, repeticiones: "12-15",carga_proyectada: "16 kg c/u", id_rutina: rutinaPull.id, id_ejercicio: ej["Curl Martillo con Mancuernas"] },
-      { dia: "Martes",  series: 2, repeticiones: "15",   carga_proyectada: "15 kg",  id_rutina: rutinaPull.id, id_ejercicio: ej["Face Pull en Polea"] },
-      { dia: "Viernes", series: 4, repeticiones: "5-6",  carga_proyectada: "125 kg", id_rutina: rutinaPull.id, id_ejercicio: ej["Peso Muerto Convencional"] },
-      { dia: "Viernes", series: 4, repeticiones: "6-8",  carga_proyectada: "Peso corporal +5kg", id_rutina: rutinaPull.id, id_ejercicio: ej["Dominadas Supinas"] },
-      { dia: "Viernes", series: 4, repeticiones: "8-10", carga_proyectada: "77 kg",  id_rutina: rutinaPull.id, id_ejercicio: ej["Remo con Barra"] },
-      { dia: "Viernes", series: 3, repeticiones: "10-12",carga_proyectada: "57 kg",  id_rutina: rutinaPull.id, id_ejercicio: ej["JalÃ³n al Pecho en Polea"] },
-      { dia: "Viernes", series: 3, repeticiones: "10-12",carga_proyectada: "52 kg",  id_rutina: rutinaPull.id, id_ejercicio: ej["Remo en Polea Baja"] },
-      { dia: "Viernes", series: 3, repeticiones: "10-12",carga_proyectada: "37 kg",  id_rutina: rutinaPull.id, id_ejercicio: ej["Curl de BÃ­ceps con Barra"] },
-      { dia: "Viernes", series: 3, repeticiones: "12-15",carga_proyectada: "18 kg c/u", id_rutina: rutinaPull.id, id_ejercicio: ej["Curl Martillo con Mancuernas"] },
+      { dia: "Martes", series: 4, repeticiones: "6-8", carga_proyectada: "120 kg", id_rutina: rutinaPull.id, id_ejercicio: ej["Peso Muerto Convencional"] },
+      { dia: "Martes", series: 4, repeticiones: "6-8", carga_proyectada: "Peso corporal", id_rutina: rutinaPull.id, id_ejercicio: ej["Dominadas Supinas"] },
+      { dia: "Martes", series: 4, repeticiones: "8-10", carga_proyectada: "75 kg", id_rutina: rutinaPull.id, id_ejercicio: ej["Remo con Barra"] },
+      { dia: "Martes", series: 3, repeticiones: "10-12", carga_proyectada: "55 kg", id_rutina: rutinaPull.id, id_ejercicio: ej["JalÃ³n al Pecho en Polea"] },
+      { dia: "Martes", series: 3, repeticiones: "10-12", carga_proyectada: "50 kg", id_rutina: rutinaPull.id, id_ejercicio: ej["Remo en Polea Baja"] },
+      { dia: "Martes", series: 3, repeticiones: "10-12", carga_proyectada: "35 kg", id_rutina: rutinaPull.id, id_ejercicio: ej["Curl de BÃ­ceps con Barra"] },
+      { dia: "Martes", series: 3, repeticiones: "12-15", carga_proyectada: "16 kg c/u", id_rutina: rutinaPull.id, id_ejercicio: ej["Curl Martillo con Mancuernas"] },
+      { dia: "Martes", series: 2, repeticiones: "15", carga_proyectada: "15 kg", id_rutina: rutinaPull.id, id_ejercicio: ej["Face Pull en Polea"] },
+      { dia: "Viernes", series: 4, repeticiones: "5-6", carga_proyectada: "125 kg", id_rutina: rutinaPull.id, id_ejercicio: ej["Peso Muerto Convencional"] },
+      { dia: "Viernes", series: 4, repeticiones: "6-8", carga_proyectada: "Peso corporal +5kg", id_rutina: rutinaPull.id, id_ejercicio: ej["Dominadas Supinas"] },
+      { dia: "Viernes", series: 4, repeticiones: "8-10", carga_proyectada: "77 kg", id_rutina: rutinaPull.id, id_ejercicio: ej["Remo con Barra"] },
+      { dia: "Viernes", series: 3, repeticiones: "10-12", carga_proyectada: "57 kg", id_rutina: rutinaPull.id, id_ejercicio: ej["JalÃ³n al Pecho en Polea"] },
+      { dia: "Viernes", series: 3, repeticiones: "10-12", carga_proyectada: "52 kg", id_rutina: rutinaPull.id, id_ejercicio: ej["Remo en Polea Baja"] },
+      { dia: "Viernes", series: 3, repeticiones: "10-12", carga_proyectada: "37 kg", id_rutina: rutinaPull.id, id_ejercicio: ej["Curl de BÃ­ceps con Barra"] },
+      { dia: "Viernes", series: 3, repeticiones: "12-15", carga_proyectada: "18 kg c/u", id_rutina: rutinaPull.id, id_ejercicio: ej["Curl Martillo con Mancuernas"] },
     ];
     await sql`INSERT INTO detalle_rutina ${sql(detallePull, "dia", "series", "repeticiones", "carga_proyectada", "id_rutina", "id_ejercicio")}`;
 
@@ -845,21 +845,21 @@ async function seed() {
       ) RETURNING id
     `;
     const detalleLegs = [
-      { dia: "MiÃ©rcoles", series: 4, repeticiones: "6-8",  carga_proyectada: "100 kg", id_rutina: rutinaLegs.id, id_ejercicio: ej["Sentadilla Libre"] },
+      { dia: "MiÃ©rcoles", series: 4, repeticiones: "6-8", carga_proyectada: "100 kg", id_rutina: rutinaLegs.id, id_ejercicio: ej["Sentadilla Libre"] },
       { dia: "MiÃ©rcoles", series: 4, repeticiones: "8-10", carga_proyectada: "160 kg", id_rutina: rutinaLegs.id, id_ejercicio: ej["Prensa de Piernas 45Â°"] },
-      { dia: "MiÃ©rcoles", series: 3, repeticiones: "10-12",carga_proyectada: "90 kg",  id_rutina: rutinaLegs.id, id_ejercicio: ej["Hip Thrust con Barra"] },
-      { dia: "MiÃ©rcoles", series: 3, repeticiones: "10-12",carga_proyectada: "40 kg",  id_rutina: rutinaLegs.id, id_ejercicio: ej["Curl Femoral Tumbado"] },
-      { dia: "MiÃ©rcoles", series: 3, repeticiones: "12-15",carga_proyectada: "50 kg",  id_rutina: rutinaLegs.id, id_ejercicio: ej["ExtensiÃ³n de CuÃ¡driceps"] },
-      { dia: "MiÃ©rcoles", series: 3, repeticiones: "10",   carga_proyectada: "20 kg c/u", id_rutina: rutinaLegs.id, id_ejercicio: ej["Sentadilla BÃºlgara"] },
+      { dia: "MiÃ©rcoles", series: 3, repeticiones: "10-12", carga_proyectada: "90 kg", id_rutina: rutinaLegs.id, id_ejercicio: ej["Hip Thrust con Barra"] },
+      { dia: "MiÃ©rcoles", series: 3, repeticiones: "10-12", carga_proyectada: "40 kg", id_rutina: rutinaLegs.id, id_ejercicio: ej["Curl Femoral Tumbado"] },
+      { dia: "MiÃ©rcoles", series: 3, repeticiones: "12-15", carga_proyectada: "50 kg", id_rutina: rutinaLegs.id, id_ejercicio: ej["ExtensiÃ³n de CuÃ¡driceps"] },
+      { dia: "MiÃ©rcoles", series: 3, repeticiones: "10", carga_proyectada: "20 kg c/u", id_rutina: rutinaLegs.id, id_ejercicio: ej["Sentadilla BÃºlgara"] },
       { dia: "MiÃ©rcoles", series: 3, repeticiones: "60 seg", carga_proyectada: "IsomÃ©trico", id_rutina: rutinaLegs.id, id_ejercicio: ej["Plancha IsomÃ©trica"] },
-      { dia: "MiÃ©rcoles", series: 3, repeticiones: "15",   carga_proyectada: "Peso corporal", id_rutina: rutinaLegs.id, id_ejercicio: ej["Crunch Abdominal"] },
-      { dia: "SÃ¡bado",    series: 4, repeticiones: "5-6",  carga_proyectada: "105 kg", id_rutina: rutinaLegs.id, id_ejercicio: ej["Sentadilla Libre"] },
-      { dia: "SÃ¡bado",    series: 4, repeticiones: "8-10", carga_proyectada: "165 kg", id_rutina: rutinaLegs.id, id_ejercicio: ej["Prensa de Piernas 45Â°"] },
-      { dia: "SÃ¡bado",    series: 3, repeticiones: "10-12",carga_proyectada: "95 kg",  id_rutina: rutinaLegs.id, id_ejercicio: ej["Hip Thrust con Barra"] },
-      { dia: "SÃ¡bado",    series: 3, repeticiones: "10-12",carga_proyectada: "70 kg",  id_rutina: rutinaLegs.id, id_ejercicio: ej["Peso Muerto Rumano"] },
-      { dia: "SÃ¡bado",    series: 3, repeticiones: "12",   carga_proyectada: "Peso corporal", id_rutina: rutinaLegs.id, id_ejercicio: ej["Curl Femoral Tumbado"] },
-      { dia: "SÃ¡bado",    series: 3, repeticiones: "60 seg", carga_proyectada: "IsomÃ©trico", id_rutina: rutinaLegs.id, id_ejercicio: ej["Plancha IsomÃ©trica"] },
-      { dia: "SÃ¡bado",    series: 3, repeticiones: "10",   carga_proyectada: "Peso corporal", id_rutina: rutinaLegs.id, id_ejercicio: ej["Rueda Abdominal (Ab Wheel)"] },
+      { dia: "MiÃ©rcoles", series: 3, repeticiones: "15", carga_proyectada: "Peso corporal", id_rutina: rutinaLegs.id, id_ejercicio: ej["Crunch Abdominal"] },
+      { dia: "SÃ¡bado", series: 4, repeticiones: "5-6", carga_proyectada: "105 kg", id_rutina: rutinaLegs.id, id_ejercicio: ej["Sentadilla Libre"] },
+      { dia: "SÃ¡bado", series: 4, repeticiones: "8-10", carga_proyectada: "165 kg", id_rutina: rutinaLegs.id, id_ejercicio: ej["Prensa de Piernas 45Â°"] },
+      { dia: "SÃ¡bado", series: 3, repeticiones: "10-12", carga_proyectada: "95 kg", id_rutina: rutinaLegs.id, id_ejercicio: ej["Hip Thrust con Barra"] },
+      { dia: "SÃ¡bado", series: 3, repeticiones: "10-12", carga_proyectada: "70 kg", id_rutina: rutinaLegs.id, id_ejercicio: ej["Peso Muerto Rumano"] },
+      { dia: "SÃ¡bado", series: 3, repeticiones: "12", carga_proyectada: "Peso corporal", id_rutina: rutinaLegs.id, id_ejercicio: ej["Curl Femoral Tumbado"] },
+      { dia: "SÃ¡bado", series: 3, repeticiones: "60 seg", carga_proyectada: "IsomÃ©trico", id_rutina: rutinaLegs.id, id_ejercicio: ej["Plancha IsomÃ©trica"] },
+      { dia: "SÃ¡bado", series: 3, repeticiones: "10", carga_proyectada: "Peso corporal", id_rutina: rutinaLegs.id, id_ejercicio: ej["Rueda Abdominal (Ab Wheel)"] },
     ];
     await sql`INSERT INTO detalle_rutina ${sql(detalleLegs, "dia", "series", "repeticiones", "carga_proyectada", "id_rutina", "id_ejercicio")}`;
 
@@ -875,64 +875,74 @@ async function seed() {
       ) RETURNING id
     `;
     const detallePlantilla = [
-      { dia: "Lunes",    series: 4, repeticiones: "5",    carga_proyectada: "RM estimado 85%", id_rutina: rutinaPlantilla.id, id_ejercicio: ej["Sentadilla Libre"] },
-      { dia: "Lunes",    series: 4, repeticiones: "5",    carga_proyectada: "RM estimado 85%", id_rutina: rutinaPlantilla.id, id_ejercicio: ej["Press de Banca Plano"] },
-      { dia: "Lunes",    series: 4, repeticiones: "5",    carga_proyectada: "RM estimado 80%", id_rutina: rutinaPlantilla.id, id_ejercicio: ej["Peso Muerto Convencional"] },
-      { dia: "Lunes",    series: 3, repeticiones: "8",    carga_proyectada: "RM estimado 70%", id_rutina: rutinaPlantilla.id, id_ejercicio: ej["Press Militar con Barra"] },
-      { dia: "Lunes",    series: 3, repeticiones: "8",    carga_proyectada: "Peso corporal",   id_rutina: rutinaPlantilla.id, id_ejercicio: ej["Dominadas Supinas"] },
-      { dia: "MiÃ©rcoles",series: 4, repeticiones: "5",    carga_proyectada: "RM estimado 87%", id_rutina: rutinaPlantilla.id, id_ejercicio: ej["Sentadilla Libre"] },
-      { dia: "MiÃ©rcoles",series: 4, repeticiones: "5",    carga_proyectada: "RM estimado 87%", id_rutina: rutinaPlantilla.id, id_ejercicio: ej["Press de Banca Plano"] },
-      { dia: "MiÃ©rcoles",series: 4, repeticiones: "5",    carga_proyectada: "RM estimado 82%", id_rutina: rutinaPlantilla.id, id_ejercicio: ej["Peso Muerto Convencional"] },
-      { dia: "Viernes",  series: 4, repeticiones: "3",    carga_proyectada: "RM estimado 90%", id_rutina: rutinaPlantilla.id, id_ejercicio: ej["Sentadilla Libre"] },
-      { dia: "Viernes",  series: 4, repeticiones: "3",    carga_proyectada: "RM estimado 90%", id_rutina: rutinaPlantilla.id, id_ejercicio: ej["Press de Banca Plano"] },
-      { dia: "Viernes",  series: 1, repeticiones: "1 (Test RM)", carga_proyectada: "RM mÃ¡ximo", id_rutina: rutinaPlantilla.id, id_ejercicio: ej["Peso Muerto Convencional"] },
+      { dia: "Lunes", series: 4, repeticiones: "5", carga_proyectada: "RM estimado 85%", id_rutina: rutinaPlantilla.id, id_ejercicio: ej["Sentadilla Libre"] },
+      { dia: "Lunes", series: 4, repeticiones: "5", carga_proyectada: "RM estimado 85%", id_rutina: rutinaPlantilla.id, id_ejercicio: ej["Press de Banca Plano"] },
+      { dia: "Lunes", series: 4, repeticiones: "5", carga_proyectada: "RM estimado 80%", id_rutina: rutinaPlantilla.id, id_ejercicio: ej["Peso Muerto Convencional"] },
+      { dia: "Lunes", series: 3, repeticiones: "8", carga_proyectada: "RM estimado 70%", id_rutina: rutinaPlantilla.id, id_ejercicio: ej["Press Militar con Barra"] },
+      { dia: "Lunes", series: 3, repeticiones: "8", carga_proyectada: "Peso corporal", id_rutina: rutinaPlantilla.id, id_ejercicio: ej["Dominadas Supinas"] },
+      { dia: "MiÃ©rcoles", series: 4, repeticiones: "5", carga_proyectada: "RM estimado 87%", id_rutina: rutinaPlantilla.id, id_ejercicio: ej["Sentadilla Libre"] },
+      { dia: "MiÃ©rcoles", series: 4, repeticiones: "5", carga_proyectada: "RM estimado 87%", id_rutina: rutinaPlantilla.id, id_ejercicio: ej["Press de Banca Plano"] },
+      { dia: "MiÃ©rcoles", series: 4, repeticiones: "5", carga_proyectada: "RM estimado 82%", id_rutina: rutinaPlantilla.id, id_ejercicio: ej["Peso Muerto Convencional"] },
+      { dia: "Viernes", series: 4, repeticiones: "3", carga_proyectada: "RM estimado 90%", id_rutina: rutinaPlantilla.id, id_ejercicio: ej["Sentadilla Libre"] },
+      { dia: "Viernes", series: 4, repeticiones: "3", carga_proyectada: "RM estimado 90%", id_rutina: rutinaPlantilla.id, id_ejercicio: ej["Press de Banca Plano"] },
+      { dia: "Viernes", series: 1, repeticiones: "1 (Test RM)", carga_proyectada: "RM mÃ¡ximo", id_rutina: rutinaPlantilla.id, id_ejercicio: ej["Peso Muerto Convencional"] },
     ];
     await sql`INSERT INTO detalle_rutina ${sql(detallePlantilla, "dia", "series", "repeticiones", "carga_proyectada", "id_rutina", "id_ejercicio")}`;
 
     // Rutinas simples para los 5 clientes asignados al entrenador dev
     console.log("ðŸ“‹ Asignando rutinas a los 5 clientes del entrenador dev...");
     const rutinaTemplates = [
-      { nombre: "Hipertrofia â€” Tren Superior A", ejDias: [
-        { dia: "Lunes",   series: 4, repeticiones: "8-10", carga: "70%RM", ejKey: "Press de Banca Plano" },
-        { dia: "Lunes",   series: 4, repeticiones: "8-10", carga: "65%RM", ejKey: "Remo con Barra" },
-        { dia: "Lunes",   series: 3, repeticiones: "10-12",carga: "50%RM", ejKey: "Press Militar con Barra" },
-        { dia: "Jueves",  series: 4, repeticiones: "8-10", carga: "72%RM", ejKey: "Press de Banca Inclinado" },
-        { dia: "Jueves",  series: 4, repeticiones: "10-12",carga: "60%RM", ejKey: "JalÃ³n al Pecho en Polea" },
-        { dia: "Jueves",  series: 3, repeticiones: "12-15",carga: "10kg c/u", ejKey: "Elevaciones Laterales con Mancuernas" },
-      ]},
-      { nombre: "Fuerza â€” Tren Inferior B", ejDias: [
-        { dia: "Martes",  series: 5, repeticiones: "5",    carga: "80%RM", ejKey: "Sentadilla Libre" },
-        { dia: "Martes",  series: 4, repeticiones: "8",    carga: "140kg", ejKey: "Prensa de Piernas 45Â°" },
-        { dia: "Martes",  series: 3, repeticiones: "10",   carga: "80kg",  ejKey: "Hip Thrust con Barra" },
-        { dia: "Viernes", series: 5, repeticiones: "5",    carga: "82%RM", ejKey: "Sentadilla Libre" },
-        { dia: "Viernes", series: 3, repeticiones: "10-12",carga: "50kg",  ejKey: "Curl Femoral Tumbado" },
-        { dia: "Viernes", series: 3, repeticiones: "12",   carga: "60kg",  ejKey: "ExtensiÃ³n de CuÃ¡driceps" },
-      ]},
-      { nombre: "TonificaciÃ³n â€” Full Body C", ejDias: [
-        { dia: "Lunes",   series: 3, repeticiones: "12-15",carga: "60%RM", ejKey: "Sentadilla Libre" },
-        { dia: "Lunes",   series: 3, repeticiones: "12-15",carga: "60%RM", ejKey: "Press de Banca Plano" },
-        { dia: "MiÃ©rcoles",series:3, repeticiones: "12-15",carga: "65%RM", ejKey: "Remo con Barra" },
-        { dia: "MiÃ©rcoles",series:3, repeticiones: "15",   carga: "PC",    ejKey: "Dominadas Supinas" },
-        { dia: "Viernes", series: 3, repeticiones: "15-20",carga: "60seg", ejKey: "Plancha IsomÃ©trica" },
-        { dia: "Viernes", series: 3, repeticiones: "15",   carga: "PC",    ejKey: "Crunch Abdominal" },
-      ]},
-      { nombre: "ComposiciÃ³n â€” Push-Pull D", ejDias: [
-        { dia: "Lunes",   series: 4, repeticiones: "8-10", carga: "75%RM", ejKey: "Press de Banca Plano" },
-        { dia: "Lunes",   series: 3, repeticiones: "10-12",carga: "55%RM", ejKey: "Press Militar con Barra" },
-        { dia: "Martes",  series: 4, repeticiones: "6-8",  carga: "85%RM", ejKey: "Peso Muerto Convencional" },
-        { dia: "Martes",  series: 4, repeticiones: "8-10", carga: "PC",    ejKey: "Dominadas Supinas" },
-        { dia: "Jueves",  series: 4, repeticiones: "6-8",  carga: "78%RM", ejKey: "Sentadilla Libre" },
-        { dia: "Jueves",  series: 3, repeticiones: "10-12",carga: "75kg",  ejKey: "Hip Thrust con Barra" },
-      ]},
-      { nombre: "Fuerza Base â€” Principiante E", ejDias: [
-        { dia: "Lunes",   series: 3, repeticiones: "10",   carga: "Barra sola", ejKey: "Sentadilla Libre" },
-        { dia: "Lunes",   series: 3, repeticiones: "10",   carga: "40kg",  ejKey: "Press de Banca Plano" },
-        { dia: "Lunes",   series: 3, repeticiones: "10",   carga: "50kg",  ejKey: "Peso Muerto Convencional" },
-        { dia: "MiÃ©rcoles",series:3, repeticiones: "8-10", carga: "30kg",  ejKey: "Remo con Barra" },
-        { dia: "MiÃ©rcoles",series:3, repeticiones: "10",   carga: "PC asistido", ejKey: "Dominadas Supinas" },
-        { dia: "Viernes", series: 3, repeticiones: "10",   carga: "Barra sola", ejKey: "Press Militar con Barra" },
-        { dia: "Viernes", series: 3, repeticiones: "45 seg","carga": "IsomÃ©trico", ejKey: "Plancha IsomÃ©trica" },
-      ]},
+      {
+        nombre: "Hipertrofia â€” Tren Superior A", ejDias: [
+          { dia: "Lunes", series: 4, repeticiones: "8-10", carga: "70%RM", ejKey: "Press de Banca Plano" },
+          { dia: "Lunes", series: 4, repeticiones: "8-10", carga: "65%RM", ejKey: "Remo con Barra" },
+          { dia: "Lunes", series: 3, repeticiones: "10-12", carga: "50%RM", ejKey: "Press Militar con Barra" },
+          { dia: "Jueves", series: 4, repeticiones: "8-10", carga: "72%RM", ejKey: "Press de Banca Inclinado" },
+          { dia: "Jueves", series: 4, repeticiones: "10-12", carga: "60%RM", ejKey: "JalÃ³n al Pecho en Polea" },
+          { dia: "Jueves", series: 3, repeticiones: "12-15", carga: "10kg c/u", ejKey: "Elevaciones Laterales con Mancuernas" },
+        ]
+      },
+      {
+        nombre: "Fuerza â€” Tren Inferior B", ejDias: [
+          { dia: "Martes", series: 5, repeticiones: "5", carga: "80%RM", ejKey: "Sentadilla Libre" },
+          { dia: "Martes", series: 4, repeticiones: "8", carga: "140kg", ejKey: "Prensa de Piernas 45Â°" },
+          { dia: "Martes", series: 3, repeticiones: "10", carga: "80kg", ejKey: "Hip Thrust con Barra" },
+          { dia: "Viernes", series: 5, repeticiones: "5", carga: "82%RM", ejKey: "Sentadilla Libre" },
+          { dia: "Viernes", series: 3, repeticiones: "10-12", carga: "50kg", ejKey: "Curl Femoral Tumbado" },
+          { dia: "Viernes", series: 3, repeticiones: "12", carga: "60kg", ejKey: "ExtensiÃ³n de CuÃ¡driceps" },
+        ]
+      },
+      {
+        nombre: "TonificaciÃ³n â€” Full Body C", ejDias: [
+          { dia: "Lunes", series: 3, repeticiones: "12-15", carga: "60%RM", ejKey: "Sentadilla Libre" },
+          { dia: "Lunes", series: 3, repeticiones: "12-15", carga: "60%RM", ejKey: "Press de Banca Plano" },
+          { dia: "MiÃ©rcoles", series: 3, repeticiones: "12-15", carga: "65%RM", ejKey: "Remo con Barra" },
+          { dia: "MiÃ©rcoles", series: 3, repeticiones: "15", carga: "PC", ejKey: "Dominadas Supinas" },
+          { dia: "Viernes", series: 3, repeticiones: "15-20", carga: "60seg", ejKey: "Plancha IsomÃ©trica" },
+          { dia: "Viernes", series: 3, repeticiones: "15", carga: "PC", ejKey: "Crunch Abdominal" },
+        ]
+      },
+      {
+        nombre: "ComposiciÃ³n â€” Push-Pull D", ejDias: [
+          { dia: "Lunes", series: 4, repeticiones: "8-10", carga: "75%RM", ejKey: "Press de Banca Plano" },
+          { dia: "Lunes", series: 3, repeticiones: "10-12", carga: "55%RM", ejKey: "Press Militar con Barra" },
+          { dia: "Martes", series: 4, repeticiones: "6-8", carga: "85%RM", ejKey: "Peso Muerto Convencional" },
+          { dia: "Martes", series: 4, repeticiones: "8-10", carga: "PC", ejKey: "Dominadas Supinas" },
+          { dia: "Jueves", series: 4, repeticiones: "6-8", carga: "78%RM", ejKey: "Sentadilla Libre" },
+          { dia: "Jueves", series: 3, repeticiones: "10-12", carga: "75kg", ejKey: "Hip Thrust con Barra" },
+        ]
+      },
+      {
+        nombre: "Fuerza Base â€” Principiante E", ejDias: [
+          { dia: "Lunes", series: 3, repeticiones: "10", carga: "Barra sola", ejKey: "Sentadilla Libre" },
+          { dia: "Lunes", series: 3, repeticiones: "10", carga: "40kg", ejKey: "Press de Banca Plano" },
+          { dia: "Lunes", series: 3, repeticiones: "10", carga: "50kg", ejKey: "Peso Muerto Convencional" },
+          { dia: "MiÃ©rcoles", series: 3, repeticiones: "8-10", carga: "30kg", ejKey: "Remo con Barra" },
+          { dia: "MiÃ©rcoles", series: 3, repeticiones: "10", carga: "PC asistido", ejKey: "Dominadas Supinas" },
+          { dia: "Viernes", series: 3, repeticiones: "10", carga: "Barra sola", ejKey: "Press Militar con Barra" },
+          { dia: "Viernes", series: 3, repeticiones: "45 seg", "carga": "IsomÃ©trico", ejKey: "Plancha IsomÃ©trica" },
+        ]
+      },
     ];
 
     for (let i = 0; i < clientesDevAsignados.length; i++) {
@@ -971,48 +981,60 @@ async function seed() {
     // Sesiones de entrenamiento los dÃ­as de su respectiva rutina
     // Push: Lunes/Jueves | Pull: Martes/Viernes | Legs: MiÃ©rcoles/SÃ¡bado
     const schedulePPL = {
-      1: { rutinaId: rutinaPush.id, diasEj: [ // Lunes
-          { ejKey: "Press de Banca Plano",                  cargas: [80,80,82,82],  repsBase: 7 },
-          { ejKey: "Press de Banca Inclinado",               cargas: [60,60,62],     repsBase: 9 },
-          { ejKey: "Press Militar con Barra",                cargas: [60,60,62,62],  repsBase: 9 },
-          { ejKey: "Elevaciones Laterales con Mancuernas",   cargas: [10,10,10],     repsBase: 13 },
-          { ejKey: "ExtensiÃ³n de TrÃ­ceps en Polea Alta",     cargas: [30,30,32],     repsBase: 11 },
-        ]},
-      2: { rutinaId: rutinaPull.id, diasEj: [ // Martes
-          { ejKey: "Peso Muerto Convencional",               cargas: [120,120,125,125], repsBase: 5 },
-          { ejKey: "Dominadas Supinas",                      cargas: [0,0,0,0],      repsBase: 7 },
-          { ejKey: "Remo con Barra",                         cargas: [75,75,77,77],  repsBase: 9 },
-          { ejKey: "JalÃ³n al Pecho en Polea",                cargas: [55,55,57],     repsBase: 11 },
-          { ejKey: "Curl de BÃ­ceps con Barra",               cargas: [35,35,37],     repsBase: 11 },
-        ]},
-      3: { rutinaId: rutinaLegs.id, diasEj: [ // MiÃ©rcoles
-          { ejKey: "Sentadilla Libre",                       cargas: [100,100,102,102], repsBase: 6 },
-          { ejKey: "Prensa de Piernas 45Â°",                  cargas: [160,160,165,165], repsBase: 9 },
-          { ejKey: "Hip Thrust con Barra",                   cargas: [90,90,95],     repsBase: 11 },
-          { ejKey: "Curl Femoral Tumbado",                   cargas: [40,40,42],     repsBase: 11 },
-          { ejKey: "Plancha IsomÃ©trica",                     cargas: [0,0,0],        repsBase: 60 }, // segundos
-        ]},
-      4: { rutinaId: rutinaPull.id, diasEj: [ // Jueves â†’ Push
-          { ejKey: "Press de Banca Plano",                   cargas: [82,82,84,84],  repsBase: 7 },
-          { ejKey: "Press de Banca Inclinado",               cargas: [62,62,64],     repsBase: 9 },
-          { ejKey: "Press Militar con Barra",                cargas: [62,62,64,64],  repsBase: 8 },
-          { ejKey: "Aperturas con Mancuernas",               cargas: [16,16,18],     repsBase: 11 },
-          { ejKey: "ExtensiÃ³n de TrÃ­ceps en Polea Alta",     cargas: [32,32,34],     repsBase: 11 },
-        ]},
-      5: { rutinaId: rutinaPull.id, diasEj: [ // Viernes â†’ Pull
-          { ejKey: "Peso Muerto Convencional",               cargas: [125,125,130,130], repsBase: 5 },
-          { ejKey: "Dominadas Supinas",                      cargas: [0,0,0,0],      repsBase: 7 },
-          { ejKey: "Remo con Barra",                         cargas: [77,77,80,80],  repsBase: 9 },
-          { ejKey: "JalÃ³n al Pecho en Polea",                cargas: [57,57,60],     repsBase: 11 },
-          { ejKey: "Curl Martillo con Mancuernas",           cargas: [16,16,18],     repsBase: 13 },
-        ]},
-      6: { rutinaId: rutinaLegs.id, diasEj: [ // SÃ¡bado â†’ Legs
-          { ejKey: "Sentadilla Libre",                       cargas: [105,105,107,107], repsBase: 5 },
-          { ejKey: "Prensa de Piernas 45Â°",                  cargas: [165,165,170,170], repsBase: 9 },
-          { ejKey: "Hip Thrust con Barra",                   cargas: [95,95,100],    repsBase: 11 },
-          { ejKey: "Peso Muerto Rumano",                     cargas: [70,70,72],     repsBase: 11 },
-          { ejKey: "Plancha IsomÃ©trica",                     cargas: [0,0,0],        repsBase: 60 },
-        ]},
+      1: {
+        rutinaId: rutinaPush.id, diasEj: [ // Lunes
+          { ejKey: "Press de Banca Plano", cargas: [80, 80, 82, 82], repsBase: 7 },
+          { ejKey: "Press de Banca Inclinado", cargas: [60, 60, 62], repsBase: 9 },
+          { ejKey: "Press Militar con Barra", cargas: [60, 60, 62, 62], repsBase: 9 },
+          { ejKey: "Elevaciones Laterales con Mancuernas", cargas: [10, 10, 10], repsBase: 13 },
+          { ejKey: "ExtensiÃ³n de TrÃ­ceps en Polea Alta", cargas: [30, 30, 32], repsBase: 11 },
+        ]
+      },
+      2: {
+        rutinaId: rutinaPull.id, diasEj: [ // Martes
+          { ejKey: "Peso Muerto Convencional", cargas: [120, 120, 125, 125], repsBase: 5 },
+          { ejKey: "Dominadas Supinas", cargas: [0, 0, 0, 0], repsBase: 7 },
+          { ejKey: "Remo con Barra", cargas: [75, 75, 77, 77], repsBase: 9 },
+          { ejKey: "JalÃ³n al Pecho en Polea", cargas: [55, 55, 57], repsBase: 11 },
+          { ejKey: "Curl de BÃ­ceps con Barra", cargas: [35, 35, 37], repsBase: 11 },
+        ]
+      },
+      3: {
+        rutinaId: rutinaLegs.id, diasEj: [ // MiÃ©rcoles
+          { ejKey: "Sentadilla Libre", cargas: [100, 100, 102, 102], repsBase: 6 },
+          { ejKey: "Prensa de Piernas 45Â°", cargas: [160, 160, 165, 165], repsBase: 9 },
+          { ejKey: "Hip Thrust con Barra", cargas: [90, 90, 95], repsBase: 11 },
+          { ejKey: "Curl Femoral Tumbado", cargas: [40, 40, 42], repsBase: 11 },
+          { ejKey: "Plancha IsomÃ©trica", cargas: [0, 0, 0], repsBase: 60 }, // segundos
+        ]
+      },
+      4: {
+        rutinaId: rutinaPull.id, diasEj: [ // Jueves â†’ Push
+          { ejKey: "Press de Banca Plano", cargas: [82, 82, 84, 84], repsBase: 7 },
+          { ejKey: "Press de Banca Inclinado", cargas: [62, 62, 64], repsBase: 9 },
+          { ejKey: "Press Militar con Barra", cargas: [62, 62, 64, 64], repsBase: 8 },
+          { ejKey: "Aperturas con Mancuernas", cargas: [16, 16, 18], repsBase: 11 },
+          { ejKey: "ExtensiÃ³n de TrÃ­ceps en Polea Alta", cargas: [32, 32, 34], repsBase: 11 },
+        ]
+      },
+      5: {
+        rutinaId: rutinaPull.id, diasEj: [ // Viernes â†’ Pull
+          { ejKey: "Peso Muerto Convencional", cargas: [125, 125, 130, 130], repsBase: 5 },
+          { ejKey: "Dominadas Supinas", cargas: [0, 0, 0, 0], repsBase: 7 },
+          { ejKey: "Remo con Barra", cargas: [77, 77, 80, 80], repsBase: 9 },
+          { ejKey: "JalÃ³n al Pecho en Polea", cargas: [57, 57, 60], repsBase: 11 },
+          { ejKey: "Curl Martillo con Mancuernas", cargas: [16, 16, 18], repsBase: 13 },
+        ]
+      },
+      6: {
+        rutinaId: rutinaLegs.id, diasEj: [ // SÃ¡bado â†’ Legs
+          { ejKey: "Sentadilla Libre", cargas: [105, 105, 107, 107], repsBase: 5 },
+          { ejKey: "Prensa de Piernas 45Â°", cargas: [165, 165, 170, 170], repsBase: 9 },
+          { ejKey: "Hip Thrust con Barra", cargas: [95, 95, 100], repsBase: 11 },
+          { ejKey: "Peso Muerto Rumano", cargas: [70, 70, 72], repsBase: 11 },
+          { ejKey: "Plancha IsomÃ©trica", cargas: [0, 0, 0], repsBase: 60 },
+        ]
+      },
     };
 
     const progresoBuffer = [];
