@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { validateUser, userSchema } from "../Schemas/users.js";
 import { validateSelfRegister } from "../Schemas/selfRegister.js";
-import { send2FAEmail, sendSelfRegistrationEmail, sendRegistrationCodeEmail } from "../Utils/email.js";
+import { send2FAEmail, sendSelfRegistrationEmail, sendRegistrationCodeEmail, sendPasswordResetCodeEmail } from "../Utils/email.js";
 import { sql } from "../bd.js";
 import z from "zod";
 
@@ -625,6 +625,100 @@ export class AuthController {
     } catch (e) {
       console.error(e);
       error(req, res, "Error interno al reenviar el código", 500);
+    }
+  };
+
+  // 10. SOLICITAR CÓDIGO DE RECUPERACIÓN DE CONTRASEÑA
+  forgotPassword = async (req, res) => {
+    const { email } = req.body;
+    if (!email) return error(req, res, "El correo es obligatorio", 400);
+
+    try {
+      // Buscar usuario por email
+      const [user] = await sql`
+        SELECT id, email, estado FROM usuarios WHERE email = ${email.trim().toLowerCase()}
+      `;
+
+      if (!user) {
+        // Por seguridad, NO revelamos si el correo existe o no
+        return success(req, res, { message: "Si el correo existe, recibirás un código de recuperación." }, 200);
+      }
+
+      if (user.estado === 'inactive') {
+        return error(req, res, "Esta cuenta está desactivada. Contacta al administrador.", 403);
+      }
+
+      // Generar código OTP de 6 dígitos
+      const code = Math.floor(100000 + Math.random() * 900000).toString();
+      await this.UserModel.set2FACode(user.id, code);
+
+      // Enviar correo
+      sendPasswordResetCodeEmail(user.email, code).catch(err =>
+        console.error("Error enviando correo de recuperación:", err)
+      );
+
+      success(req, res, { message: "Si el correo existe, recibirás un código de recuperación.", userId: user.id }, 200);
+    } catch (e) {
+      console.error("[ForgotPassword] Error:", e);
+      error(req, res, "Error interno al procesar la solicitud", 500);
+    }
+  };
+
+  // 11. VERIFICAR CÓDIGO DE RECUPERACIÓN (solo valida, no cambia contraseña)
+  verifyResetCode = async (req, res) => {
+    const { email, code } = req.body;
+    if (!email || !code) return error(req, res, "Email y código son obligatorios", 400);
+
+    try {
+      const [user] = await sql`
+        SELECT id FROM usuarios WHERE email = ${email.trim().toLowerCase()}
+      `;
+      if (!user) return error(req, res, "Usuario no encontrado", 404);
+
+      const isValid = await this.UserModel.verify2FACode(user.id, code);
+      if (!isValid) return error(req, res, "El código es incorrecto o ha expirado.", 401);
+
+      success(req, res, { message: "Código verificado correctamente.", verified: true }, 200);
+    } catch (e) {
+      console.error("[VerifyResetCode] Error:", e);
+      error(req, res, "Error interno al verificar el código", 500);
+    }
+  };
+
+  // 12. RESTABLECER CONTRASEÑA CON CÓDIGO VERIFICADO
+  resetPassword = async (req, res) => {
+    const { email, code, newPassword } = req.body;
+    if (!email || !code || !newPassword) return error(req, res, "Todos los campos son obligatorios", 400);
+
+    // Validar requisitos de contraseña
+    if (newPassword.length < 8) return error(req, res, "La contraseña debe tener al menos 8 caracteres", 400);
+    if (!/[A-Z]/.test(newPassword)) return error(req, res, "La contraseña debe contener al menos una mayúscula", 400);
+    if (!/\d/.test(newPassword)) return error(req, res, "La contraseña debe contener al menos un número", 400);
+    if (!/[@$!%*?.&\-]/.test(newPassword)) return error(req, res, "La contraseña debe contener al menos un símbolo", 400);
+
+    try {
+      const [user] = await sql`
+        SELECT id FROM usuarios WHERE email = ${email.trim().toLowerCase()}
+      `;
+      if (!user) return error(req, res, "Usuario no encontrado", 404);
+
+      // Verificar código una última vez
+      const isValid = await this.UserModel.verify2FACode(user.id, code);
+      if (!isValid) return error(req, res, "El código es incorrecto o ha expirado. Solicita uno nuevo.", 401);
+
+      // Hashear y actualizar contraseña
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      await this.UserModel.updatePasswordAndResetDate({ id: user.id, hashedPassword });
+
+      // Limpiar código 2FA
+      await sql`
+        UPDATE usuarios SET codigo_2fa = NULL, expiracion_2fa = NULL WHERE id = ${user.id}
+      `;
+
+      success(req, res, { message: "Contraseña restablecida exitosamente. Ya puedes iniciar sesión." }, 200);
+    } catch (e) {
+      console.error("[ResetPassword] Error:", e);
+      error(req, res, "Error interno al restablecer la contraseña", 500);
     }
   };
 }
