@@ -11,6 +11,7 @@ import { EntrenadorLayout } from "./layouts/EntrenadorLayout";
 
 // Páginas (Estructura actualizada de master)
 import { Login } from "./pages/auth/Login";
+import { Register } from "./pages/auth/Register";
 import { ActivateAccount } from "./pages/auth/ActivateAccount";
 import { Dashboard as AdminDashboard } from "./pages/admin/Dashboard";
 import { ClientDashboard } from "./pages/client/Dashboard";
@@ -44,6 +45,7 @@ function App() {
           <Routes>
             {/* 1. RUTA PÚBLICA */}
             <Route path="/" element={<Login />} />
+            <Route path="/register" element={<Register />} />
             <Route path="/activate" element={<ActivateAccount />} />
 
             {/* ====================================================
