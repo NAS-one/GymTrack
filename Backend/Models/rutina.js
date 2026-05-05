@@ -90,7 +90,7 @@ export class RutinaModel {
       SELECT r.*, en.nombre as entrenador_nombre 
       FROM rutinas r
       JOIN clientes c ON r.id_cliente = c.id
-      JOIN entrenadores en ON r.id_entrenador = en.id
+      LEFT JOIN entrenadores en ON r.id_entrenador = en.id
       WHERE (c.id = ${id_cliente} OR c.id_usuario = ${id_cliente}) AND r.activa = true
       ORDER BY r.created_at ASC
     `;

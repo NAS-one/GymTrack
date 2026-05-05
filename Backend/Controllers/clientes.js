@@ -60,9 +60,15 @@ export class ClienteController {
 
   update = async (req, res) => {
     try {
-      const { id } = req.params;
+      let { id } = req.params;
       const input = req.body;
       if (input.id_entrenador === "") input.id_entrenador = null;
+
+      // Resolver el id real de la tabla clientes.
+      // El cliente autenticado envía su id_usuario; el admin envía el id de clientes.
+      // Intentamos primero como id_cliente; si no existe, buscamos por id_usuario.
+      const byClienteId = await this.ClienteModel.findIdByUserId(id);
+      if (byClienteId) id = byClienteId;
 
       const updated = await this.ClienteModel.update({ id, input });
       if (!updated) return error(req, res, "Cliente no encontrado", 404);
@@ -85,7 +91,7 @@ export class ClienteController {
   getStats = async (req, res) => {
     try {
       const stats = await this.ClienteModel.getStats({ id: req.params.id });
-      success(req, res, { body: stats }, 200);
+      success(req, res, stats, 200);
     } catch (e) {
       console.error(e);
       error(req, res, "Error al cargar ficha", 500);
@@ -118,7 +124,7 @@ export class ClienteController {
         .json({ message: "Medidas guardadas con éxito", body: result });
     } catch (e) {
       console.error("Error al guardar medidas:", e);
-      res.status(500).json({ error: "Error al registrar las medidas físicas" });
+      res.status(500).json({ error: "Error al registrar las medidas físicas: " + (e.message || "Error interno") });
     }
   };
 
