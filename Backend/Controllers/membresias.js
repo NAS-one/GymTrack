@@ -15,7 +15,6 @@ export class MembresiaController {
     const result = validateMembresia(req.body);
 
     if (!result.success) {
-      // Estandarizado: 400 Bad Request
       return error(req, res, JSON.parse(result.error.message), 400);
     }
 
@@ -23,12 +22,10 @@ export class MembresiaController {
       // Llamamos al modelo para crear la membresía
       const newMembership = await this.MembresiaModel.create(result.data);
 
-      // Estandarizado: 201 Created
       success(req, res, newMembership, 201);
     } catch (e) {
-      // Manejo de errores específicos (integridad referencial)
+      // Manejo de errores específicos
       if (e.message.includes("cliente")) {
-        // Estandarizado: 404 Not Found (Cliente no existe)
         return error(req, res, e.message, 404);
       }
       console.error(e);
@@ -40,7 +37,6 @@ export class MembresiaController {
   getAll = async (req, res) => {
     try {
       const membresias = await this.MembresiaModel.getAll();
-      // Estandarizado: 200 OK
       success(req, res, membresias, 200);
     } catch (e) {
       console.error(e);
@@ -53,7 +49,6 @@ export class MembresiaController {
     const { id_cliente } = req.params;
     try {
       const membresias = await this.MembresiaModel.getByCliente({ id_cliente });
-      // Estandarizado: 200 OK
       success(req, res, membresias, 200);
     } catch (e) {
       console.error(e);
@@ -69,11 +64,9 @@ export class MembresiaController {
       const cancelled = await this.MembresiaModel.cancel({ id });
 
       if (!cancelled) {
-        // Estandarizado: 404 Not Found
         return error(req, res, "Membresía no encontrada", 404);
       }
 
-      // Estandarizado: 200 OK
       // Envolvemos mensaje y data para el frontend
       success(
         req,
@@ -82,7 +75,7 @@ export class MembresiaController {
           message: "Membresía cancelada correctamente",
           data: cancelled,
         },
-        200
+        200,
       );
     } catch (e) {
       console.error(e);

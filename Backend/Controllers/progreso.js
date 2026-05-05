@@ -8,7 +8,7 @@ export class ProgresoController {
     this.ProgresoModel = ProgresoModel;
   }
 
-  // 1. REGISTRAR PROGRESO (Serie o Ejercicio)
+  // 1. REGISTRAR PROGRESO
   create = async (req, res) => {
     const result = validateProgreso(req.body);
 
@@ -19,12 +19,10 @@ export class ProgresoController {
 
     try {
       const registro = await this.ProgresoModel.create(result.data);
-      // Estandarizado: 201 Created
       success(req, res, registro, 201);
     } catch (e) {
       // Manejo de error si cliente, ejercicio o rutina no existen
       if (e.message.includes("no existen")) {
-        // Estandarizado: 404 Not Found
         return error(req, res, e.message, 404);
       }
       console.error(e);
@@ -37,7 +35,6 @@ export class ProgresoController {
     const { id_cliente } = req.params;
     try {
       const historial = await this.ProgresoModel.getByCliente({ id_cliente });
-      // Estandarizado: 200 OK
       success(req, res, historial, 200);
     } catch (e) {
       console.error(e);

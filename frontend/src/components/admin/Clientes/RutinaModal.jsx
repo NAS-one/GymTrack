@@ -164,13 +164,13 @@ export function RutinaModal({
     setSaving(true);
     try {
       if (rutinaExistente) {
-        // 🛠️ MODO EDICIÓN
+        // MODO EDICIÓN
         await axios.put(`/rutinas/${rutinaExistente.id}`, payload);
         toast.success("Rutina actualizada", {
           description: `"${nombre}" fue modificada con éxito.`,
         });
       } else {
-        // ✨ MODO CREACIÓN
+        // MODO CREACIÓN
         await axios.post("/rutinas", payload);
         if (isTemplate) {
           toast.success("Plantilla Guardada", {

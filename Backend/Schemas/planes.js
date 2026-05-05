@@ -3,8 +3,8 @@ import z from "zod";
 const planSchema = z.object({
   nombre: z
     .string()
+    .trim()
     .min(2, { message: "El nombre debe tener al menos 2 letras" }),
-  // Zod recibe strings del formulario, así que usamos coerce para convertir a número
   precio: z.coerce
     .number()
     .min(0, { message: "El precio no puede ser negativo" }),
@@ -12,7 +12,7 @@ const planSchema = z.object({
     .number()
     .int()
     .min(1, { message: "Mínimo 1 mes de duración" }),
-  descripcion: z.string().optional(),
+  descripcion: z.string().trim().optional(),
 });
 
 export function validatePlan(input) {

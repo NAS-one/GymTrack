@@ -6,15 +6,15 @@ const entrenadorSchema = z.object({
 
   // CORRECCIÓN PASSWORD: Si viene vacío o null, lo tratamos como undefined para que .optional() funcione
   password: z
-    .union([z.string().min(6, "Mínimo 6 caracteres"), z.literal(""), z.null()])
+    .union([z.string().min(8, "Mínimo 8 caracteres"), z.literal(""), z.null()])
     .optional()
     .transform((e) => (e === "" || e === null ? undefined : e)),
 
   // --- Perfil Básico ---
-  rut: z.string().min(8, "RUT inválido").optional(),
-  nombre: z.string().min(2, "El nombre es obligatorio").optional(),
-  especialidad: z.string().optional(),
-  telefono: z.string().optional(),
+  rut: z.string().trim().min(8, "RUT inválido").optional(),
+  nombre: z.string().trim().min(2, "El nombre es obligatorio").optional(),
+  especialidad: z.string().trim().optional(),
+  telefono: z.string().trim().optional(),
 
   // --- NUEVOS CAMPOS FINANCIEROS (Faltaban aquí) ---
   turno: z.enum(["Mañana", "Tarde", "Full Time"]).optional(),
@@ -31,9 +31,9 @@ export function validateEntrenador(input) {
   // En creación, forzamos campos obligatorios
   const createSchema = entrenadorSchema.extend({
     email: z.string().email("Email requerido"),
-    nombre: z.string().min(2, "Nombre requerido"),
-    rut: z.string().min(8, "RUT requerido"),
-    password: z.string().min(6, "Password requerido"), // En create el password es obligatorio
+    nombre: z.string().trim().min(2, "Nombre requerido"),
+    rut: z.string().trim().min(8, "RUT requerido"),
+    password: z.string().min(8, "Password requerido"), // En create el password es obligatorio
     modelo_contrato: z
       .enum(["sueldo_fijo", "porcentaje"])
       .default("sueldo_fijo"),

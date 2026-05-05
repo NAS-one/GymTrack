@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { X, Save, AlertCircle, Lock } from 'lucide-react';
-// 👇 Importamos toast
+
 import { toast } from 'sonner';
 
 const INITIAL_STATE = {
@@ -168,6 +168,7 @@ export function ClientModal({ isOpen, onClose, clientToEdit, onSave, coaches = [
         e.preventDefault();
 
         if (!validateForm()) {
+            // Mostramos un toast de advertencia si el formulario es inválido
             toast.warning("Formulario incompleto", {
                 description: "Por favor revisa los campos marcados en rojo."
             });

@@ -19,7 +19,7 @@ import { ClientModal } from "../../components/admin/Clientes/ClientModal";
 import { ClientDetailModal } from "../../components/admin/Clientes/ClientDetailModal";
 import { useConfirm } from "../../contexts/ConfirmContext";
 import { AddMeasurementsModal } from "../../components/admin/Clientes/AddMeasurementsModal";
-// 👇 Importamos toast
+
 import { toast } from "sonner";
 
 export function Clientes({ modoEntrenador = false }) {

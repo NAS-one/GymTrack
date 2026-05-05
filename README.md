@@ -157,6 +157,7 @@ npm -v
 ```bash
 npm install express zod postgres cors bcrypt jsonwebtoken cookie-parser dotenv morgan nodemailer
 ```
+npx expo install expo-linear-gradient
 
 3. Instalar dependencias de desarrollo:
 
@@ -212,6 +213,14 @@ npx expo install @react-navigation/native @react-navigation/native-stack @react-
 ```bash
 npx expo start
 ```
+
+4. Diseños
+> npx expo install @react-navigation/bottom-tabs
+> npx expo install react-native-svg lucide-react-native
+
+5. Manejo de Estados
+**Zustand nos servirá para guardar las rutinas en la memoria RAM del celular**
+> npm install zustand
 
 
 

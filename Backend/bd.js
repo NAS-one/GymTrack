@@ -26,4 +26,4 @@ export const sql = postgres({
 });
 
 // Opcional: Un log para saber si conectó (solo visual)
-console.log(`🔌 Conectado a la BD: ${process.env.DB_NAME}`);
+console.log(`Conectado a la BD: ${process.env.DB_NAME}`);

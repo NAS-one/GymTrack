@@ -55,6 +55,16 @@ export class PagoModel {
         RETURNING id
       `;
 
+      // Activar usuario (sincronizar estado con la membresía recién creada)
+      await sql`
+        UPDATE usuarios
+        SET estado = 'active'
+        FROM clientes
+        WHERE clientes.id = ${id_cliente}
+          AND usuarios.id = clientes.id_usuario
+          AND usuarios.estado != 'inactive'
+      `;
+
       // Registrar pago
       const [newPago] = await sql`
         INSERT INTO pagos (monto, metodo_pago, id_membresia, id_administrador, fecha_pago)

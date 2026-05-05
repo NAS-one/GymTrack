@@ -7,6 +7,7 @@ const userSchema = z.object({
             required_error: "El nombre de usuario es obligatorio",
             invalid_type_error: "El usuario debe ser un texto",
         })
+        .trim()
         .min(3, "El usuario debe tener al menos 3 caracteres"),
 
     email: z

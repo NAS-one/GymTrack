@@ -13,7 +13,7 @@ export class AdministradorModel {
     } = input;
 
     try {
-      // --------------------INICIO TRANSACCIÓN (sql.begin)--------------------
+      // --------------------INICIO TRANSACCIÓN --------------------
       const result = await sql.begin(async (sql) => {
         // 1. Obtener ID del rol 'administrador'
         const [role] =
@@ -69,7 +69,7 @@ export class AdministradorModel {
     const allowedColumns = ["nombre", "cargo"];
     const cleanInput = {};
 
-    // 2. Limpieza de datos (evita undefined)
+    // 2. Limpieza de datos
     for (const key of allowedColumns) {
       if (input[key] !== undefined) cleanInput[key] = input[key];
     }
@@ -85,7 +85,7 @@ export class AdministradorModel {
       `;
       return updatedAdmin;
     } catch (error) {
-      // Si hubiera campos únicos (como RUT) aquí manejaríamos el error 23505
+      // Si hubiera campos únicos (como RUT) aquí manejaríamos el error
       if (error.code === "22P02") throw new Error("Formato de UUID inválido");
       throw error;
     }

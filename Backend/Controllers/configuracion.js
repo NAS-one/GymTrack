@@ -9,9 +9,14 @@ export class ConfiguracionController {
   getConfiguracion = async (req, res) => {
     try {
       const config = await this.ConfiguracionModel.get();
-      
+
       if (!config) {
-        return error(req, res, "La configuración base no ha sido inicializada en la BD", 404);
+        return error(
+          req,
+          res,
+          "La configuración base no ha sido inicializada en la BD",
+          404,
+        );
       }
 
       // Devolvemos la configuración completa, incluyendo el JSON de datos_bancarios
@@ -26,9 +31,13 @@ export class ConfiguracionController {
   updateConfiguracion = async (req, res) => {
     try {
       // 1. Capa de Seguridad: Validamos que solo un Administrador pueda tocar esto
-      // req.user viene del middleware verifyToken
-      if (req.user.role !== 'administrador') {
-        return error(req, res, "Acceso denegado: No tienes privilegios gerenciales", 403);
+      if (req.user.role !== "administrador") {
+        return error(
+          req,
+          res,
+          "Acceso denegado: No tienes privilegios gerenciales",
+          403,
+        );
       }
 
       // 2. Ejecutar la actualización pasando el body completo (que incluye datos_bancarios)
@@ -45,15 +54,15 @@ export class ConfiguracionController {
     }
   };
 
-// C. EXPORTAR BASE DE DATOS (PURE NODE.JS - JSON BACKUP)
+  // C. EXPORTAR BASE DE DATOS
   exportBackup = async (req, res) => {
     try {
-      if (req.user.role !== 'administrador') {
+      if (req.user.role !== "administrador") {
         return res.status(403).json({ error: true, body: "Acceso denegado." });
       }
 
-      // Importamos la conexión SQL directamente (Ajusta la ruta si es necesario)
-      const { sql } = await import('../bd.js');
+      // Importamos la conexión SQL directamente
+      const { sql } = await import("../bd.js");
 
       // 1. Obtener los nombres de TODAS las tablas de tu base de datos
       const tablas = await sql`
@@ -78,24 +87,28 @@ export class ConfiguracionController {
           generado_por: req.user.username,
           fecha_generacion: new Date().toISOString(),
           sistema: "GymTrack SaaS",
-          version: "1.0.0"
+          version: "1.0.0",
         },
-        datos: backupData
+        datos: backupData,
       };
 
       // 4. Enviar directamente como archivo JSON al navegador sin tocar el disco duro
-      const date = new Date().toISOString().split('T')[0];
+      const date = new Date().toISOString().split("T")[0];
       const fileName = `gymtrack_backup_${date}.json`;
 
-      res.setHeader('Content-Type', 'application/json');
-      res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
-      
+      res.setHeader("Content-Type", "application/json");
+      res.setHeader("Content-Disposition", `attachment; filename=${fileName}`);
+
       // Enviamos el JSON formateado (con 2 espacios de indentación para que sea legible)
       return res.status(200).send(JSON.stringify(backupFinal, null, 2));
-
     } catch (e) {
       console.error("Error crítico generando el backup JSON:", e);
-      return res.status(500).json({ error: true, body: "Error interno al generar el archivo de respaldo." });
+      return res
+        .status(500)
+        .json({
+          error: true,
+          body: "Error interno al generar el archivo de respaldo.",
+        });
     }
   };
 }

@@ -35,7 +35,7 @@ export class MaquinaModel {
         ${codigo_serie}, 
         ${fecha_adquisicion}, 
         'operativa', 
-        -- 👇 SUBCONSULTA: Busca el ID del admin usando el ID del usuario del token
+        -- SUBCONSULTA: Busca el ID del admin usando el ID del usuario del token
         (SELECT id FROM administradores WHERE id_usuario = ${id_usuario} LIMIT 1)
       )
       RETURNING *

@@ -22,12 +22,11 @@ export class RutinaController {
       // 1.3 Crear la rutina usando el modelo
       const newRutina = await this.RutinaModel.create(result.data);
 
-      // 1.4 Entregar respuesta 201 Created
+      // 1.4 Entregar respuesta
       success(req, res, newRutina, 201);
     } catch (e) {
-      // 1.5 Manejo de errores específicos (referencias rotas)
+      // 1.5 Manejo de errores específicos
       if (e.message.includes("no existe")) {
-        // Estandarizado: 404 Not Found
         return error(req, res, e.message, 404);
       }
       console.error(e);
@@ -42,7 +41,7 @@ export class RutinaController {
     try {
       const rutinas = await this.RutinaModel.getActivaByClient({ id_cliente });
 
-      // Devolvemos el array (puede estar vacío)
+      // Devolvemos el array
       success(req, res, rutinas, 200);
     } catch (e) {
       console.error(e);
@@ -56,7 +55,7 @@ export class RutinaController {
       // 3.1 Usar el modelo para obtener todas las rutinas
       const rutinas = await this.RutinaModel.getAll();
 
-      // 3.2 Responder con el listado (200 OK)
+      // 3.2 Responder con el listado
       success(req, res, rutinas, 200);
     } catch (e) {
       // 3.3 Manejo de errores
