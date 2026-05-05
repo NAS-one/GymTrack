@@ -119,10 +119,37 @@ export function ClientModal({ isOpen, onClose, clientToEdit, onSave, coaches = [
         if (!formData.email) newErrors.email = "El email es obligatorio";
         else if (!emailRegex.test(formData.email)) newErrors.email = "Formato de email inválido";
 
-        // La contraseña ya no se pide aquí (se envía correo de activación)
-
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
+    };
+
+    // --- VERIFICACIÓN DE RUT EN API EXTERNA ---
+    const verifyRealRut = async (rutFormateado) => {
+        const rutLimpio = rutFormateado.replace(/[^0-9kK]/g, '');
+        try {
+            // Nota: Esta es una URL de ejemplo. Dependiendo de la API que uses (LibreAPI, Boostr, etc.) 
+            // la URL y la respuesta cambiarán.
+            const response = await fetch(`https://api.libreapi.cl/rut/rut?rut=${rutLimpio}`);
+
+            if (!response.ok) {
+                // Si la API falla (ej. 404, 500) asumimos que el RUT no se encontró o la API está caída.
+                // Retornamos true para no bloquear el registro si la API externa se cae.
+                console.warn("La API de RUT no respondió con éxito. Permitiendo registro por precaución.");
+                return true;
+            }
+
+            const data = await response.json();
+
+            // Ajustar según la estructura de respuesta de la API elegida
+            if (data.status === 'success' || data.data) {
+                return true;
+            }
+            return false;
+        } catch (error) {
+            console.error("Error al consultar la API de RUT:", error);
+            // Si hay un error de red o de la API, dejamos pasar para no bloquear la app
+            return true;
+        }
     };
 
     // --- MANEJO DE CAMBIOS ---
@@ -149,12 +176,22 @@ export function ClientModal({ isOpen, onClose, clientToEdit, onSave, coaches = [
         }
 
         setIsSubmitting(true);
+
+        // Verificación de RUT Real si es un cliente nuevo
+        if (!clientToEdit) {
+            const isRutReal = await verifyRealRut(formData.rut);
+            if (!isRutReal) {
+                setErrors(prev => ({ ...prev, rut: "El RUT ingresado no existe o no pudo ser verificado." }));
+                setIsSubmitting(false);
+                toast.error("RUT Inválido", { description: "El RUT parece no pertenecer a una persona real." });
+                return;
+            }
+        }
+
         try {
-            // Remover el campo de contraseña vacía de la petición para evitar falsos rechazos (Zod validation)
             const payload = { ...formData };
             delete payload.password;
 
-            // Pasamos la data al padre (Clientes.jsx) sin alterar la lógica de negocio
             await onSave(payload);
         } catch (serverErrors) {
             setErrors(prev => ({ ...prev, ...serverErrors }));
@@ -255,13 +292,11 @@ export function ClientModal({ isOpen, onClose, clientToEdit, onSave, coaches = [
                                 <Label text="Email (Usuario) *" />
                                 <input
                                     type="text"
-                                    disabled={!!clientToEdit}
-                                    className={inputClass(errors.email, !!clientToEdit)}
+                                    className={inputClass(errors.email)}
                                     value={formData.email}
                                     onChange={e => handleChange('email', e.target.value)}
                                     placeholder="juan@gym.com"
                                 />
-                                {clientToEdit && <Lock size={14} className="absolute right-3 top-9 text-zinc-500" title="El Email no se puede modificar" />}
                                 {errors.email && <p className="text-red-400 text-xs mt-1 flex items-center gap-1"><AlertCircle size={10} /> {errors.email}</p>}
                             </div>
 

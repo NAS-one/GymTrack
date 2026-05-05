@@ -2,19 +2,19 @@ import { sql } from "../bd.js";
 
 export class PlanEntrenamientoModel {
   // Crear un plan vacío
-  static create = async ({ nombre, objetivo, id_creador }) => {
+  static create = async ({ nombre, objetivo, id_entrenador }) => {
     const [plan] = await sql`
-      INSERT INTO planes_entrenamiento (nombre, objetivo, id_creador)
-      VALUES (${nombre}, ${objetivo || null}, ${id_creador})
+      INSERT INTO planes_entrenamiento (nombre, objetivo, id_entrenador)
+      VALUES (${nombre}, ${objetivo || null}, ${id_entrenador})
       RETURNING *`;
     return plan;
   };
 
   // Obtener todos los planes del usuario logueado con sus rutinas
-  static getByCreador = async ({ id_creador }) => {
+  static getByCreador = async ({ id_entrenador }) => {
     const planes = await sql`
       SELECT * FROM planes_entrenamiento
-      WHERE id_creador = ${id_creador}
+      WHERE id_entrenador = ${id_entrenador}
       ORDER BY created_at DESC`;
 
     for (let plan of planes) {

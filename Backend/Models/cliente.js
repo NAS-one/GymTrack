@@ -1,7 +1,21 @@
 import { sql } from "../bd.js";
 
 export class ClienteModel {
-    // 1. OBTENER TODOS
+
+    // HELPER: Dado un id (puede ser id_cliente o id_usuario), devuelve el id_cliente real.
+    // Si el id ya corresponde a un cliente, devuelve null (no hace nada).
+    // Si corresponde a un usuario, devuelve el id_cliente asociado.
+    static async findIdByUserId(id) {
+        // ¿Existe un cliente con ese id directamente?
+        const [asCliente] = await sql`SELECT id FROM clientes WHERE id = ${id}`;
+        if (asCliente) return null; // ya es un id_cliente válido, no necesita conversión
+
+        // ¿Existe un cliente con ese id_usuario?
+        const [asUsuario] = await sql`SELECT id FROM clientes WHERE id_usuario = ${id}`;
+        return asUsuario ? asUsuario.id : null;
+    }
+
+
     static async getAll() {
         return await sql`
       SELECT 
@@ -80,25 +94,58 @@ export class ClienteModel {
             nombre,
             rut,
             objetivo,
-            id_entrenador,
             fecha_nacimiento,
             genero,
             direccion,
+            email,
         } = input;
 
-        const [updatedClient] = await sql`
-      UPDATE clientes 
-      SET 
-        nombre = COALESCE(${nombre}, nombre),
-        rut = COALESCE(${rut}, rut),
-        objetivo = COALESCE(${objetivo}, objetivo),
-        id_entrenador = COALESCE(${id_entrenador}, id_entrenador),
-        fecha_nacimiento = COALESCE(${fecha_nacimiento}, fecha_nacimiento),
-        genero = COALESCE(${genero}, genero),
-        direccion = COALESCE(${direccion}, direccion)
-      WHERE id = ${id}
-      RETURNING *
-    `;
+        // id_entrenador necesita tratamiento especial:
+        // COALESCE(null, valor) -> devuelve el valor anterior (nunca puede quedar en null)
+        // Solución: si viene en el payload (incluso como null), lo seteamos directamente.
+        const entrenadorVino = Object.prototype.hasOwnProperty.call(input, 'id_entrenador');
+        const nuevoEntrenador = entrenadorVino ? (input.id_entrenador ?? null) : 'KEEP';
+
+        let updatedClient;
+
+        if (nuevoEntrenador === 'KEEP') {
+            // No vino id_entrenador en el payload → conservar el actual
+            [updatedClient] = await sql`
+          UPDATE clientes SET
+            nombre           = COALESCE(${nombre ?? null}, nombre),
+            rut              = COALESCE(${rut ?? null}, rut),
+            objetivo         = COALESCE(${objetivo ?? null}, objetivo),
+            fecha_nacimiento = COALESCE(${fecha_nacimiento ?? null}, fecha_nacimiento),
+            genero           = COALESCE(${genero ?? null}, genero),
+            direccion        = COALESCE(${direccion ?? null}, direccion)
+          WHERE id = ${id}
+          RETURNING *
+        `;
+        } else {
+            // Vino id_entrenador (puede ser null para desvincular)
+            [updatedClient] = await sql`
+          UPDATE clientes SET
+            nombre           = COALESCE(${nombre ?? null}, nombre),
+            rut              = COALESCE(${rut ?? null}, rut),
+            objetivo         = COALESCE(${objetivo ?? null}, objetivo),
+            id_entrenador    = ${nuevoEntrenador},
+            fecha_nacimiento = COALESCE(${fecha_nacimiento ?? null}, fecha_nacimiento),
+            genero           = COALESCE(${genero ?? null}, genero),
+            direccion        = COALESCE(${direccion ?? null}, direccion)
+          WHERE id = ${id}
+          RETURNING *
+        `;
+        }
+
+        // Actualizar email en la tabla usuarios si fue enviado
+        if (email) {
+            await sql`
+          UPDATE usuarios SET email = ${email}
+          FROM clientes
+          WHERE usuarios.id = clientes.id_usuario AND clientes.id = ${id}
+        `;
+        }
+
         return updatedClient;
     }
 
@@ -133,7 +180,7 @@ export class ClienteModel {
             await Promise.all([
                 // Info personal directa
                 sql`
-          SELECT c.nombre, c.rut, u.email, u.username 
+          SELECT c.*, u.email, u.username 
           FROM clientes c 
           JOIN usuarios u ON c.id_usuario = u.id 
           WHERE c.id = ${resolvedId}
