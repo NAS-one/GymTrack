@@ -26,7 +26,7 @@ export class PlanEntrenamientoController {
       success(req, res, plan, 201);
     } catch (e) {
       console.error(e);
-      error(req, res, "Error al crear el plan", 500);
+      error(req, res, e.message || "Error al crear el plan", 500);
     }
   };
 
@@ -36,7 +36,7 @@ export class PlanEntrenamientoController {
       success(req, res, planes, 200);
     } catch (e) {
       console.error(e);
-      error(req, res, "Error al obtener los planes", 500);
+      error(req, res, e.message || "Error al obtener los planes", 500);
     }
   };
 

@@ -16,6 +16,10 @@ export function AdminProfileModal({ isOpen, onClose, adminData, onUpdate }) {
     const [nombre, setNombre] = useState('');
     const [cargo, setCargo] = useState('');
     const [telefono, setTelefono] = useState('');
+    const [rut, setRut] = useState('');
+    const [direccion, setDireccion] = useState('');
+    const [turno, setTurno] = useState('Full Time');
+    const [sueldoBase, setSueldoBase] = useState(0);
 
     // Estados Seguridad
     const [currentPassword, setCurrentPassword] = useState('');
@@ -40,8 +44,12 @@ export function AdminProfileModal({ isOpen, onClose, adminData, onUpdate }) {
     useEffect(() => {
         if (isOpen && adminData) {
             setNombre(adminData.nombre || '');
-            setCargo(adminData.cargo || 'Gerente');
-            setTelefono(adminData.telefono || ''); // 🌟 Manejo seguro de nulos
+            setCargo(adminData.cargo || 'Administrador');
+            setTelefono(adminData.telefono || '');
+            setRut(adminData.rut || '');
+            setDireccion(adminData.direccion || '');
+            setTurno(adminData.turno || 'Full Time');
+            setSueldoBase(adminData.sueldo_base || 0);
 
             // 🌟 PARSEO SEGURO DE JSONB
             if (adminData.preferencias_alertas) {
@@ -82,9 +90,9 @@ export function AdminProfileModal({ isOpen, onClose, adminData, onUpdate }) {
         e.preventDefault();
         setLoading(true);
         try {
-            await axios.put('/perfil/datos', { nombre, cargo, telefono });
+            await axios.put('/perfil/datos', { nombre, cargo, telefono, rut, direccion, turno, sueldo_base: sueldoBase });
             toast.success("Perfil actualizado con éxito");
-            if (onUpdate) onUpdate({ ...adminData, nombre, cargo, telefono });
+            if (onUpdate) onUpdate({ ...adminData, nombre, cargo, telefono, rut, direccion, turno, sueldo_base: sueldoBase });
         } catch (error) {
             toast.error(error.response?.data?.error || "Error al actualizar perfil");
         } finally {
@@ -180,12 +188,38 @@ export function AdminProfileModal({ isOpen, onClose, adminData, onUpdate }) {
                                             <input type="text" required minLength={3} className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm font-bold text-white focus:border-gym-orange outline-none shadow-inner" value={nombre} onChange={(e) => setNombre(e.target.value)} />
                                         </div>
                                         <div className="space-y-2">
-                                            <label className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Cargo Operativo</label>
-                                            <input type="text" required className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm font-bold text-white focus:border-gym-orange outline-none shadow-inner" value={cargo} onChange={(e) => setCargo(e.target.value)} />
+                                            <label className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Cargo</label>
+                                            <select className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm font-bold text-white focus:border-gym-orange outline-none shadow-inner" value={cargo} onChange={(e) => setCargo(e.target.value)}>
+                                                <option value="Administrador">Administrador</option>
+                                                <option value="Mantenimiento">Mantenimiento</option>
+                                                <option value="Aseo">Aseo</option>
+                                            </select>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-xs font-bold text-zinc-400 uppercase tracking-widest">RUT</label>
+                                            <input type="text" placeholder="12.345.678-K" className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm font-bold text-white focus:border-gym-orange outline-none shadow-inner" value={rut} onChange={(e) => setRut(e.target.value)} />
                                         </div>
                                         <div className="space-y-2">
                                             <label className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Teléfono de Contacto</label>
                                             <input type="tel" placeholder="+56 9 1234 5678" className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm font-bold text-white focus:border-gym-orange outline-none shadow-inner" value={telefono} onChange={(e) => setTelefono(e.target.value)} />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Dirección</label>
+                                            <input type="text" placeholder="Calle, número, comuna" className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm font-bold text-white focus:border-gym-orange outline-none shadow-inner" value={direccion} onChange={(e) => setDireccion(e.target.value)} />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Turno</label>
+                                            <select className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm font-bold text-white focus:border-gym-orange outline-none shadow-inner" value={turno} onChange={(e) => setTurno(e.target.value)}>
+                                                <option value="Full Time">Full Time</option>
+                                                <option value="Mañana">Mañana</option>
+                                                <option value="Tarde">Tarde</option>
+                                                <option value="Noche">Noche</option>
+                                                <option value="Part Time">Part Time</option>
+                                            </select>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Sueldo Base (CLP)</label>
+                                            <input type="number" min="0" className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm font-bold font-mono text-green-400 focus:border-gym-orange outline-none shadow-inner" value={sueldoBase} onChange={(e) => setSueldoBase(parseInt(e.target.value) || 0)} />
                                         </div>
                                         <div className="space-y-2 md:col-span-2">
                                             <label className="text-xs font-bold text-zinc-400 uppercase tracking-widest flex items-center gap-2">Correo <Info size={12} className="text-blue-400" /></label>

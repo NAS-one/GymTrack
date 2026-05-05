@@ -7,7 +7,6 @@ import morgan from "morgan";
 import { createAuthRouter } from "./Routes/auth.js";
 import { createEntrenadorRouter } from "./Routes/entrenadores.js";
 import { createClienteRouter } from "./Routes/clientes.js";
-import { createAdministradorRouter } from "./Routes/administradores.js";
 import { createMembresiaRouter } from "./Routes/membresias.js";
 import { createPagoRouter } from "./Routes/pagos.js";
 import { createEjercicioRouter } from "./Routes/ejercicios.js";
@@ -38,7 +37,6 @@ export const createApp = ({
   UserModel,
   EntrenadorModel,
   ClienteModel,
-  AdministradorModel,
   MembresiaModel,
   PagoModel,
   EjercicioModel,
@@ -71,10 +69,6 @@ export const createApp = ({
   app.use("/auth", createAuthRouter({ UserModel }));
   app.use("/entrenadores", createEntrenadorRouter({ EntrenadorModel }));
   app.use("/clientes", createClienteRouter({ ClienteModel }));
-  app.use(
-    "/administradores",
-    createAdministradorRouter({ AdministradorModel }),
-  );
   app.use("/membresias", createMembresiaRouter({ MembresiaModel }));
   app.use("/pagos", createPagoRouter({ PagoModel }));
   app.use("/ejercicios", createEjercicioRouter({ EjercicioModel }));

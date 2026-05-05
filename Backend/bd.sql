@@ -62,36 +62,20 @@ CREATE TABLE configuracion_empresa (
 -- FASE 2: STAFF Y OPERACIONES
 -- =============================================================================
 
--- A. ADMINISTRADORES
-CREATE TABLE administradores (
+-- A. STAFF (Administradores + Colaboradores unificados)
+CREATE TABLE staff (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    rut VARCHAR(20) UNIQUE,
     nombre VARCHAR(255) NOT NULL,
-    cargo VARCHAR(100) DEFAULT 'Gerente',
-    telefono VARCHAR(20), 
-    preferencias_alertas JSONB DEFAULT '{
-      "cierre_caja": { "activo": true, "canal": "push", "umbral": 0 },
-      "inventario_critico": { "activo": true, "canal": "push" },
-      "riesgo_fuga": { "activo": false, "dias_ausencia": 7 },
-      "acceso_fuera_horario": { "activo": true, "canal": "email" }
-    }'::jsonb, -- Preferencias Inteligentes
-    foto_perfil VARCHAR(500), 
-    id_usuario UUID UNIQUE NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- B. COLABORADORES (Recepción, Aseo, Mantenimiento)
-CREATE TABLE colaboradores (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    rut VARCHAR(20) UNIQUE NOT NULL,
-    nombre VARCHAR(255) NOT NULL,
+    cargo VARCHAR(50) NOT NULL DEFAULT 'Administrador',
     telefono VARCHAR(20),
     direccion VARCHAR(255),
-    cargo VARCHAR(50) NOT NULL, -- 'Recepcionista', 'Aseo', 'Tecnico'
     turno VARCHAR(50) DEFAULT 'Full Time',
-    sueldo_base INTEGER NOT NULL,
+    sueldo_base INTEGER,
     fecha_contratacion DATE DEFAULT CURRENT_DATE,
     foto_perfil VARCHAR(500),
-    id_usuario UUID UNIQUE REFERENCES usuarios(id) ON DELETE SET NULL, 
+    preferencias_alertas JSONB DEFAULT '{}'::jsonb,
+    id_usuario UUID UNIQUE REFERENCES usuarios(id) ON DELETE SET NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -154,7 +138,7 @@ CREATE TABLE pagos (
     monto INTEGER NOT NULL,
     fecha_pago TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     metodo_pago VARCHAR(50),
-    id_administrador UUID REFERENCES administradores(id) ON DELETE SET NULL,
+    id_staff UUID REFERENCES staff(id) ON DELETE SET NULL,
     id_membresia UUID NOT NULL REFERENCES membresias(id) ON DELETE CASCADE
 );
 
@@ -248,7 +232,7 @@ CREATE TABLE maquinas (
     codigo_serie VARCHAR(50) UNIQUE,
     fecha_adquisicion DATE,
     estado VARCHAR(20) DEFAULT 'operativa',
-    id_administrador UUID REFERENCES administradores(id) ON DELETE SET NULL
+    id_staff UUID REFERENCES staff(id) ON DELETE SET NULL
 );
 
 CREATE TABLE reportes (
@@ -257,7 +241,7 @@ CREATE TABLE reportes (
     tipo VARCHAR(50),
     fecha_generacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     contenido JSONB NOT NULL,
-    id_administrador UUID NOT NULL REFERENCES administradores(id) ON DELETE CASCADE
+    id_staff UUID NOT NULL REFERENCES staff(id) ON DELETE CASCADE
 );
 
 -- SISTEMA DE NOTIFICACIONES UNIFICADO
@@ -290,7 +274,7 @@ CREATE TABLE planes_entrenamiento (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     nombre VARCHAR(100) NOT NULL,
     objetivo VARCHAR(100),
-    id_entrenador UUID NOT NULL REFERENCES entrenadores(id) ON DELETE CASCADE,
+    id_creador UUID NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

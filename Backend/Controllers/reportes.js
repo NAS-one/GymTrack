@@ -43,7 +43,7 @@ export class ReporteController {
         );
       }
 
-      const id_administrador = admin.id;
+      const id_staff = admin.id;
       let contenido = [];
 
       // Si vienen datos del frontend NO busques en la BD.
@@ -117,7 +117,7 @@ export class ReporteController {
         titulo,
         tipo: tipo === "comunidad" ? "clientes" : tipo,
         contenido,
-        id_administrador,
+        id_staff,
       });
 
       console.log("Reporte archivado en la Bóveda con éxito.");

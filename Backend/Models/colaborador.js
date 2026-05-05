@@ -4,27 +4,26 @@ export class ColaboradorModel {
   
   static async getAll() {
     return await sql`
-      SELECT c.*, u.email, u.estado as estado_usuario
-      FROM colaboradores c
-      LEFT JOIN usuarios u ON c.id_usuario = u.id
-      ORDER BY c.nombre ASC
+      SELECT s.*, u.email, u.estado as estado_usuario
+      FROM staff s
+      LEFT JOIN usuarios u ON s.id_usuario = u.id
+      ORDER BY s.nombre ASC
     `;
   }
 
   static async create(input) {
-    // Extraemos campos para lógica manual (creación de usuario)
     const { email, password, cargo, ...staffData } = input;
 
     return await sql.begin(async (sql) => {
       let id_usuario = null;
 
-      // 1. Lógica Usuario (Login)
+      // Si se proporcionan credenciales, crear usuario
       if (email && password) {
-        const rolNombre = cargo.toLowerCase() === "recepcionista" ? "recepcionista" : "mantenimiento";
+        // Administrador -> rol 'administrador', resto -> rol 'colaborador'
+        const rolNombre = cargo === 'Administrador' ? 'administrador' : 'colaborador';
         let [rol] = await sql`SELECT id FROM roles WHERE nombre = ${rolNombre}`;
         
-        // Fallback por si no existe el rol exacto
-        if (!rol) [rol] = await sql`SELECT id FROM roles WHERE nombre = 'mantenimiento'`;
+        if (!rol) [rol] = await sql`SELECT id FROM roles WHERE nombre = 'colaborador'`;
 
         if (rol) {
             const [newUser] = await sql`
@@ -36,29 +35,25 @@ export class ColaboradorModel {
         }
       }
 
-      // 2. Crear Staff
-      const [colaborador] = await sql`
-        INSERT INTO colaboradores ${sql({
+      // Crear registro en staff
+      const [staffMember] = await sql`
+        INSERT INTO staff ${sql({
           ...staffData, 
-          cargo,        // Re-integramos cargo
-          id_usuario    // Añadimos el ID creado
+          cargo,
+          id_usuario
         })} 
         RETURNING *
       `;
 
-      return colaborador;
+      return staffMember;
     });
   }
 
-  // --- UPDATE OPTIMIZADO ---
   static async update({ id, input }) {
-    // Eliminamos email/password del input directo a la tabla colaboradores
-    // (Ya que esos van a la tabla usuarios, lógica omitida por simplicidad aquí)
     const { email, password, ...dataToUpdate } = input;
 
-    // postgres.js detecta automáticamente las columnas a actualizar basado en el objeto
     const [updated] = await sql`
-      UPDATE colaboradores 
+      UPDATE staff 
       SET ${sql(dataToUpdate)}
       WHERE id = ${id}
       RETURNING *
@@ -68,40 +63,33 @@ export class ColaboradorModel {
   }
 
   static async delete(id) {
-    await sql`UPDATE usuarios SET estado = 'inactive' WHERE id = (SELECT id_usuario FROM colaboradores WHERE id = ${id})`;
-    return await sql`DELETE FROM colaboradores WHERE id = ${id}`;
+    await sql`UPDATE usuarios SET estado = 'inactive' WHERE id = (SELECT id_usuario FROM staff WHERE id = ${id})`;
+    return await sql`DELETE FROM staff WHERE id = ${id}`;
   }
-// Metodo para obtener estadisticas de un colaborador
-static async getStats({ id }) {
-    // 1. Obtener Perfil
+
+  static async getStats({ id }) {
     const [perfil] = await sql`
-      SELECT c.*, u.email, u.estado as estado_usuario
-      FROM colaboradores c
-      LEFT JOIN usuarios u ON c.id_usuario = u.id
-      WHERE c.id = ${id}
+      SELECT s.*, u.email, u.estado as estado_usuario
+      FROM staff s
+      LEFT JOIN usuarios u ON s.id_usuario = u.id
+      WHERE s.id = ${id}
     `;
 
     if (!perfil) return null;
 
-    // --- BLOQUE DEFENSIVO ---
-    // Si el colaborador no tiene usuario (ej: personal de aseo sin login),
-    // NO podemos buscar en la tabla asistencia (que requiere id_usuario).
-    // Devolvemos datos vacíos para evitar el Error 500.
     if (!perfil.id_usuario) {
         return {
             perfil,
-            historial: [], // Gráfico vacío
+            historial: [],
             kpis: {
                 antiguedad_dias: Math.floor((new Date() - new Date(perfil.created_at)) / (86400000)),
-                costo_anual_proyectado: perfil.sueldo_base * 12,
-                asistencia_promedio: 0 // Sin asistencia registrada
+                costo_anual_proyectado: (perfil.sueldo_base || 0) * 12,
+                asistencia_promedio: 0
             }
         };
     }
 
-    // 2. CONSULTAS DE ASISTENCIA (Solo si tiene id_usuario)
     try {
-        // A. KPI del mes actual
         const [asistenciaMes] = await sql`
             SELECT COUNT(*)::int as total
             FROM asistencia 
@@ -109,7 +97,6 @@ static async getStats({ id }) {
             AND EXTRACT(MONTH FROM fecha_entrada) = EXTRACT(MONTH FROM CURRENT_DATE)
         `;
 
-        // B. Historial de 6 meses
         const historial = await sql`
           WITH meses AS (
             SELECT generate_series(
@@ -120,7 +107,7 @@ static async getStats({ id }) {
           )
           SELECT 
             TO_CHAR(m.mes_fecha, 'Mon') as mes,
-            ${perfil.sueldo_base} as costo_empresa,
+            ${perfil.sueldo_base || 0} as costo_empresa,
             
             COALESCE((
                 SELECT COUNT(*)::int
@@ -138,14 +125,13 @@ static async getStats({ id }) {
           historial, 
           kpis: {
             antiguedad_dias: Math.floor((new Date() - new Date(perfil.created_at)) / (86400000)),
-            costo_anual_proyectado: perfil.sueldo_base * 12,
+            costo_anual_proyectado: (perfil.sueldo_base || 0) * 12,
             asistencia_promedio: asistenciaMes?.total || 0
           }
         };
 
     } catch (error) {
         console.error("Error SQL en getStats:", error);
-        // En caso de error en la subconsulta, devolvemos el perfil básico para no romper el frontend
         return { perfil, historial: [], kpis: { antiguedad_dias: 0, costo_anual_proyectado: 0, asistencia_promedio: 0 } };
     }
   }

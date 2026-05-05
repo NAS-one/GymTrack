@@ -6,7 +6,7 @@ export class ReporteModel {
   };
 
   static getAdminByUserId = async (id_usuario) => {
-    return await sql`SELECT id FROM administradores WHERE id_usuario = ${id_usuario}`;
+    return await sql`SELECT id FROM staff WHERE id_usuario = ${id_usuario}`;
   };
 
   // ==========================================
@@ -155,10 +155,10 @@ export class ReporteModel {
   };
 
   static create = async (input) => {
-    const { titulo, tipo, contenido, id_administrador } = input;
+    const { titulo, tipo, contenido, id_staff } = input;
     const [reporte] = await sql`
-      INSERT INTO reportes (titulo, tipo, contenido, id_administrador)
-      VALUES (${titulo}, ${tipo}, ${sql.json(contenido)}, ${id_administrador})
+      INSERT INTO reportes (titulo, tipo, contenido, id_staff)
+      VALUES (${titulo}, ${tipo}, ${sql.json(contenido)}, ${id_staff})
       RETURNING *
     `;
     return reporte;

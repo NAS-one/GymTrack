@@ -4,7 +4,6 @@ import { createApp } from "./app.js";
 import { UserModel } from "./Models/user.js";
 import { EntrenadorModel } from "./Models/entrenador.js";
 import { ClienteModel } from "./Models/cliente.js";
-import { AdministradorModel } from "./Models/administrador.js";
 import { MembresiaModel } from "./Models/membresia.js";
 import { PagoModel } from "./Models/pago.js";
 import { EjercicioModel } from "./Models/ejercicio.js";
@@ -29,7 +28,6 @@ createApp({
   UserModel,
   EntrenadorModel,
   ClienteModel,
-  AdministradorModel,
   MembresiaModel,
   PagoModel,
   EjercicioModel,

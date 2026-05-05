@@ -77,30 +77,55 @@ export default function ClienteDetailScreen({ route, navigation }) {
     });
   };
 
-  //Datos para el grafico
-  const getChartData = () => {
-    if (medidas.length < 2) return null;
-    const sorted = [...medidas]
+  // Datos para los graficos
+  const getSortedMedidas = () => {
+    if (medidas.length < 2) return [];
+    return [...medidas]
       .sort(
         (a, b) =>
           new Date(a.fecha_registro || a.created_at) -
           new Date(b.fecha_registro || b.created_at),
       )
       .slice(-6);
+  };
 
+  const buildChartData = (sorted, field, color) => {
+    const values = sorted.map((m) => parseFloat(m[field]) || 0);
+    if (values.every((v) => v === 0)) return null;
     return {
       labels: sorted.map((m) => formatDate(m.fecha_registro || m.created_at)),
       datasets: [
         {
-          data: sorted.map((m) => parseFloat(m.peso) || 0),
-          color: () => "#F97316",
-          strokenWidth: 2,
+          data: values,
+          color: () => color,
+          strokeWidth: 2,
         },
       ],
     };
   };
 
-  const chartData = getChartData();
+  const sorted = getSortedMedidas();
+  const chartPeso = buildChartData(sorted, "peso", "#F97316");
+  const chartGrasa = buildChartData(sorted, "porcentaje_grasa", "#3B82F6");
+  const chartCintura = buildChartData(sorted, "circunferencia_cintura", "#22C55E");
+
+  const chartConfig = (color) => ({
+    backgroundColor: "#111113",
+    backgroundGradientFrom: "#111113",
+    backgroundGradientTo: "#111113",
+    decimalCount: 1,
+    color: (opacity = 1) => color.replace("1)", `${opacity})`).replace("#", "rgba(") || `rgba(249,115,22,${opacity})`,
+    labelColor: () => "#71717A",
+    propsForDots: {
+      r: "4",
+      strokeWidth: "2",
+      stroke: color,
+    },
+    propsForBackgroundLines: {
+      stroke: "rgba(255,255,255,0.05)",
+    },
+  });
+
   // ═══════════════════════════════════
   // ── TAB: PERFIL ──
   // ═══════════════════════════════════
@@ -141,6 +166,43 @@ export default function ClienteDetailScreen({ route, navigation }) {
   // ═══════════════════════════════════
   // ── TAB: PROGRESO ──
   // ═══════════════════════════════════
+  const renderChart = (data, title, color) => {
+    if (!data) return null;
+    return (
+      <View style={styles.chartCard}>
+        <Text style={styles.chartTitle}>{title}</Text>
+        <LineChart
+          data={data}
+          width={SCREEN_WIDTH - 72}
+          height={180}
+          chartConfig={{
+            backgroundColor: "#111113",
+            backgroundGradientFrom: "#111113",
+            backgroundGradientTo: "#111113",
+            decimalCount: 1,
+            color: (opacity = 1) => {
+              if (color === "#F97316") return `rgba(249, 115, 22, ${opacity})`;
+              if (color === "#3B82F6") return `rgba(59, 130, 246, ${opacity})`;
+              if (color === "#22C55E") return `rgba(34, 197, 94, ${opacity})`;
+              return `rgba(249, 115, 22, ${opacity})`;
+            },
+            labelColor: () => "#71717A",
+            propsForDots: {
+              r: "4",
+              strokeWidth: "2",
+              stroke: color,
+            },
+            propsForBackgroundLines: {
+              stroke: "rgba(255,255,255,0.05)",
+            },
+          }}
+          bezier
+          style={{ borderRadius: 12 }}
+        />
+      </View>
+    );
+  };
+
   const renderProgreso = () => (
     <View style={styles.section}>
       {loadingStats ? (
@@ -159,41 +221,16 @@ export default function ClienteDetailScreen({ route, navigation }) {
         </View>
       ) : (
         <>
-          {/* Gráfico de Peso */}
-          {chartData && (
-            <View style={styles.chartCard}>
-              <Text style={styles.chartTitle}>Evolución de Peso (kg)</Text>
-              <LineChart
-                data={chartData}
-                width={SCREEN_WIDTH - 72}
-                height={200}
-                chartConfig={{
-                  backgroundColor: "#111113",
-                  backgroundGradientFrom: "#111113",
-                  backgroundGradientTo: "#111113",
-                  decimalCount: 1,
-                  color: (opacity = 1) => `rgba(249, 115, 22, ${opacity})`,
-                  labelColor: () => "#71717A",
-                  propsForDots: {
-                    r: "4",
-                    strokeWidth: "2",
-                    stroke: "#F97316",
-                  },
-                  propsForBackgroundLines: {
-                    stroke: "rgba(255,255,255,0.05)",
-                  },
-                }}
-                bezier
-                style={{ borderRadius: 12 }}
-              />
-            </View>
-          )}
+          {renderChart(chartPeso, "Evolución de Peso (kg)", "#F97316")}
+          {renderChart(chartGrasa, "Porcentaje de Grasa (%)", "#3B82F6")}
+          {renderChart(chartCintura, "Cintura (cm)", "#22C55E")}
+
           {/* Últimos registros */}
           <Text style={styles.subTitle}>Últimos Registros</Text>
           {medidas.slice(0, 5).map((m, i) => (
             <View key={i} style={styles.medidaCard}>
               <Text style={styles.medidaFecha}>
-                📅 {formatDate(m.fecha_registro || m.created_at)}
+                {formatDate(m.fecha_registro || m.created_at)}
               </Text>
               <View style={styles.medidaRow}>
                 <MedidaItem

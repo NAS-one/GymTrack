@@ -1,7 +1,7 @@
 import { success, error } from "../Utils/responses.js";
 import {
-  validateColaborador,
-  validatePartialColaborador,
+  validateStaff,
+  validatePartialStaff,
 } from "../Schemas/colaboradores.js";
 import bcrypt from "bcrypt";
 
@@ -23,7 +23,7 @@ export class ColaboradorController {
 
   // --- CREATE ---
   create = async (req, res) => {
-    const result = validateColaborador(req.body);
+    const result = validateStaff(req.body);
     if (!result.success)
       return res.status(400).json(JSON.parse(result.error.message));
 
@@ -42,7 +42,7 @@ export class ColaboradorController {
   // --- UPDATE ---
   update = async (req, res) => {
     const { id } = req.params;
-    const result = validatePartialColaborador(req.body);
+    const result = validatePartialStaff(req.body);
 
     if (!result.success)
       return res.status(400).json(JSON.parse(result.error.message));
