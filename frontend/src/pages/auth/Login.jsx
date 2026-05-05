@@ -7,8 +7,17 @@ import { TwoFactorModal } from "../../components/Auth/TwoFactorModal";
 // Importamos iconos
 import { HiEye, HiEyeOff } from "react-icons/hi";
 import { BiDumbbell } from "react-icons/bi";
-import { QrCode, Shield, User, UserPlus } from "lucide-react";
+import { QrCode, Shield, User, UserPlus, CheckCircle2, Circle } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
+import { toast } from "sonner";
+
+const passwordReqs = [
+  { id: "len", text: "Mínimo 8 caracteres", test: p => p.length >= 8 },
+  { id: "let", text: "Contiene letras", test: p => /[A-Za-z]/.test(p) },
+  { id: "upp", text: "Una mayúscula", test: p => /[A-Z]/.test(p) },
+  { id: "num", text: "Al menos un número", test: p => /\d/.test(p) },
+  { id: "sym", text: "Un símbolo (@$!%*?.&-)", test: p => /[@$!%*?.&\-]/.test(p) },
+];
 
 // ====================================================================
 // CSS-in-JS STYLES (mantenemos estética oscura + naranja de GymTrack)
@@ -339,9 +348,18 @@ export function Login() {
   const [error, setError] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [loginMethod, setLoginMethod] = useState("email"); // 'email' | 'qr'
+  const [loginMethod, setLoginMethod] = useState("email"); // 'email' | 'qr' | 'forgot'
   const [show2FAModal, setShow2FAModal] = useState(false);
   const [twoFactorData, setTwoFactorData] = useState(null);
+
+  // ESTADOS FORGOT PASSWORD
+  const [forgotStep, setForgotStep] = useState(1);
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [forgotCode, setForgotCode] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [forgotErrors, setForgotErrors] = useState({});
 
   // ESTADOS DEL MODAL DE POLÍTICAS DE SEGURIDAD
   const [showExpiredModal, setShowExpiredModal] = useState(false);
@@ -455,8 +473,237 @@ export function Login() {
               </button>
           </div>
 
-          {/* QR SECTION */}
-          {loginMethod === "qr" ? (
+          {/* DYNAMIC SECTION */}
+          {loginMethod === "forgot" ? (
+             <div style={{ display: "flex", flexDirection: "column", gap: "16px", padding: "12px 0" }}>
+
+                 {/* ── PASO 1: Ingresar correo ── */}
+                 {forgotStep === 1 && (
+                   <>
+                     <div style={{ textAlign: "left", marginBottom: "8px" }}>
+                        <h3 style={{ fontSize:"18px", fontWeight:"700", margin:"0 0 8px 0", color: "#fff" }}>Restablecer Contraseña</h3>
+                        <p style={{ fontSize: "13px", color: "#a1a1aa", margin: 0, lineHeight: 1.5 }}>
+                          Ingresa el correo asociado a tu cuenta para recibir un código de recuperación.
+                        </p>
+                     </div>
+                     <div style={styles.inputGroup}>
+                       <label style={styles.label}>Correo Electrónico</label>
+                       <input
+                         type="email"
+                         className="login-input"
+                         value={forgotEmail}
+                         onChange={(e) => { setForgotEmail(e.target.value); setForgotErrors(err => ({...err, email: null})); }}
+                         style={{...styles.input, borderColor: forgotErrors.email ? "#ef4444" : "rgba(63,63,70,0.5)"}}
+                         placeholder="correo@ejemplo.com"
+                       />
+                       {forgotErrors.email && <p style={{ fontSize:"11px", color:"#f87171", marginTop:"4px", marginLeft:"4px" }}>{forgotErrors.email}</p>}
+                     </div>
+                     {error && (
+                       <div style={styles.errorBox}>⚠️ {error}</div>
+                     )}
+                     <button
+                       type="button"
+                       className="submit-btn"
+                       style={styles.submitBtn(loading)}
+                       onClick={async () => {
+                          if (!forgotEmail) { setForgotErrors({email: "El correo es obligatorio"}); return; }
+                          if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(forgotEmail)) { setForgotErrors({email: "Correo inválido"}); return; }
+                          setLoading(true);
+                          setError(null);
+                          try {
+                            const res = await axios.post("auth/forgot-password", { email: forgotEmail.trim().toLowerCase() });
+                            setForgotStep(2);
+                            setForgotErrors({});
+                            toast.success("Código enviado a tu correo");
+                          } catch(err) {
+                            const msg = err.response?.data?.body;
+                            setError(typeof msg === "string" ? msg : "Error al enviar el código");
+                          } finally {
+                            setLoading(false);
+                          }
+                       }}
+                       disabled={loading}
+                     >
+                       {loading ? <div style={styles.spinner} /> : "Enviar Código"}
+                     </button>
+                     <button
+                       type="button"
+                       onClick={() => { setLoginMethod("email"); setError(null); setForgotErrors({}); }}
+                       style={{ background:"none", border:"none", color:"#71717a", fontSize:"12px", cursor:"pointer", marginTop:"4px" }}
+                     >
+                       ← Volver al inicio de sesión
+                     </button>
+                   </>
+                 )}
+
+                 {/* ── PASO 2: Verificar código ── */}
+                 {forgotStep === 2 && (
+                   <>
+                     <div style={{ textAlign: "left", marginBottom: "8px" }}>
+                        <h3 style={{ fontSize:"18px", fontWeight:"700", margin:"0 0 8px 0", color: "#fff" }}>Verificar Código</h3>
+                        <p style={{ fontSize: "13px", color: "#a1a1aa", margin: 0, lineHeight: 1.5 }}>
+                          Enviamos un código de 6 dígitos a <strong style={{color:"#fff"}}>{forgotEmail}</strong>.
+                        </p>
+                     </div>
+                     <div style={styles.inputGroup}>
+                       <label style={styles.label}>Código de Verificación</label>
+                       <input
+                         className="login-input"
+                         value={forgotCode}
+                         onChange={(e) => { setForgotCode(e.target.value.replace(/\D/g, '').slice(0, 6)); setForgotErrors(err => ({...err, code: null})); }}
+                         style={{...styles.input, fontSize:"20px", letterSpacing:"6px", textAlign:"center", padding:"12px", borderColor: forgotErrors.code ? "#ef4444" : "rgba(63,63,70,0.5)"}}
+                         placeholder="••••••"
+                         maxLength={6}
+                       />
+                       {forgotErrors.code && <p style={{ fontSize:"11px", color:"#f87171", marginTop:"4px", marginLeft:"4px" }}>{forgotErrors.code}</p>}
+                     </div>
+                     {error && (
+                       <div style={styles.errorBox}>⚠️ {error}</div>
+                     )}
+                     <div style={{ display:"flex", gap:"12px" }}>
+                       <button
+                         type="button"
+                         style={{ background:"none", border:"1px solid rgba(63,63,70,0.5)", borderRadius:"12px", padding:"12px", color:"#a1a1aa", fontSize:"14px", fontWeight:"600", cursor:"pointer", flex: 1, transition:"all 0.2s" }}
+                         onClick={() => { setForgotStep(1); setForgotCode(""); setError(null); setForgotErrors({}); }}
+                       >
+                         Atrás
+                       </button>
+                       <button
+                         type="button"
+                         className="submit-btn"
+                         style={{...styles.submitBtn(loading), flex: 2}}
+                         onClick={async () => {
+                           if (forgotCode.length !== 6) { setForgotErrors({code: "El código debe tener 6 dígitos"}); return; }
+                           setLoading(true);
+                           setError(null);
+                           try {
+                             await axios.post("auth/verify-reset-code", { email: forgotEmail.trim().toLowerCase(), code: forgotCode });
+                             setForgotStep(3);
+                             setForgotErrors({});
+                             toast.success("Código verificado correctamente");
+                           } catch (err) {
+                             const msg = err.response?.data?.body;
+                             setError(typeof msg === "string" ? msg : "El código es incorrecto o ha expirado");
+                           } finally {
+                             setLoading(false);
+                           }
+                         }}
+                         disabled={loading || forgotCode.length !== 6}
+                       >
+                         {loading ? <div style={styles.spinner} /> : "Verificar Código"}
+                       </button>
+                     </div>
+                     <button
+                       type="button"
+                       onClick={async () => {
+                         setLoading(true);
+                         try {
+                           await axios.post("auth/forgot-password", { email: forgotEmail.trim().toLowerCase() });
+                           toast.success("Nuevo código enviado");
+                         } catch(err) {
+                           toast.error("Error al reenviar el código");
+                         } finally {
+                           setLoading(false);
+                         }
+                       }}
+                       disabled={loading}
+                       style={{ background:"none", border:"none", color:"#f97316", fontSize:"12px", fontWeight:"600", cursor: loading ? "not-allowed" : "pointer", marginTop:"4px" }}
+                     >
+                       ¿No recibiste el código? Reenviar
+                     </button>
+                   </>
+                 )}
+
+                 {/* ── PASO 3: Nueva contraseña ── */}
+                 {forgotStep === 3 && (
+                   <>
+                     <div style={{ textAlign: "left", marginBottom: "8px" }}>
+                        <h3 style={{ fontSize:"18px", fontWeight:"700", margin:"0 0 8px 0", color: "#fff" }}>Nueva Contraseña</h3>
+                        <p style={{ fontSize: "13px", color: "#a1a1aa", margin: 0, lineHeight: 1.5 }}>
+                          Crea una contraseña segura para tu cuenta.
+                        </p>
+                     </div>
+                     <div style={styles.inputGroup}>
+                       <label style={styles.label}>Nueva Contraseña</label>
+                       <div style={styles.inputWrapper}>
+                         <input
+                           type={showNewPassword ? "text" : "password"}
+                           className="login-input"
+                           value={newPassword}
+                           onChange={(e) => { setNewPassword(e.target.value); setForgotErrors(err => ({...err, password: null})); }}
+                           style={{...styles.input, borderColor: forgotErrors.password ? "#ef4444" : "rgba(63,63,70,0.5)"}}
+                           placeholder="••••••••"
+                         />
+                         <button type="button" className="toggle-pass" onClick={() => setShowNewPassword(!showNewPassword)} style={styles.togglePasswordBtn}>
+                           {showNewPassword ? <HiEyeOff size={20} /> : <HiEye size={20} />}
+                         </button>
+                       </div>
+                       {forgotErrors.password && <p style={{ fontSize:"11px", color:"#f87171", marginTop:"4px", marginLeft:"4px" }}>{forgotErrors.password}</p>}
+                       <div style={{ marginTop:"8px", display:"flex", flexWrap:"wrap", gap:"4px 16px" }}>
+                         {passwordReqs.map(r => {
+                           const ok = r.test(newPassword);
+                           return <div key={r.id} style={{ display:"flex", alignItems:"center", gap:"4px", fontSize:"11px", color: ok ? "#22c55e" : "#52525b" }}>
+                             {ok ? <CheckCircle2 size={12}/> : <Circle size={12}/>} {r.text}
+                           </div>;
+                         })}
+                       </div>
+                     </div>
+                     <div style={styles.inputGroup}>
+                       <label style={styles.label}>Confirmar Nueva Contraseña</label>
+                       <input
+                         type={showNewPassword ? "text" : "password"}
+                         className="login-input"
+                         value={confirmNewPassword}
+                         onChange={(e) => { setConfirmNewPassword(e.target.value); setForgotErrors(err => ({...err, confirmPassword: null})); }}
+                         style={{...styles.input, borderColor: forgotErrors.confirmPassword ? "#ef4444" : "rgba(63,63,70,0.5)"}}
+                         placeholder="••••••••"
+                       />
+                       {forgotErrors.confirmPassword && <p style={{ fontSize:"11px", color:"#f87171", marginTop:"4px", marginLeft:"4px" }}>{forgotErrors.confirmPassword}</p>}
+                     </div>
+                     {error && (
+                       <div style={styles.errorBox}>⚠️ {error}</div>
+                     )}
+                     <button
+                       type="button"
+                       className="submit-btn"
+                       style={styles.submitBtn(loading)}
+                       onClick={async () => {
+                         const e = {};
+                         if (!newPassword) e.password = "La contraseña es obligatoria";
+                         else if (!passwordReqs.every(r => r.test(newPassword))) e.password = "La contraseña no cumple los requisitos";
+                         if (newPassword !== confirmNewPassword) e.confirmPassword = "Las contraseñas no coinciden";
+                         if (Object.keys(e).length > 0) { setForgotErrors(e); return; }
+                         
+                         setLoading(true);
+                         setError(null);
+                         try {
+                           const res = await axios.post("auth/reset-password", { email: forgotEmail.trim().toLowerCase(), code: forgotCode, newPassword });
+                           const msg = res.data?.body?.message || "Contraseña restablecida exitosamente";
+                           toast.success(msg);
+                           // Limpiar estado y volver al login
+                           setLoginMethod("email");
+                           setForgotStep(1);
+                           setForgotEmail("");
+                           setForgotCode("");
+                           setNewPassword("");
+                           setConfirmNewPassword("");
+                           setForgotErrors({});
+                           setError(null);
+                         } catch (err) {
+                           const msg = err.response?.data?.body;
+                           setError(typeof msg === "string" ? msg : "Error al restablecer la contraseña. Intenta nuevamente.");
+                         } finally {
+                           setLoading(false);
+                         }
+                       }}
+                       disabled={loading}
+                     >
+                       {loading ? <div style={styles.spinner} /> : "Restablecer Contraseña"}
+                     </button>
+                   </>
+                 )}
+             </div>
+          ) : loginMethod === "qr" ? (
             <div style={styles.qrSection}>
               <div style={styles.qrContainer} className="qr-wrap">
                 <QRCodeSVG
@@ -527,6 +774,15 @@ export function Login() {
                   />
                   <span>Recordarme</span>
                 </label>
+                <button 
+                  type="button"
+                  onClick={() => setLoginMethod("forgot")}
+                  style={{ background: "none", border: "none", color: "#f97316", fontSize: "12px", fontWeight: "600", cursor: "pointer" }}
+                  onMouseEnter={(e) => e.currentTarget.style.color = "#ea580c"}
+                  onMouseLeave={(e) => e.currentTarget.style.color = "#f97316"}
+                >
+                  Olvidé mi contraseña
+                </button>
               </div>
 
               <button
