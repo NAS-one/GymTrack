@@ -1,19 +1,25 @@
 import { sql } from "../bd.js";
 
 export class PerfilModel {
-  // 1. Obtener los datos completos del admin logueado
+  // 1. Obtener los datos completos del admin/staff logueado
   static getProfileByUserId = async (id_usuario) => {
     const [profile] = await sql`
       SELECT 
-        a.id as id_admin,
-        a.nombre, 
-        a.cargo, 
-        a.foto_perfil,
+        s.id as id_admin,
+        s.nombre, 
+        s.cargo,
+        s.rut,
+        s.direccion,
+        s.turno,
+        s.sueldo_base,
+        s.fecha_contratacion,
+        s.foto_perfil,
+        s.preferencias_alertas,
         u.email, 
         u.username,
-        u.password -- Necesario para verificar la contraseña actual después
-      FROM administradores a
-      JOIN usuarios u ON a.id_usuario = u.id
+        u.password
+      FROM staff s
+      JOIN usuarios u ON s.id_usuario = u.id
       WHERE u.id = ${id_usuario}
     `;
     return profile;
@@ -21,16 +27,20 @@ export class PerfilModel {
 
 // 2. Actualizar los datos personales
   static updateProfile = async (id_usuario, input) => {
-    const [updatedAdmin] = await sql`
-      UPDATE administradores 
+    const [updatedStaff] = await sql`
+      UPDATE staff 
       SET 
         nombre = ${input.nombre},
         cargo = ${input.cargo},
-        telefono = ${input.telefono} 
+        telefono = ${input.telefono},
+        rut = ${input.rut || null},
+        direccion = ${input.direccion || null},
+        turno = ${input.turno || 'Full Time'},
+        sueldo_base = ${input.sueldo_base || null}
       WHERE id_usuario = ${id_usuario}
-      RETURNING nombre, cargo, telefono, foto_perfil
+      RETURNING nombre, cargo, telefono, rut, direccion, turno, sueldo_base, foto_perfil
     `;
-    return updatedAdmin;
+    return updatedStaff;
   };
 
     // 3. Actualizar la contraseña en la tabla usuarios
@@ -47,7 +57,6 @@ export class PerfilModel {
 
     //  4. Obtener el registro de auditoría de sesiones
   static getAuditoria = async (id_usuario) => {
-    // Formateamos la salida directamente en SQL para que el frontend reciba exactamente lo que necesita
     return await sql`
       SELECT 
         dispositivo as title, 
@@ -63,13 +72,13 @@ export class PerfilModel {
 
   //  5. Actualizar el JSONB de preferencias
   static updatePreferencias = async (id_usuario, preferencias) => {
-    const [updatedAdmin] = await sql`
-      UPDATE administradores
+    const [updatedStaff] = await sql`
+      UPDATE staff
       SET preferencias_alertas = ${sql.json(preferencias)}
       WHERE id_usuario = ${id_usuario}
       RETURNING preferencias_alertas
     `;
-    return updatedAdmin;
+    return updatedStaff;
   };
 
 }

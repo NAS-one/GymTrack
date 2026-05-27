@@ -14,17 +14,17 @@ export class PagoModel {
         JOIN membresias m ON p.id_membresia = m.id
         JOIN clientes c ON m.id_cliente = c.id
         LEFT JOIN planes pl ON m.id_plan = pl.id
-        LEFT JOIN administradores a ON p.id_administrador = a.id
+        LEFT JOIN staff a ON p.id_staff = a.id
         ORDER BY p.fecha_pago DESC
     `;
   }
 
   // 2. CREAR PAGO
   static async create(input) {
-    const { monto, metodo_pago, id_membresia, id_administrador } = input;
+    const { monto, metodo_pago, id_membresia, id_staff } = input;
     const [pago] = await sql`
-      INSERT INTO pagos (monto, metodo_pago, id_membresia, id_administrador)
-      VALUES (${monto}, ${metodo_pago}, ${id_membresia}, ${id_administrador})
+      INSERT INTO pagos (monto, metodo_pago, id_membresia, id_staff)
+      VALUES (${monto}, ${metodo_pago}, ${id_membresia}, ${id_staff})
       RETURNING *
     `;
     return pago;
@@ -38,8 +38,8 @@ export class PagoModel {
       const meses = parseInt(meses_duracion) || 1;
       fechaFin.setMonth(fechaFin.getMonth() + meses);
 
-      const [admin] = await sql`SELECT id FROM administradores LIMIT 1`;
-      const id_admin = admin ? admin.id : null;
+      const [admin] = await sql`SELECT id FROM staff LIMIT 1`;
+      const id_staff = admin ? admin.id : null;
 
       // Desactivar anteriores (Forzando fecha pasada)
       await sql`
@@ -67,8 +67,8 @@ export class PagoModel {
 
       // Registrar pago
       const [newPago] = await sql`
-        INSERT INTO pagos (monto, metodo_pago, id_membresia, id_administrador, fecha_pago)
-        VALUES (${monto}, ${metodo_pago}, ${newMembresia.id}, ${id_admin}, CURRENT_TIMESTAMP)
+        INSERT INTO pagos (monto, metodo_pago, id_membresia, id_staff, fecha_pago)
+        VALUES (${monto}, ${metodo_pago}, ${newMembresia.id}, ${id_staff}, CURRENT_TIMESTAMP)
         RETURNING *
       `;
 

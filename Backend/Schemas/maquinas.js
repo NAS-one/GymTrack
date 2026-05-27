@@ -12,7 +12,7 @@ const maquinaSchema = z.object({
 
   estado: z.enum(["operativa", "mantencion", "fuera_servicio"]).optional(),
 
-  id_administrador: z.string().uuid().optional(), // Quién la registró
+  id_staff: z.string().uuid().optional(),
 });
 
 export function validateMaquina(input) {

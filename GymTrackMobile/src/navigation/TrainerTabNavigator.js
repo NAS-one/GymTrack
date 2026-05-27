@@ -20,6 +20,7 @@ const Tab = createBottomTabNavigator();
 export default function TrainerTabNavigator() {
   return (
     <Tab.Navigator
+      initialRouteName="Inicio"
       screenOptions={{
         headerShown: false,
         tabBarShowLabel: false,

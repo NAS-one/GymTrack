@@ -85,10 +85,10 @@ export class DashboardModel {
         FROM membresias m JOIN planes p ON m.id_plan = p.id GROUP BY p.nombre
       `,
       sql`
-        SELECT COALESCE(c.nombre, col.nombre, e.nombre, 'Usuario') as nombre, a.fecha_entrada, a.estado_acceso
+        SELECT COALESCE(c.nombre, s.nombre, e.nombre, 'Usuario') as nombre, a.fecha_entrada, a.estado_acceso
         FROM asistencia a
         LEFT JOIN clientes c ON c.id_usuario = a.id_usuario
-        LEFT JOIN colaboradores col ON col.id_usuario = a.id_usuario
+        LEFT JOIN staff s ON s.id_usuario = a.id_usuario
         LEFT JOIN entrenadores e ON e.id_usuario = a.id_usuario
         WHERE a.fecha_entrada <= ${endOfDay} ORDER BY a.fecha_entrada DESC LIMIT 5
       `,

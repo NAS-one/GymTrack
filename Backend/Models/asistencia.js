@@ -17,17 +17,17 @@ export class AsistenciaModel {
         a.id, 
         a.fecha_entrada, 
         a.estado_acceso,
-        COALESCE(c.nombre, col.nombre, e.nombre, 'Usuario Desconocido') as nombre,
-        COALESCE(c.rut, col.rut, e.rut, 'N/A') as rut,
+        COALESCE(c.nombre, s.nombre, e.nombre, 'Usuario Desconocido') as nombre,
+        COALESCE(c.rut, s.rut, e.rut, 'N/A') as rut,
         CASE 
             WHEN c.id IS NOT NULL THEN 'cliente'
-            WHEN col.id IS NOT NULL THEN 'staff'
+            WHEN s.id IS NOT NULL THEN 'staff'
             WHEN e.id IS NOT NULL THEN 'entrenador'
             ELSE 'otro'
         END as tipo_usuario
       FROM asistencia a
       LEFT JOIN clientes c ON a.id_usuario = c.id_usuario
-      LEFT JOIN colaboradores col ON a.id_usuario = col.id_usuario
+      LEFT JOIN staff s ON a.id_usuario = s.id_usuario
       LEFT JOIN entrenadores e ON a.id_usuario = e.id_usuario
     `;
 
@@ -47,7 +47,7 @@ export class AsistenciaModel {
 
     if (type && type !== "all") {
       if (type === "cliente") conditions.push(sql`c.id IS NOT NULL`);
-      if (type === "staff") conditions.push(sql`col.id IS NOT NULL`);
+      if (type === "staff") conditions.push(sql`s.id IS NOT NULL`);
       if (type === "entrenador") conditions.push(sql`e.id IS NOT NULL`);
     }
 
@@ -80,7 +80,7 @@ export class AsistenciaModel {
         WITH usuarios_unificados AS (
             SELECT id_usuario, nombre, rut, 'cliente' as tipo, id as perfil_id FROM clientes
             UNION ALL
-            SELECT id_usuario, nombre, rut, 'staff' as tipo, id as perfil_id FROM colaboradores
+            SELECT id_usuario, nombre, rut, 'staff' as tipo, id as perfil_id FROM staff
             UNION ALL
             SELECT id_usuario, nombre, rut, 'entrenador' as tipo, id as perfil_id FROM entrenadores
         )
