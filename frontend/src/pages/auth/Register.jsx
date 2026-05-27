@@ -330,7 +330,7 @@ export function Register() {
                 {/* Nombre */}
                 <div>
                   <label style={labelStyle}>Nombre Completo</label>
-                  <input className="reg-input" style={fieldStyle("nombre")} placeholder="Nombre Apellido" value={form.nombre} onChange={e => set("nombre", e.target.value)} />
+                  <input className="reg-input" style={fieldStyle("nombre")} placeholder="Nombre Apellido" value={form.nombre} onChange={e => set("nombre", e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, ""))} />
                   {errors.nombre && <p style={errStyle}>{errors.nombre}</p>}
                 </div>
                 {/* RUT */}

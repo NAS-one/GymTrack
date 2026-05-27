@@ -1,7 +1,11 @@
 import z from "zod";
 
 const maquinaSchema = z.object({
-  nombre: z.string().trim().min(2, "El nombre es obligatorio"),
+  nombre: z
+    .string()
+    .trim()
+    .min(2, "El nombre es obligatorio")
+    .refine((val) => val.trim().length >= 2, { message: "El nombre no puede contener solo espacios" }),
   marca: z.string().trim().optional(),
   codigo_serie: z.string().trim().optional(),
   fecha_adquisicion: z.string().date().optional(),

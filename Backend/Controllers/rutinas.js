@@ -39,9 +39,9 @@ export class RutinaController {
     const { id_cliente } = req.params;
 
     try {
-      const rutinas = await this.RutinaModel.getActivaByClient({ id_cliente });
+      const rutinas = await this.RutinaModel.getActiveByClient({ id_cliente });
 
-      // Devolvemos el array
+      // Devolvemos el array/objeto
       success(req, res, rutinas, 200);
     } catch (e) {
       console.error(e);

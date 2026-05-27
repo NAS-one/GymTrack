@@ -16,37 +16,29 @@ const INITIAL_STATE = {
 };
 
 // --- UTILIDADES CHILENAS ---
-const formatRut = (rut) => {
-    let value = rut.replace(/[^0-9kK]/g, '');
-    if (value.length > 1) {
-        const body = value.slice(0, -1);
-        const dv = value.slice(-1).toUpperCase();
-        const formattedBody = body.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-        return `${formattedBody}-${dv}`;
-    }
-    return value;
+const formatRut = (value) => {
+    let v = value.replace(/[^0-9kK]/g, "");
+    if (v.length > 9) v = v.slice(0, 9);
+    if (v.length <= 1) return v;
+    const dv = v.slice(-1).toUpperCase();
+    let body = v.slice(0, -1);
+    body = body.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    return `${body}-${dv}`;
 };
 
 const isValidRut = (rut) => {
-    if (!rut || rut.length < 8) return false;
-    const cleanRut = rut.replace(/[^0-9kK]/g, '');
-    const body = cleanRut.slice(0, -1);
-    const dv = cleanRut.slice(-1).toUpperCase();
-
-    if (!body || !dv) return false;
-
-    let suma = 0;
-    let multiplo = 2;
-
+    const clean = rut.replace(/[.\-]/g, "");
+    const body = clean.slice(0, -1);
+    if (/^(\d)\1+$/.test(body)) return false;
+    const dv = clean.slice(-1).toUpperCase();
+    let sum = 0, mul = 2;
     for (let i = body.length - 1; i >= 0; i--) {
-        suma += multiplo * parseInt(body.charAt(i));
-        multiplo = multiplo < 7 ? multiplo + 1 : 2;
+        sum += parseInt(body[i]) * mul;
+        mul = mul === 7 ? 2 : mul + 1;
     }
-
-    const dvEsperado = 11 - (suma % 11);
-    const dvFinal = (dvEsperado === 11) ? '0' : (dvEsperado === 10) ? 'K' : dvEsperado.toString();
-
-    return dv === dvFinal;
+    const r = 11 - (sum % 11);
+    const expected = r === 11 ? "0" : r === 10 ? "K" : r.toString();
+    return dv === expected;
 };
 
 export function ClientModal({ isOpen, onClose, clientToEdit, onSave, coaches = [] }) {
@@ -91,13 +83,22 @@ export function ClientModal({ isOpen, onClose, clientToEdit, onSave, coaches = [
 
     if (!isOpen) return null;
 
+    const calcAge = (birthDate) => {
+        const today = new Date();
+        const birth = new Date(birthDate);
+        let age = today.getFullYear() - birth.getFullYear();
+        const m = today.getMonth() - birth.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+        return age;
+    };
+
     // --- VALIDACIONES ---
     const validateForm = () => {
         const newErrors = {};
 
         if (!formData.nombre.trim()) {
             newErrors.nombre = "El nombre es obligatorio";
-        } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(formData.nombre)) {
+        } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/.test(formData.nombre)) {
             newErrors.nombre = "El nombre solo debe contener letras";
         }
 
@@ -109,15 +110,50 @@ export function ClientModal({ isOpen, onClose, clientToEdit, onSave, coaches = [
             }
         }
 
-        if (formData.fecha_nacimiento) {
-            const fecha = new Date(formData.fecha_nacimiento);
-            const hoy = new Date();
-            if (fecha > hoy) newErrors.fecha_nacimiento = "La fecha no puede ser futura";
+        if (!formData.fecha_nacimiento) {
+            newErrors.fecha_nacimiento = "La fecha es obligatoria";
+        } else {
+            const age = calcAge(formData.fecha_nacimiento);
+            if (age < 12) {
+                newErrors.fecha_nacimiento = "Debes tener al menos 12 años";
+            } else if (age > 120) {
+                newErrors.fecha_nacimiento = "Fecha no realista";
+            } else if (formData.rut && !newErrors.rut) {
+                const rutNum = parseInt(formData.rut.replace(/[.\-kK]/g, "").slice(0, -1) || "0", 10);
+                const birthYear = new Date(formData.fecha_nacimiento).getFullYear();
+                if (rutNum > 0 && rutNum < 5000000 && birthYear > 1975) {
+                    newErrors.fecha_nacimiento = "Inconsistencia entre RUT y fecha de nacimiento";
+                } else if (rutNum > 0 && rutNum < 10000000 && birthYear > 1995) {
+                    newErrors.fecha_nacimiento = "Inconsistencia entre RUT y fecha de nacimiento";
+                } else if (rutNum > 0 && rutNum < 15000000 && birthYear > 2005) {
+                    newErrors.fecha_nacimiento = "Inconsistencia entre RUT y fecha de nacimiento";
+                } else if (rutNum > 0 && rutNum < 20000000 && birthYear > 2015) {
+                    newErrors.fecha_nacimiento = "Inconsistencia entre RUT y fecha de nacimiento";
+                }
+            }
         }
 
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!formData.email) newErrors.email = "El email es obligatorio";
-        else if (!emailRegex.test(formData.email)) newErrors.email = "Formato de email inválido";
+        if (!formData.email) {
+            newErrors.email = "El correo es obligatorio";
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(formData.email)) {
+            newErrors.email = "Correo inválido";
+        } else if (formData.email.split("@")[0].length < 2) {
+            newErrors.email = "Usuario de correo muy corto";
+        }
+
+        // Validación de dirección
+        if (formData.direccion !== undefined && formData.direccion !== null && formData.direccion !== '') {
+            const dir = formData.direccion.trim();
+            if (dir === '') {
+                newErrors.direccion = "La dirección no puede contener solo espacios";
+            } else {
+                const tieneLetras = /[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]/.test(dir);
+                const tieneNumeros = /\d/.test(dir);
+                if (!tieneLetras || !tieneNumeros) {
+                    newErrors.direccion = "Formato inválido. Ej: Osorno 123";
+                }
+            }
+        }
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -157,7 +193,8 @@ export function ClientModal({ isOpen, onClose, clientToEdit, onSave, coaches = [
         let finalValue = value;
 
         if (field === 'rut') finalValue = formatRut(value);
-        if (field === 'nombre' && /[0-9]/.test(value)) return;
+        if (field === 'nombre') finalValue = value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, '');
+        if (field === 'objetivo') finalValue = value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, '');
 
         setFormData(prev => ({ ...prev, [field]: finalValue }));
 
@@ -312,7 +349,14 @@ export function ClientModal({ isOpen, onClose, clientToEdit, onSave, coaches = [
 
                         <div>
                             <Label text="Dirección" />
-                            <input type="text" className={inputClass(null)} value={formData.direccion} onChange={e => handleChange('direccion', e.target.value)} placeholder="Av. Principal 123" />
+                            <input
+                                type="text"
+                                className={inputClass(errors.direccion)}
+                                value={formData.direccion}
+                                onChange={e => handleChange('direccion', e.target.value)}
+                                placeholder="Ej: Osorno 123"
+                            />
+                            {errors.direccion && <p className="text-red-400 text-xs mt-1 flex items-center gap-1"><AlertCircle size={10} /> {errors.direccion}</p>}
                         </div>
                     </div>
 

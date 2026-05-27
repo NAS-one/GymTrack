@@ -73,7 +73,7 @@ export function ExerciseModal({ isOpen, onClose, exercise, onSave }) {
               className={inputClass}
               value={formData.nombre}
               onChange={(e) =>
-                setFormData({ ...formData, nombre: e.target.value })
+                setFormData({ ...formData, nombre: e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, '') })
               }
               placeholder="Ej: Press Banca Plano"
               readOnly={!isAdmin} // <-- BLOQUEA ESCRITURA SI ES ENTRENADOR
