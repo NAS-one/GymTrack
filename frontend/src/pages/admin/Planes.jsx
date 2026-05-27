@@ -3,8 +3,11 @@ import axios from '../../api/axios';
 import { Plus, Edit, Trash2, Users, TrendingUp, Award, Eye } from 'lucide-react';
 import { PlanModal } from '../../components/admin/Planes/PlanModal';
 import { PlanDetailModal } from '../../components/admin/Planes/PlanDetailModal';
+import { toast } from 'sonner';
+import { useConfirm } from '../../contexts/ConfirmContext';
 
 export function Planes() {
+    const confirm = useConfirm();
     const [plans, setPlans] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -61,13 +64,35 @@ export function Planes() {
             else await axios.post('/planes', formData);
             setIsModalOpen(false);
             fetchPlans();
-        } catch (e) { alert("Error al guardar"); }
+            toast.success(selectedPlan ? 'Plan actualizado' : 'Plan creado', {
+                description: `El plan "${formData.nombre}" fue guardado correctamente.`
+            });
+        } catch (e) {
+            console.error(e);
+            const mensajeError = e.response?.data?.error
+                || (Array.isArray(e.response?.data) ? e.response.data[0]?.message : null)
+                || 'Error al guardar el plan. Verifica los datos e intenta nuevamente.';
+            toast.error('Error al guardar plan', { description: mensajeError });
+        }
     };
 
     const handleDelete = async (id) => {
-        if (!window.confirm("¿Eliminar plan?")) return;
-        try { await axios.delete(`/planes/${id}`); fetchPlans(); }
-        catch (e) { alert("Error al borrar"); }
+        const isConfirmed = await confirm({
+            title: '¿Eliminar Plan?',
+            description: 'Esta acción no se puede deshacer. Los socios activos con este plan conservarán su membresía hasta el vencimiento.',
+            confirmText: 'Sí, eliminar',
+            cancelText: 'Cancelar',
+            type: 'danger'
+        });
+        if (!isConfirmed) return;
+        try {
+            await axios.delete(`/planes/${id}`);
+            fetchPlans();
+            toast.success('Plan eliminado correctamente');
+        } catch (e) {
+            const mensajeError = e.response?.data?.error || 'Error al eliminar el plan.';
+            toast.error('Error', { description: mensajeError });
+        }
     };
 
     return (

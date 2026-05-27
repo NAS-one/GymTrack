@@ -407,10 +407,10 @@ export function RutinaModal({
                             handleFilaChange(
                               idx,
                               "carga_proyectada",
-                              e.target.value,
+                              e.target.value.replace(/\D/g, ''),
                             )
                           }
-                          placeholder="60kg / P.C."
+                          placeholder="Solo números..."
                           className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm text-white text-center outline-none focus:border-orange-500 transition-colors font-mono placeholder-zinc-600"
                         />
                       </>
