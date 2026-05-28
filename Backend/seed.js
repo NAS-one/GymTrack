@@ -25,7 +25,7 @@ const generateRUT = () => {
 
 const getRandomTime = (shift = "General") => {
   let hour;
-  if (shift === "MaÃ±ana") hour = getRandomInt(6, 12);
+  if (shift === "Mañana") hour = getRandomInt(6, 12);
   else if (shift === "Tarde") hour = getRandomInt(13, 17);
   else if (shift === "Noche") hour = getRandomInt(18, 22);
   else hour = getRandomInt(6, 22);
@@ -41,7 +41,7 @@ const getHistoricalDate = (minYears, maxYears) => {
   return date;
 };
 
-// Fecha aleatoria dentro de los Ãºltimos N meses
+// Fecha aleatoria dentro de los últimos N meses
 const getDateInPastMonths = (monthsAgo) => {
   const date = new Date();
   date.setMonth(date.getMonth() - monthsAgo);
@@ -53,15 +53,15 @@ const getDateInPastMonths = (monthsAgo) => {
 const PAYMENT_METHODS = ["Tarjeta", "Efectivo", "Transferencia", "Webpay"];
 
 // Emails de desarrollo: Gmail ignora el tag +alias al entregar,
-// asÃ­ que los 3 llegan al mismo buzÃ³n pero satisfacen la restricciÃ³n UNIQUE de la BD.
+// así que los 3 llegan al mismo buzón pero satisfacen la restricción UNIQUE de la BD.
 const GMAIL_BASE = "victoralexisdelgado10@gmail.com";
 const DEV_EMAIL_ADMIN = GMAIL_BASE; // admin@gmail
-const DEV_EMAIL_TRAINER = "victoralexisdelgado10+entrenador@gmail.com"; // mismo buzÃ³n
-const DEV_EMAIL_CLIENT = "victoralexisdelgado10+cliente@gmail.com"; // mismo buzÃ³n
+const DEV_EMAIL_TRAINER = "victoralexisdelgado10+entrenador@gmail.com"; // mismo buzón
+const DEV_EMAIL_CLIENT = "victoralexisdelgado10+cliente@gmail.com"; // mismo buzón
 
 async function seed() {
   console.log(
-    "ðŸŒ± Iniciando Siembra ENTERPRISE 4.0 (con mÃ³dulo de entrenador completo)...",
+    "ðŸŒ± Iniciando Siembra ENTERPRISE 4.0 (con módulo de entrenador completo)...",
   );
 
   try {
@@ -113,7 +113,7 @@ async function seed() {
           rut, nombre, especialidad, telefono, id_usuario, turno,
           modelo_contrato, sueldo_base, porcentaje_retencion, tarifa_arriendo, created_at
       ) VALUES (
-          '12.345.678-9', 'VÃ­ctor Dev Trainer', 'Hipertrofia y Fuerza', '+56999999999',
+          '12.345.678-9', 'Víctor Dev Trainer', 'Hipertrofia y Fuerza', '+56999999999',
           ${uTrainerDev.id}, 'Full Time', 'porcentaje', 0, 0.35, 0, NOW() - INTERVAL '2 years'
       ) RETURNING id
     `;
@@ -128,7 +128,7 @@ async function seed() {
     const [clienteDevProfile] = await sql`
       INSERT INTO clientes (rut, nombre, objetivo, fecha_nacimiento, genero, id_usuario, id_entrenador, created_at)
       VALUES (
-          '22.333.444-5', 'Cliente Dev', 'MusculaciÃ³n y TonificaciÃ³n',
+          '22.333.444-5', 'Cliente Dev', 'Musculación y Tonificación',
           '1995-06-15', 'Masculino', ${uClienteDev.id}, ${devTrainerId},
           NOW() - INTERVAL '6 months'
       ) RETURNING id
@@ -154,7 +154,7 @@ async function seed() {
         nombre: "Maria Recepcionista",
         rut: generateRUT(),
         cargo: "Recepcionista",
-        turno: "MaÃ±ana",
+        turno: "Mañana",
         sueldo: 500000,
         antiguedad: 3,
       },
@@ -178,12 +178,12 @@ async function seed() {
         nombre: "Luisa Limpieza",
         rut: generateRUT(),
         cargo: "Aseo",
-        turno: "MaÃ±ana",
+        turno: "Mañana",
         sueldo: 450000,
         antiguedad: 4,
       },
       {
-        nombre: "Carlos TÃ©cnico",
+        nombre: "Carlos Técnico",
         rut: generateRUT(),
         cargo: "Mantenimiento",
         turno: "Full Time",
@@ -248,7 +248,7 @@ async function seed() {
       {
         name: "Mike Mentzer",
         esp: "Hipertrofia",
-        turno: "MaÃ±ana",
+        turno: "Mañana",
         modelo: "sueldo_fijo",
         sueldo: 800000,
         porcentaje: 0,
@@ -267,7 +267,7 @@ async function seed() {
       },
       {
         name: "Chris Bumstead",
-        esp: "EstÃ©tica",
+        esp: "Estética",
         turno: "Full Time",
         modelo: "porcentaje",
         sueldo: 0,
@@ -278,7 +278,7 @@ async function seed() {
       {
         name: "Nina Williams",
         esp: "Yoga & Flex",
-        turno: "MaÃ±ana",
+        turno: "Mañana",
         modelo: "arriendo_espacio",
         sueldo: 0,
         porcentaje: 0,
@@ -359,7 +359,7 @@ async function seed() {
     ];
     const lastnames = [
       "Gonzalez",
-      "MuÃ±oz",
+      "Muñoz",
       "Rojas",
       "Diaz",
       "Perez",
@@ -380,13 +380,13 @@ async function seed() {
       "Av. Providencia 123",
       "Las Condes 444",
       "Santiago Centro",
-      "MaipÃº 90",
-      "Ã‘uÃ±oa 500",
+      "Maipú 90",
+      "Ñuñoa 500",
       "La Florida 100",
       "Vitacura 300",
     ];
 
-    // Incluye el cliente dev en el pool para que tenga asistencia y membresÃ­a
+    // Incluye el cliente dev en el pool para que tenga asistencia y membresía
     const [memClienteDev] = await sql`
       INSERT INTO membresias (id_plan, fecha_inicio, fecha_fin, estado, id_cliente)
       VALUES (${planesListDB[0].id}, NOW() - INTERVAL '2 months', NOW() + INTERVAL '1 month', 'active', ${clienteDevProfile.id})
@@ -402,7 +402,7 @@ async function seed() {
       nombre: "Cliente Dev",
       activeUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
       assignedTrainer: devTrainerId,
-      habitShift: "MaÃ±ana",
+      habitShift: "Mañana",
       attendanceProb: 0.7,
       currentWeight: 80,
       currentFat: 18,
@@ -424,7 +424,7 @@ async function seed() {
       const [u] =
         await sql`INSERT INTO usuarios (username, email, password, estado, id_rol) VALUES (${`u_${firstName.toLowerCase()}${i}`}, ${`user${i}@mail.com`}, ${password}, 'active', ${getRol("cliente")}) RETURNING id`;
       const joinDate = getHistoricalDate(0, 2);
-      // 30% va al entrenador dev, el resto distribuido entre los demÃ¡s
+      // 30% va al entrenador dev, el resto distribuido entre los demás
       const allTrainerIds = [devTrainerId, ...trainerIds];
       const assignedTrainer =
         Math.random() > 0.4 ? getRandomItem(allTrainerIds) : null;
@@ -443,7 +443,7 @@ async function seed() {
             ${joinDate}
         ) RETURNING id
       `;
-      const habitShift = getRandomItem(["MaÃ±ana", "Tarde", "Noche"]);
+      const habitShift = getRandomItem(["Mañana", "Tarde", "Noche"]);
       const attendanceProb = getRandomFloat(0.2, 0.8);
       clientPool.push({
         id_cliente: c.id,
@@ -460,8 +460,8 @@ async function seed() {
       });
     }
 
-    // 5. SIMULACIÃ“N TEMPORAL
-    console.log("â³ Ejecutando simulaciÃ³n temporal...");
+    // 5. SIMULACIÓN TEMPORAL
+    console.log("â³ Ejecutando simulación temporal...");
     const startDate = new Date(2025, 0, 1);
     const endDate = new Date();
     let currentDate = new Date(startDate);
@@ -553,7 +553,7 @@ async function seed() {
     // 6. SESIONES DE ENTRENADOR (Para dashboards y finanzas)
     // =========================================================
     console.log(
-      "ðŸ“… Generando sesiones de entrenadores (6 meses histÃ³rico + prÃ³ximas)...",
+      "ðŸ“… Generando sesiones de entrenadores (6 meses histórico + próximas)...",
     );
 
     // Obtener todos los clientes con entrenador asignado
@@ -564,7 +564,7 @@ async function seed() {
     `;
 
     const sesionesBuffer = [];
-    const TARIFA_SESSION = 25000; // Valor base por sesiÃ³n personal
+    const TARIFA_SESSION = 25000; // Valor base por sesión personal
     const allTrainerIds = [devTrainerId, ...trainerIds];
 
     // Historial de 6 meses pasados para cada entrenador
@@ -574,7 +574,7 @@ async function seed() {
       );
       if (misClientes.length === 0) continue;
 
-      // Porcentaje del entrenador (usamos 0.35 como default para los de sueldo fijo tambiÃ©n)
+      // Porcentaje del entrenador (usamos 0.35 como default para los de sueldo fijo también)
       const [trainerInfo] =
         await sql`SELECT porcentaje_retencion FROM entrenadores WHERE id = ${trainerId}`;
       const porcentajeEntrenador =
@@ -616,7 +616,7 @@ async function seed() {
         }
       }
 
-      // PrÃ³ximas sesiones agendadas (para el panel de "prÃ³ximas sesiones")
+      // Próximas sesiones agendadas (para el panel de "próximas sesiones")
       for (let i = 0; i < getRandomInt(3, 8); i++) {
         const clienteElegido = getRandomItem(misClientes);
         const diasAdelante = getRandomInt(1, 14);
@@ -648,11 +648,11 @@ async function seed() {
     console.log(`   ðŸ“Š Sesiones generadas: ${sesionesBuffer.length}`);
 
     // =========================================================
-    // 7. MÃ“DULO DE ENTRENAMIENTO â€” referencias reservadas
+    // 7. MÓDULO DE ENTRENAMIENTO — referencias reservadas
     // =========================================================
     // Los ejercicios se crean en el paso 9 (necesitamos sus IDs).
     // Las rutinas y detalle_rutina se insertan en el paso 9.5.
-    console.log("ðŸ’¾ Reservando referencias para mÃ³dulo de entrenamiento...");
+    console.log("ðŸ’¾ Reservando referencias para módulo de entrenamiento...");
     const clientesDevAsignados = clientesConEntrenador
       .filter((c) => c.id_entrenador === devTrainerId)
       .slice(0, 5);
@@ -668,25 +668,25 @@ async function seed() {
         count: 8,
       },
       {
-        name: "ElÃ­ptica Avanzada",
+        name: "Elíptica Avanzada",
         brand: "Technogym",
         type: "Cardio",
         count: 6,
       },
       {
-        name: "Bicicleta EstÃ¡tica",
+        name: "Bicicleta Estática",
         brand: "Schwinn",
         type: "Cardio",
         count: 10,
       },
       {
-        name: "Press Banca OlÃ­mpico",
+        name: "Press Banca Olímpico",
         brand: "Hammer Strength",
         type: "Fuerza",
         count: 4,
       },
       {
-        name: "Prensa de Piernas 45Â°",
+        name: "Prensa de Piernas 45°",
         brand: "Cybex",
         type: "Fuerza",
         count: 3,
@@ -722,42 +722,42 @@ async function seed() {
     console.log("ðŸ‹ï¸ Creando Biblioteca de Ejercicios profesional (30 ejercicios)...");
     const ejerciciosDb = [
       // â”€â”€ PECHO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-      { nombre: "Press de Banca Plano", grupo_muscular: "Pecho", url_video: "https://youtu.be/rT7DgCr-3pg", descripcion: "Ejercicio compuesto rey del pecho. Activa pectoral mayor, deltoides anterior y trÃ­ceps. TÃ©cnica: escÃ¡pulas retraÃ­das, arco lumbar controlado, barra baja hacia el esternÃ³n." },
-      { nombre: "Press de Banca Inclinado", grupo_muscular: "Pecho", url_video: "https://youtu.be/DbFgADa2PL8", descripcion: "Variante inclinada (30-45Â°) que aÃ­sla la porciÃ³n clavicular del pectoral. Excelente para la parte alta del pecho." },
-      { nombre: "Aperturas con Mancuernas", grupo_muscular: "Pecho", url_video: "https://youtu.be/eozdVDA78K0", descripcion: "Aislamiento del pectoral en el plano horizontal. Emphasize el estiramiento mÃ¡ximo y la contracciÃ³n en cima." },
-      { nombre: "Fondos en Paralelas", grupo_muscular: "Pecho", url_video: "https://youtu.be/2z8JmcrW-As", descripcion: "Compuesto de empuje que maximiza el rango de movimiento del pectoral inferior. Inclinarse hacia adelante para mayor activaciÃ³n del pecho." },
+      { nombre: "Press de Banca Plano", grupo_muscular: "Pecho", url_video: "https://youtu.be/rT7DgCr-3pg", descripcion: "Ejercicio compuesto rey del pecho. Activa pectoral mayor, deltoides anterior y tríceps. Técnica: escápulas retraídas, arco lumbar controlado, barra baja hacia el esternón." },
+      { nombre: "Press de Banca Inclinado", grupo_muscular: "Pecho", url_video: "https://youtu.be/DbFgADa2PL8", descripcion: "Variante inclinada (30-45°) que aísla la porción clavicular del pectoral. Excelente para la parte alta del pecho." },
+      { nombre: "Aperturas con Mancuernas", grupo_muscular: "Pecho", url_video: "https://youtu.be/eozdVDA78K0", descripcion: "Aislamiento del pectoral en el plano horizontal. Emphasize el estiramiento máximo y la contracción en cima." },
+      { nombre: "Fondos en Paralelas", grupo_muscular: "Pecho", url_video: "https://youtu.be/2z8JmcrW-As", descripcion: "Compuesto de empuje que maximiza el rango de movimiento del pectoral inferior. Inclinarse hacia adelante para mayor activación del pecho." },
       // â”€â”€ ESPALDA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-      { nombre: "Dominadas Supinas", grupo_muscular: "Espalda", url_video: "https://youtu.be/eGo4IYlbE5g", descripcion: "TracciÃ³n vertical con agarre supino. Activa dorsales y bÃ­ceps con alta intensidad. Bajar hasta extensiÃ³n completa del codo." },
-      { nombre: "Remo con Barra", grupo_muscular: "Espalda", url_video: "https://youtu.be/G8l_8chR5BE", descripcion: "TracciÃ³n horizontal pesada enfocada en grosor de la espalda media. Torso a 45Â°, barra hacia el ombligo." },
+      { nombre: "Dominadas Supinas", grupo_muscular: "Espalda", url_video: "https://youtu.be/eGo4IYlbE5g", descripcion: "Tracción vertical con agarre supino. Activa dorsales y bíceps con alta intensidad. Bajar hasta extensión completa del codo." },
+      { nombre: "Remo con Barra", grupo_muscular: "Espalda", url_video: "https://youtu.be/G8l_8chR5BE", descripcion: "Tracción horizontal pesada enfocada en grosor de la espalda media. Torso a 45°, barra hacia el ombligo." },
       { nombre: "Peso Muerto Convencional", grupo_muscular: "Espalda", url_video: "https://youtu.be/op9kVnSso6Q", descripcion: "Ejercicio fundamental para toda la cadena posterior. Columna neutra, cadera como eje. Base de cualquier programa serio de fuerza." },
-      { nombre: "JalÃ³n al Pecho en Polea", grupo_muscular: "Espalda", url_video: "https://youtu.be/CAwf7n6Luuc", descripcion: "TracciÃ³n vertical asistida para desarrollo de dorsales. Barra hacia la clavÃ­cula, codos hacia la cadera al bajar." },
+      { nombre: "Jalón al Pecho en Polea", grupo_muscular: "Espalda", url_video: "https://youtu.be/CAwf7n6Luuc", descripcion: "Tracción vertical asistida para desarrollo de dorsales. Barra hacia la clavícula, codos hacia la cadera al bajar." },
       { nombre: "Remo en Polea Baja", grupo_muscular: "Espalda", url_video: "https://youtu.be/GZbfZ033f74", descripcion: "Remo sentado con polea. Control total del movimiento. Ideal para grosor medio de la espalda y romboides." },
       // â”€â”€ PIERNAS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-      { nombre: "Sentadilla Libre", grupo_muscular: "Piernas", url_video: "https://youtu.be/ultWZbUMPL8", descripcion: "Rey del tren inferior. Activa cuÃ¡driceps, glÃºteos, isquios y core. Rodillas en lÃ­nea con pies, espalda recta, profundidad mÃ­nima al paralelo." },
-      { nombre: "Prensa de Piernas 45Â°", grupo_muscular: "Piernas", url_video: "https://youtu.be/IZxyjW7MPJQ", descripcion: "MÃ¡quina de empuje para hipertrofia del cuÃ¡driceps. PosiciÃ³n del pie varÃ­a el Ã©nfasis: alto=isquios/glÃºteos, bajo=cuÃ¡driceps." },
-      { nombre: "Hip Thrust con Barra", grupo_muscular: "Piernas", url_video: "https://youtu.be/LM8XHLYJoYs", descripcion: "Ejercicio de extensiÃ³n de cadera por excelencia para glÃºteo mayor. Hombros sobre banco, barra en caderas, mÃ¡xima contracciÃ³n arriba." },
-      { nombre: "Curl Femoral Tumbado", grupo_muscular: "Piernas", url_video: "https://youtu.be/1Tq3QdYUuHs", descripcion: "Aislamiento de isquiotibiales en mÃ¡quina. FlexiÃ³n de rodilla hasta ~120Â°. Fundamental para equilibrio anterior/posterior del muslo." },
-      { nombre: "ExtensiÃ³n de CuÃ¡driceps", grupo_muscular: "Piernas", url_video: "https://youtu.be/YyvSfVjQeL0", descripcion: "Aislamiento de cuÃ¡driceps en mÃ¡quina. ExtensiÃ³n completa al tope. Utilizar en fase de pump o calentamiento." },
-      { nombre: "Peso Muerto Rumano", grupo_muscular: "Piernas", url_video: "https://youtu.be/JCXUYuzwNrM", descripcion: "Variante de peso muerto que aÃ­sla la cadena posterior: isquiotibiales y glÃºteos. Rodillas semi-flexionadas, cadera hacia atrÃ¡s." },
+      { nombre: "Sentadilla Libre", grupo_muscular: "Piernas", url_video: "https://youtu.be/ultWZbUMPL8", descripcion: "Rey del tren inferior. Activa cuádriceps, glúteos, isquios y core. Rodillas en línea con pies, espalda recta, profundidad mínima al paralelo." },
+      { nombre: "Prensa de Piernas 45°", grupo_muscular: "Piernas", url_video: "https://youtu.be/IZxyjW7MPJQ", descripcion: "Máquina de empuje para hipertrofia del cuádriceps. Posición del pie varía el énfasis: alto=isquios/glúteos, bajo=cuádriceps." },
+      { nombre: "Hip Thrust con Barra", grupo_muscular: "Piernas", url_video: "https://youtu.be/LM8XHLYJoYs", descripcion: "Ejercicio de extensión de cadera por excelencia para glúteo mayor. Hombros sobre banco, barra en caderas, máxima contracción arriba." },
+      { nombre: "Curl Femoral Tumbado", grupo_muscular: "Piernas", url_video: "https://youtu.be/1Tq3QdYUuHs", descripcion: "Aislamiento de isquiotibiales en máquina. Flexión de rodilla hasta ~120°. Fundamental para equilibrio anterior/posterior del muslo." },
+      { nombre: "Extensión de Cuádriceps", grupo_muscular: "Piernas", url_video: "https://youtu.be/YyvSfVjQeL0", descripcion: "Aislamiento de cuádriceps en máquina. Extensión completa al tope. Utilizar en fase de pump o calentamiento." },
+      { nombre: "Peso Muerto Rumano", grupo_muscular: "Piernas", url_video: "https://youtu.be/JCXUYuzwNrM", descripcion: "Variante de peso muerto que aísla la cadena posterior: isquiotibiales y glúteos. Rodillas semi-flexionadas, cadera hacia atrás." },
       // â”€â”€ HOMBROS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-      { nombre: "Press Militar con Barra", grupo_muscular: "Hombros", url_video: "https://youtu.be/2yjwXTZQDDI", descripcion: "Empuje vertical compuesto para deltoides anterior y medio. De pie o sentado. Core activado. Barra desde la clavÃ­cula al bloqueo." },
+      { nombre: "Press Militar con Barra", grupo_muscular: "Hombros", url_video: "https://youtu.be/2yjwXTZQDDI", descripcion: "Empuje vertical compuesto para deltoides anterior y medio. De pie o sentado. Core activado. Barra desde la clavícula al bloqueo." },
       { nombre: "Elevaciones Laterales con Mancuernas", grupo_muscular: "Hombros", url_video: "https://youtu.be/3VcKaXpzqRo", descripcion: "Aislamiento del deltoides lateral. Codos ligeramente flexionados, elevar hasta paralelo al suelo. No balancear el torso." },
-      { nombre: "PÃ¡jaro (Reverse Fly)", grupo_muscular: "Hombros", url_video: "https://youtu.be/ttvAYqd5qiI", descripcion: "Aislamiento del deltoides posterior y romboides. Torso inclinado, brazos en arco hacia arriba. Clave para postura y simetrÃ­a." },
+      { nombre: "Pájaro (Reverse Fly)", grupo_muscular: "Hombros", url_video: "https://youtu.be/ttvAYqd5qiI", descripcion: "Aislamiento del deltoides posterior y romboides. Torso inclinado, brazos en arco hacia arriba. Clave para postura y simetría." },
       // â”€â”€ BRAZOS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-      { nombre: "Curl de BÃ­ceps con Barra", grupo_muscular: "Brazos", url_video: "https://youtu.be/kwG2ipFRgfo", descripcion: "Aislamiento clÃ¡sico para el bÃ­ceps braquial. Codos fijos al costado del torso. SupinaciÃ³n completa al subir. Bajar controlado." },
-      { nombre: "Curl Martillo con Mancuernas", grupo_muscular: "Brazos", url_video: "https://youtu.be/zC3nLlEvin4", descripcion: "Trabaja bÃ­ceps braquial y braquiorradial (agarre neutro). Excelente para grosor y amplitud del brazo." },
-      { nombre: "ExtensiÃ³n de TrÃ­ceps en Polea Alta", grupo_muscular: "Brazos", url_video: "https://youtu.be/vB5OHsJ3EME", descripcion: "Aislamiento de las 3 cabezas del trÃ­ceps. Codos fijos, extensiÃ³n completa. Usar cuerda para mayor rango de movimiento." },
-      { nombre: "Press de TrÃ­ceps en Banco", grupo_muscular: "Brazos", url_video: "https://youtu.be/6kALZikXxLc", descripcion: "Fondos de trÃ­ceps en banco (Skull Crusher alternativo). AÃ­sla la cabeza larga del trÃ­ceps eficazmente." },
+      { nombre: "Curl de Bíceps con Barra", grupo_muscular: "Brazos", url_video: "https://youtu.be/kwG2ipFRgfo", descripcion: "Aislamiento clásico para el bíceps braquial. Codos fijos al costado del torso. Supinación completa al subir. Bajar controlado." },
+      { nombre: "Curl Martillo con Mancuernas", grupo_muscular: "Brazos", url_video: "https://youtu.be/zC3nLlEvin4", descripcion: "Trabaja bíceps braquial y braquiorradial (agarre neutro). Excelente para grosor y amplitud del brazo." },
+      { nombre: "Extensión de Tríceps en Polea Alta", grupo_muscular: "Brazos", url_video: "https://youtu.be/vB5OHsJ3EME", descripcion: "Aislamiento de las 3 cabezas del tríceps. Codos fijos, extensión completa. Usar cuerda para mayor rango de movimiento." },
+      { nombre: "Press de Tríceps en Banco", grupo_muscular: "Brazos", url_video: "https://youtu.be/6kALZikXxLc", descripcion: "Fondos de tríceps en banco (Skull Crusher alternativo). Aísla la cabeza larga del tríceps eficazmente." },
       // â”€â”€ CORE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-      { nombre: "Plancha IsomÃ©trica", grupo_muscular: "Core", url_video: "https://youtu.be/pSHjTRCQxIw", descripcion: "Ejercicio isomÃ©trico de estabilidad para el core completo. Cadera neutra, glÃºteos activos. Clave para transferir fuerza en multiarticulares." },
-      { nombre: "Crunch Abdominal", grupo_muscular: "Core", url_video: "https://youtu.be/Xyd_fa5zoEU", descripcion: "FlexiÃ³n de columna para el recto abdominal. Manos detrÃ¡s de la cabeza sin halar. Exhalar al subir, inhalar al bajar." },
-      { nombre: "Rueda Abdominal (Ab Wheel)", grupo_muscular: "Core", url_video: "https://youtu.be/rq5--KFlpU4", descripcion: "Ejercicio avanzado de anti-extensiÃ³n lumbar. Activa recto abdominal, oblicuos y serrato. Nivel Ã©lite de estabilidad central." },
+      { nombre: "Plancha Isométrica", grupo_muscular: "Core", url_video: "https://youtu.be/pSHjTRCQxIw", descripcion: "Ejercicio isométrico de estabilidad para el core completo. Cadera neutra, glúteos activos. Clave para transferir fuerza en multiarticulares." },
+      { nombre: "Crunch Abdominal", grupo_muscular: "Core", url_video: "https://youtu.be/Xyd_fa5zoEU", descripcion: "Flexión de columna para el recto abdominal. Manos detrás de la cabeza sin halar. Exhalar al subir, inhalar al bajar." },
+      { nombre: "Rueda Abdominal (Ab Wheel)", grupo_muscular: "Core", url_video: "https://youtu.be/rq5--KFlpU4", descripcion: "Ejercicio avanzado de anti-extensión lumbar. Activa recto abdominal, oblicuos y serrato. Nivel élite de estabilidad central." },
       // â”€â”€ CARDIO / FUNCIONAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-      { nombre: "Remo en MÃ¡quina Concept2", grupo_muscular: "Cardio", url_video: "https://youtu.be/H0r1hfhPuOQ", descripcion: "Cardio de bajo impacto de alta exigencia. Trabaja el 86% de los mÃºsculos del cuerpo. Perfecto para warm-up o HIIT." },
+      { nombre: "Remo en Máquina Concept2", grupo_muscular: "Cardio", url_video: "https://youtu.be/H0r1hfhPuOQ", descripcion: "Cardio de bajo impacto de alta exigencia. Trabaja el 86% de los músculos del cuerpo. Perfecto para warm-up o HIIT." },
       { nombre: "Farmer's Walk", grupo_muscular: "Core", url_video: "https://youtu.be/rt17lmnaLSM", descripcion: "Caminata con carga pesada en cada mano. Desarrolla agarre, trapecio y estabilidad lumbar. Funcional y efectivo." },
-      { nombre: "Face Pull en Polea", grupo_muscular: "Hombros", url_video: "https://youtu.be/d_vIQEMoTqY", descripcion: "TracciÃ³n hacia la cara para deltoides posterior y manguito rotador. Salud Ã³ptima del hombro. Clave preventivo y correctivo." },
-      { nombre: "Sentadilla BÃºlgara", grupo_muscular: "Piernas", url_video: "https://youtu.be/2C-uNgKwPLE", descripcion: "Sentadilla unilateral con pie posterior elevado. MÃ¡ximo estÃ­mulo para cuÃ¡driceps y glÃºteo. Corrige desequilibrios laterales." },
-      { nombre: "DÃ©ficit Push-Up", grupo_muscular: "Pecho", url_video: "https://youtu.be/9GkGXuJMdrg", descripcion: "FlexiÃ³n de brazos con rango de movimiento extendido usando plataformas. MÃ¡ximo estiramiento del pectoral menor y mayor." },
+      { nombre: "Face Pull en Polea", grupo_muscular: "Hombros", url_video: "https://youtu.be/d_vIQEMoTqY", descripcion: "Tracción hacia la cara para deltoides posterior y manguito rotador. Salud óptima del hombro. Clave preventivo y correctivo." },
+      { nombre: "Sentadilla Búlgara", grupo_muscular: "Piernas", url_video: "https://youtu.be/2C-uNgKwPLE", descripcion: "Sentadilla unilateral con pie posterior elevado. Máximo estímulo para cuádriceps y glúteo. Corrige desequilibrios laterales." },
+      { nombre: "Déficit Push-Up", grupo_muscular: "Pecho", url_video: "https://youtu.be/9GkGXuJMdrg", descripcion: "Flexión de brazos con rango de movimiento extendido usando plataformas. Máximo estiramiento del pectoral menor y mayor." },
     ];
     await sql`INSERT INTO ejercicios ${sql(ejerciciosDb, "nombre", "grupo_muscular", "url_video", "descripcion")}`;
     // Mapa por nombre para referenciarlos en rutinas
@@ -766,16 +766,16 @@ async function seed() {
     for (const e of ejDB) ej[e.nombre] = e.id;
 
     // =========================================================
-    // 9.5 RUTINAS COMPLETAS CON DETALLE (MÃ³dulo Entrenamiento)
+    // 9.5 RUTINAS COMPLETAS CON DETALLE (Módulo Entrenamiento)
     // =========================================================
     console.log("ðŸ‹ï¸ Creando programa de entrenamiento PUSH/PULL/LEGS para cliente_dev...");
 
-    // â€” PROGRAMA PPL (Push / Pull / Legs) para cliente_dev â€”
-    // Rutina 1: PUSH (Pecho + Hombros + TrÃ­ceps) â€” Lunes / Jueves
+    // — PROGRAMA PPL (Push / Pull / Legs) para cliente_dev —
+    // Rutina 1: PUSH (Pecho + Hombros + Tríceps) — Lunes / Jueves
     const [rutinaPush] = await sql`
       INSERT INTO rutinas (nombre, fecha_inicio, fecha_fin, activa, id_cliente, id_entrenador, es_plantilla, created_at)
       VALUES (
-        'PPL â€” Push (Empuje)',
+        'PPL — Push (Empuje)',
         CURRENT_DATE - INTERVAL '3 months',
         CURRENT_DATE + INTERVAL '3 months',
         true,
@@ -789,23 +789,23 @@ async function seed() {
       { dia: "Lunes", series: 3, repeticiones: "10-12", carga_proyectada: "16 kg c/u", id_rutina: rutinaPush.id, id_ejercicio: ej["Aperturas con Mancuernas"] },
       { dia: "Lunes", series: 4, repeticiones: "8-10", carga_proyectada: "60 kg", id_rutina: rutinaPush.id, id_ejercicio: ej["Press Militar con Barra"] },
       { dia: "Lunes", series: 3, repeticiones: "12-15", carga_proyectada: "10 kg c/u", id_rutina: rutinaPush.id, id_ejercicio: ej["Elevaciones Laterales con Mancuernas"] },
-      { dia: "Lunes", series: 3, repeticiones: "10-12", carga_proyectada: "30 kg", id_rutina: rutinaPush.id, id_ejercicio: ej["ExtensiÃ³n de TrÃ­ceps en Polea Alta"] },
+      { dia: "Lunes", series: 3, repeticiones: "10-12", carga_proyectada: "30 kg", id_rutina: rutinaPush.id, id_ejercicio: ej["Extensión de Tríceps en Polea Alta"] },
       { dia: "Lunes", series: 2, repeticiones: "12-15", carga_proyectada: "Peso corporal", id_rutina: rutinaPush.id, id_ejercicio: ej["Fondos en Paralelas"] },
       { dia: "Jueves", series: 4, repeticiones: "6-8", carga_proyectada: "82 kg", id_rutina: rutinaPush.id, id_ejercicio: ej["Press de Banca Plano"] },
       { dia: "Jueves", series: 3, repeticiones: "8-10", carga_proyectada: "62 kg", id_rutina: rutinaPush.id, id_ejercicio: ej["Press de Banca Inclinado"] },
       { dia: "Jueves", series: 3, repeticiones: "10-12", carga_proyectada: "18 kg c/u", id_rutina: rutinaPush.id, id_ejercicio: ej["Aperturas con Mancuernas"] },
       { dia: "Jueves", series: 4, repeticiones: "8-10", carga_proyectada: "62 kg", id_rutina: rutinaPush.id, id_ejercicio: ej["Press Militar con Barra"] },
       { dia: "Jueves", series: 3, repeticiones: "12-15", carga_proyectada: "12 kg c/u", id_rutina: rutinaPush.id, id_ejercicio: ej["Elevaciones Laterales con Mancuernas"] },
-      { dia: "Jueves", series: 3, repeticiones: "10-12", carga_proyectada: "32 kg", id_rutina: rutinaPush.id, id_ejercicio: ej["ExtensiÃ³n de TrÃ­ceps en Polea Alta"] },
+      { dia: "Jueves", series: 3, repeticiones: "10-12", carga_proyectada: "32 kg", id_rutina: rutinaPush.id, id_ejercicio: ej["Extensión de Tríceps en Polea Alta"] },
       { dia: "Jueves", series: 2, repeticiones: "12-15", carga_proyectada: "Peso corporal", id_rutina: rutinaPush.id, id_ejercicio: ej["Fondos en Paralelas"] },
     ];
     await sql`INSERT INTO detalle_rutina ${sql(detallePush, "dia", "series", "repeticiones", "carga_proyectada", "id_rutina", "id_ejercicio")}`;
 
-    // Rutina 2: PULL (Espalda + BÃ­ceps) â€” Martes / Viernes
+    // Rutina 2: PULL (Espalda + Bíceps) — Martes / Viernes
     const [rutinaPull] = await sql`
       INSERT INTO rutinas (nombre, fecha_inicio, fecha_fin, activa, id_cliente, id_entrenador, es_plantilla, created_at)
       VALUES (
-        'PPL â€” Pull (TracciÃ³n)',
+        'PPL — Pull (Tracción)',
         CURRENT_DATE - INTERVAL '3 months',
         CURRENT_DATE + INTERVAL '3 months',
         true,
@@ -817,26 +817,26 @@ async function seed() {
       { dia: "Martes", series: 4, repeticiones: "6-8", carga_proyectada: "120 kg", id_rutina: rutinaPull.id, id_ejercicio: ej["Peso Muerto Convencional"] },
       { dia: "Martes", series: 4, repeticiones: "6-8", carga_proyectada: "Peso corporal", id_rutina: rutinaPull.id, id_ejercicio: ej["Dominadas Supinas"] },
       { dia: "Martes", series: 4, repeticiones: "8-10", carga_proyectada: "75 kg", id_rutina: rutinaPull.id, id_ejercicio: ej["Remo con Barra"] },
-      { dia: "Martes", series: 3, repeticiones: "10-12", carga_proyectada: "55 kg", id_rutina: rutinaPull.id, id_ejercicio: ej["JalÃ³n al Pecho en Polea"] },
+      { dia: "Martes", series: 3, repeticiones: "10-12", carga_proyectada: "55 kg", id_rutina: rutinaPull.id, id_ejercicio: ej["Jalón al Pecho en Polea"] },
       { dia: "Martes", series: 3, repeticiones: "10-12", carga_proyectada: "50 kg", id_rutina: rutinaPull.id, id_ejercicio: ej["Remo en Polea Baja"] },
-      { dia: "Martes", series: 3, repeticiones: "10-12", carga_proyectada: "35 kg", id_rutina: rutinaPull.id, id_ejercicio: ej["Curl de BÃ­ceps con Barra"] },
+      { dia: "Martes", series: 3, repeticiones: "10-12", carga_proyectada: "35 kg", id_rutina: rutinaPull.id, id_ejercicio: ej["Curl de Bíceps con Barra"] },
       { dia: "Martes", series: 3, repeticiones: "12-15", carga_proyectada: "16 kg c/u", id_rutina: rutinaPull.id, id_ejercicio: ej["Curl Martillo con Mancuernas"] },
       { dia: "Martes", series: 2, repeticiones: "15", carga_proyectada: "15 kg", id_rutina: rutinaPull.id, id_ejercicio: ej["Face Pull en Polea"] },
       { dia: "Viernes", series: 4, repeticiones: "5-6", carga_proyectada: "125 kg", id_rutina: rutinaPull.id, id_ejercicio: ej["Peso Muerto Convencional"] },
       { dia: "Viernes", series: 4, repeticiones: "6-8", carga_proyectada: "Peso corporal +5kg", id_rutina: rutinaPull.id, id_ejercicio: ej["Dominadas Supinas"] },
       { dia: "Viernes", series: 4, repeticiones: "8-10", carga_proyectada: "77 kg", id_rutina: rutinaPull.id, id_ejercicio: ej["Remo con Barra"] },
-      { dia: "Viernes", series: 3, repeticiones: "10-12", carga_proyectada: "57 kg", id_rutina: rutinaPull.id, id_ejercicio: ej["JalÃ³n al Pecho en Polea"] },
+      { dia: "Viernes", series: 3, repeticiones: "10-12", carga_proyectada: "57 kg", id_rutina: rutinaPull.id, id_ejercicio: ej["Jalón al Pecho en Polea"] },
       { dia: "Viernes", series: 3, repeticiones: "10-12", carga_proyectada: "52 kg", id_rutina: rutinaPull.id, id_ejercicio: ej["Remo en Polea Baja"] },
-      { dia: "Viernes", series: 3, repeticiones: "10-12", carga_proyectada: "37 kg", id_rutina: rutinaPull.id, id_ejercicio: ej["Curl de BÃ­ceps con Barra"] },
+      { dia: "Viernes", series: 3, repeticiones: "10-12", carga_proyectada: "37 kg", id_rutina: rutinaPull.id, id_ejercicio: ej["Curl de Bíceps con Barra"] },
       { dia: "Viernes", series: 3, repeticiones: "12-15", carga_proyectada: "18 kg c/u", id_rutina: rutinaPull.id, id_ejercicio: ej["Curl Martillo con Mancuernas"] },
     ];
     await sql`INSERT INTO detalle_rutina ${sql(detallePull, "dia", "series", "repeticiones", "carga_proyectada", "id_rutina", "id_ejercicio")}`;
 
-    // Rutina 3: LEGS (Piernas + Core) â€” MiÃ©rcoles / SÃ¡bado
+    // Rutina 3: LEGS (Piernas + Core) — Miércoles / Sábado
     const [rutinaLegs] = await sql`
       INSERT INTO rutinas (nombre, fecha_inicio, fecha_fin, activa, id_cliente, id_entrenador, es_plantilla, created_at)
       VALUES (
-        'PPL â€” Legs (Tren Inferior + Core)',
+        'PPL — Legs (Tren Inferior + Core)',
         CURRENT_DATE - INTERVAL '3 months',
         CURRENT_DATE + INTERVAL '3 months',
         true,
@@ -845,21 +845,21 @@ async function seed() {
       ) RETURNING id
     `;
     const detalleLegs = [
-      { dia: "MiÃ©rcoles", series: 4, repeticiones: "6-8", carga_proyectada: "100 kg", id_rutina: rutinaLegs.id, id_ejercicio: ej["Sentadilla Libre"] },
-      { dia: "MiÃ©rcoles", series: 4, repeticiones: "8-10", carga_proyectada: "160 kg", id_rutina: rutinaLegs.id, id_ejercicio: ej["Prensa de Piernas 45Â°"] },
-      { dia: "MiÃ©rcoles", series: 3, repeticiones: "10-12", carga_proyectada: "90 kg", id_rutina: rutinaLegs.id, id_ejercicio: ej["Hip Thrust con Barra"] },
-      { dia: "MiÃ©rcoles", series: 3, repeticiones: "10-12", carga_proyectada: "40 kg", id_rutina: rutinaLegs.id, id_ejercicio: ej["Curl Femoral Tumbado"] },
-      { dia: "MiÃ©rcoles", series: 3, repeticiones: "12-15", carga_proyectada: "50 kg", id_rutina: rutinaLegs.id, id_ejercicio: ej["ExtensiÃ³n de CuÃ¡driceps"] },
-      { dia: "MiÃ©rcoles", series: 3, repeticiones: "10", carga_proyectada: "20 kg c/u", id_rutina: rutinaLegs.id, id_ejercicio: ej["Sentadilla BÃºlgara"] },
-      { dia: "MiÃ©rcoles", series: 3, repeticiones: "60 seg", carga_proyectada: "IsomÃ©trico", id_rutina: rutinaLegs.id, id_ejercicio: ej["Plancha IsomÃ©trica"] },
-      { dia: "MiÃ©rcoles", series: 3, repeticiones: "15", carga_proyectada: "Peso corporal", id_rutina: rutinaLegs.id, id_ejercicio: ej["Crunch Abdominal"] },
-      { dia: "SÃ¡bado", series: 4, repeticiones: "5-6", carga_proyectada: "105 kg", id_rutina: rutinaLegs.id, id_ejercicio: ej["Sentadilla Libre"] },
-      { dia: "SÃ¡bado", series: 4, repeticiones: "8-10", carga_proyectada: "165 kg", id_rutina: rutinaLegs.id, id_ejercicio: ej["Prensa de Piernas 45Â°"] },
-      { dia: "SÃ¡bado", series: 3, repeticiones: "10-12", carga_proyectada: "95 kg", id_rutina: rutinaLegs.id, id_ejercicio: ej["Hip Thrust con Barra"] },
-      { dia: "SÃ¡bado", series: 3, repeticiones: "10-12", carga_proyectada: "70 kg", id_rutina: rutinaLegs.id, id_ejercicio: ej["Peso Muerto Rumano"] },
-      { dia: "SÃ¡bado", series: 3, repeticiones: "12", carga_proyectada: "Peso corporal", id_rutina: rutinaLegs.id, id_ejercicio: ej["Curl Femoral Tumbado"] },
-      { dia: "SÃ¡bado", series: 3, repeticiones: "60 seg", carga_proyectada: "IsomÃ©trico", id_rutina: rutinaLegs.id, id_ejercicio: ej["Plancha IsomÃ©trica"] },
-      { dia: "SÃ¡bado", series: 3, repeticiones: "10", carga_proyectada: "Peso corporal", id_rutina: rutinaLegs.id, id_ejercicio: ej["Rueda Abdominal (Ab Wheel)"] },
+      { dia: "Miércoles", series: 4, repeticiones: "6-8", carga_proyectada: "100 kg", id_rutina: rutinaLegs.id, id_ejercicio: ej["Sentadilla Libre"] },
+      { dia: "Miércoles", series: 4, repeticiones: "8-10", carga_proyectada: "160 kg", id_rutina: rutinaLegs.id, id_ejercicio: ej["Prensa de Piernas 45°"] },
+      { dia: "Miércoles", series: 3, repeticiones: "10-12", carga_proyectada: "90 kg", id_rutina: rutinaLegs.id, id_ejercicio: ej["Hip Thrust con Barra"] },
+      { dia: "Miércoles", series: 3, repeticiones: "10-12", carga_proyectada: "40 kg", id_rutina: rutinaLegs.id, id_ejercicio: ej["Curl Femoral Tumbado"] },
+      { dia: "Miércoles", series: 3, repeticiones: "12-15", carga_proyectada: "50 kg", id_rutina: rutinaLegs.id, id_ejercicio: ej["Extensión de Cuádriceps"] },
+      { dia: "Miércoles", series: 3, repeticiones: "10", carga_proyectada: "20 kg c/u", id_rutina: rutinaLegs.id, id_ejercicio: ej["Sentadilla Búlgara"] },
+      { dia: "Miércoles", series: 3, repeticiones: "60 seg", carga_proyectada: "Isométrico", id_rutina: rutinaLegs.id, id_ejercicio: ej["Plancha Isométrica"] },
+      { dia: "Miércoles", series: 3, repeticiones: "15", carga_proyectada: "Peso corporal", id_rutina: rutinaLegs.id, id_ejercicio: ej["Crunch Abdominal"] },
+      { dia: "Sábado", series: 4, repeticiones: "5-6", carga_proyectada: "105 kg", id_rutina: rutinaLegs.id, id_ejercicio: ej["Sentadilla Libre"] },
+      { dia: "Sábado", series: 4, repeticiones: "8-10", carga_proyectada: "165 kg", id_rutina: rutinaLegs.id, id_ejercicio: ej["Prensa de Piernas 45°"] },
+      { dia: "Sábado", series: 3, repeticiones: "10-12", carga_proyectada: "95 kg", id_rutina: rutinaLegs.id, id_ejercicio: ej["Hip Thrust con Barra"] },
+      { dia: "Sábado", series: 3, repeticiones: "10-12", carga_proyectada: "70 kg", id_rutina: rutinaLegs.id, id_ejercicio: ej["Peso Muerto Rumano"] },
+      { dia: "Sábado", series: 3, repeticiones: "12", carga_proyectada: "Peso corporal", id_rutina: rutinaLegs.id, id_ejercicio: ej["Curl Femoral Tumbado"] },
+      { dia: "Sábado", series: 3, repeticiones: "60 seg", carga_proyectada: "Isométrico", id_rutina: rutinaLegs.id, id_ejercicio: ej["Plancha Isométrica"] },
+      { dia: "Sábado", series: 3, repeticiones: "10", carga_proyectada: "Peso corporal", id_rutina: rutinaLegs.id, id_ejercicio: ej["Rueda Abdominal (Ab Wheel)"] },
     ];
     await sql`INSERT INTO detalle_rutina ${sql(detalleLegs, "dia", "series", "repeticiones", "carga_proyectada", "id_rutina", "id_ejercicio")}`;
 
@@ -867,7 +867,7 @@ async function seed() {
     const [rutinaPlantilla] = await sql`
       INSERT INTO rutinas (nombre, fecha_inicio, activa, id_cliente, id_entrenador, es_plantilla, created_at)
       VALUES (
-        'Plantilla â€” Full Body Fuerza',
+        'Plantilla — Full Body Fuerza',
         CURRENT_DATE,
         true,
         NULL, ${devTrainerId}, true,
@@ -880,12 +880,12 @@ async function seed() {
       { dia: "Lunes", series: 4, repeticiones: "5", carga_proyectada: "RM estimado 80%", id_rutina: rutinaPlantilla.id, id_ejercicio: ej["Peso Muerto Convencional"] },
       { dia: "Lunes", series: 3, repeticiones: "8", carga_proyectada: "RM estimado 70%", id_rutina: rutinaPlantilla.id, id_ejercicio: ej["Press Militar con Barra"] },
       { dia: "Lunes", series: 3, repeticiones: "8", carga_proyectada: "Peso corporal", id_rutina: rutinaPlantilla.id, id_ejercicio: ej["Dominadas Supinas"] },
-      { dia: "MiÃ©rcoles", series: 4, repeticiones: "5", carga_proyectada: "RM estimado 87%", id_rutina: rutinaPlantilla.id, id_ejercicio: ej["Sentadilla Libre"] },
-      { dia: "MiÃ©rcoles", series: 4, repeticiones: "5", carga_proyectada: "RM estimado 87%", id_rutina: rutinaPlantilla.id, id_ejercicio: ej["Press de Banca Plano"] },
-      { dia: "MiÃ©rcoles", series: 4, repeticiones: "5", carga_proyectada: "RM estimado 82%", id_rutina: rutinaPlantilla.id, id_ejercicio: ej["Peso Muerto Convencional"] },
+      { dia: "Miércoles", series: 4, repeticiones: "5", carga_proyectada: "RM estimado 87%", id_rutina: rutinaPlantilla.id, id_ejercicio: ej["Sentadilla Libre"] },
+      { dia: "Miércoles", series: 4, repeticiones: "5", carga_proyectada: "RM estimado 87%", id_rutina: rutinaPlantilla.id, id_ejercicio: ej["Press de Banca Plano"] },
+      { dia: "Miércoles", series: 4, repeticiones: "5", carga_proyectada: "RM estimado 82%", id_rutina: rutinaPlantilla.id, id_ejercicio: ej["Peso Muerto Convencional"] },
       { dia: "Viernes", series: 4, repeticiones: "3", carga_proyectada: "RM estimado 90%", id_rutina: rutinaPlantilla.id, id_ejercicio: ej["Sentadilla Libre"] },
       { dia: "Viernes", series: 4, repeticiones: "3", carga_proyectada: "RM estimado 90%", id_rutina: rutinaPlantilla.id, id_ejercicio: ej["Press de Banca Plano"] },
-      { dia: "Viernes", series: 1, repeticiones: "1 (Test RM)", carga_proyectada: "RM mÃ¡ximo", id_rutina: rutinaPlantilla.id, id_ejercicio: ej["Peso Muerto Convencional"] },
+      { dia: "Viernes", series: 1, repeticiones: "1 (Test RM)", carga_proyectada: "RM máximo", id_rutina: rutinaPlantilla.id, id_ejercicio: ej["Peso Muerto Convencional"] },
     ];
     await sql`INSERT INTO detalle_rutina ${sql(detallePlantilla, "dia", "series", "repeticiones", "carga_proyectada", "id_rutina", "id_ejercicio")}`;
 
@@ -893,37 +893,37 @@ async function seed() {
     console.log("ðŸ“‹ Asignando rutinas a los 5 clientes del entrenador dev...");
     const rutinaTemplates = [
       {
-        nombre: "Hipertrofia â€” Tren Superior A", ejDias: [
+        nombre: "Hipertrofia — Tren Superior A", ejDias: [
           { dia: "Lunes", series: 4, repeticiones: "8-10", carga: "70%RM", ejKey: "Press de Banca Plano" },
           { dia: "Lunes", series: 4, repeticiones: "8-10", carga: "65%RM", ejKey: "Remo con Barra" },
           { dia: "Lunes", series: 3, repeticiones: "10-12", carga: "50%RM", ejKey: "Press Militar con Barra" },
           { dia: "Jueves", series: 4, repeticiones: "8-10", carga: "72%RM", ejKey: "Press de Banca Inclinado" },
-          { dia: "Jueves", series: 4, repeticiones: "10-12", carga: "60%RM", ejKey: "JalÃ³n al Pecho en Polea" },
+          { dia: "Jueves", series: 4, repeticiones: "10-12", carga: "60%RM", ejKey: "Jalón al Pecho en Polea" },
           { dia: "Jueves", series: 3, repeticiones: "12-15", carga: "10kg c/u", ejKey: "Elevaciones Laterales con Mancuernas" },
         ]
       },
       {
-        nombre: "Fuerza â€” Tren Inferior B", ejDias: [
+        nombre: "Fuerza — Tren Inferior B", ejDias: [
           { dia: "Martes", series: 5, repeticiones: "5", carga: "80%RM", ejKey: "Sentadilla Libre" },
-          { dia: "Martes", series: 4, repeticiones: "8", carga: "140kg", ejKey: "Prensa de Piernas 45Â°" },
+          { dia: "Martes", series: 4, repeticiones: "8", carga: "140kg", ejKey: "Prensa de Piernas 45°" },
           { dia: "Martes", series: 3, repeticiones: "10", carga: "80kg", ejKey: "Hip Thrust con Barra" },
           { dia: "Viernes", series: 5, repeticiones: "5", carga: "82%RM", ejKey: "Sentadilla Libre" },
           { dia: "Viernes", series: 3, repeticiones: "10-12", carga: "50kg", ejKey: "Curl Femoral Tumbado" },
-          { dia: "Viernes", series: 3, repeticiones: "12", carga: "60kg", ejKey: "ExtensiÃ³n de CuÃ¡driceps" },
+          { dia: "Viernes", series: 3, repeticiones: "12", carga: "60kg", ejKey: "Extensión de Cuádriceps" },
         ]
       },
       {
-        nombre: "TonificaciÃ³n â€” Full Body C", ejDias: [
+        nombre: "Tonificación — Full Body C", ejDias: [
           { dia: "Lunes", series: 3, repeticiones: "12-15", carga: "60%RM", ejKey: "Sentadilla Libre" },
           { dia: "Lunes", series: 3, repeticiones: "12-15", carga: "60%RM", ejKey: "Press de Banca Plano" },
-          { dia: "MiÃ©rcoles", series: 3, repeticiones: "12-15", carga: "65%RM", ejKey: "Remo con Barra" },
-          { dia: "MiÃ©rcoles", series: 3, repeticiones: "15", carga: "PC", ejKey: "Dominadas Supinas" },
-          { dia: "Viernes", series: 3, repeticiones: "15-20", carga: "60seg", ejKey: "Plancha IsomÃ©trica" },
+          { dia: "Miércoles", series: 3, repeticiones: "12-15", carga: "65%RM", ejKey: "Remo con Barra" },
+          { dia: "Miércoles", series: 3, repeticiones: "15", carga: "PC", ejKey: "Dominadas Supinas" },
+          { dia: "Viernes", series: 3, repeticiones: "15-20", carga: "60seg", ejKey: "Plancha Isométrica" },
           { dia: "Viernes", series: 3, repeticiones: "15", carga: "PC", ejKey: "Crunch Abdominal" },
         ]
       },
       {
-        nombre: "ComposiciÃ³n â€” Push-Pull D", ejDias: [
+        nombre: "Composición — Push-Pull D", ejDias: [
           { dia: "Lunes", series: 4, repeticiones: "8-10", carga: "75%RM", ejKey: "Press de Banca Plano" },
           { dia: "Lunes", series: 3, repeticiones: "10-12", carga: "55%RM", ejKey: "Press Militar con Barra" },
           { dia: "Martes", series: 4, repeticiones: "6-8", carga: "85%RM", ejKey: "Peso Muerto Convencional" },
@@ -933,14 +933,14 @@ async function seed() {
         ]
       },
       {
-        nombre: "Fuerza Base â€” Principiante E", ejDias: [
+        nombre: "Fuerza Base — Principiante E", ejDias: [
           { dia: "Lunes", series: 3, repeticiones: "10", carga: "Barra sola", ejKey: "Sentadilla Libre" },
           { dia: "Lunes", series: 3, repeticiones: "10", carga: "40kg", ejKey: "Press de Banca Plano" },
           { dia: "Lunes", series: 3, repeticiones: "10", carga: "50kg", ejKey: "Peso Muerto Convencional" },
-          { dia: "MiÃ©rcoles", series: 3, repeticiones: "8-10", carga: "30kg", ejKey: "Remo con Barra" },
-          { dia: "MiÃ©rcoles", series: 3, repeticiones: "10", carga: "PC asistido", ejKey: "Dominadas Supinas" },
+          { dia: "Miércoles", series: 3, repeticiones: "8-10", carga: "30kg", ejKey: "Remo con Barra" },
+          { dia: "Miércoles", series: 3, repeticiones: "10", carga: "PC asistido", ejKey: "Dominadas Supinas" },
           { dia: "Viernes", series: 3, repeticiones: "10", carga: "Barra sola", ejKey: "Press Militar con Barra" },
-          { dia: "Viernes", series: 3, repeticiones: "45 seg", "carga": "IsomÃ©trico", ejKey: "Plancha IsomÃ©trica" },
+          { dia: "Viernes", series: 3, repeticiones: "45 seg", "carga": "Isométrico", ejKey: "Plancha Isométrica" },
         ]
       },
     ];
@@ -974,12 +974,12 @@ async function seed() {
     console.log(`   âœ… Rutinas creadas: 4 para cliente_dev (PPL x3 + plantilla) + ${clientesDevAsignados.length} para sus alumnos`);
 
     // =========================================================
-    // 10.5 REGISTRO DE PROGRESO HISTÃ“RICO (3 meses, cliente_dev)
+    // 10.5 REGISTRO DE PROGRESO HISTÓRICO (3 meses, cliente_dev)
     // =========================================================
     console.log("ðŸ“Š Generando historial de progreso para cliente_dev (3 meses)...");
 
-    // Sesiones de entrenamiento los dÃ­as de su respectiva rutina
-    // Push: Lunes/Jueves | Pull: Martes/Viernes | Legs: MiÃ©rcoles/SÃ¡bado
+    // Sesiones de entrenamiento los días de su respectiva rutina
+    // Push: Lunes/Jueves | Pull: Martes/Viernes | Legs: Miércoles/Sábado
     const schedulePPL = {
       1: {
         rutinaId: rutinaPush.id, diasEj: [ // Lunes
@@ -987,7 +987,7 @@ async function seed() {
           { ejKey: "Press de Banca Inclinado", cargas: [60, 60, 62], repsBase: 9 },
           { ejKey: "Press Militar con Barra", cargas: [60, 60, 62, 62], repsBase: 9 },
           { ejKey: "Elevaciones Laterales con Mancuernas", cargas: [10, 10, 10], repsBase: 13 },
-          { ejKey: "ExtensiÃ³n de TrÃ­ceps en Polea Alta", cargas: [30, 30, 32], repsBase: 11 },
+          { ejKey: "Extensión de Tríceps en Polea Alta", cargas: [30, 30, 32], repsBase: 11 },
         ]
       },
       2: {
@@ -995,17 +995,17 @@ async function seed() {
           { ejKey: "Peso Muerto Convencional", cargas: [120, 120, 125, 125], repsBase: 5 },
           { ejKey: "Dominadas Supinas", cargas: [0, 0, 0, 0], repsBase: 7 },
           { ejKey: "Remo con Barra", cargas: [75, 75, 77, 77], repsBase: 9 },
-          { ejKey: "JalÃ³n al Pecho en Polea", cargas: [55, 55, 57], repsBase: 11 },
-          { ejKey: "Curl de BÃ­ceps con Barra", cargas: [35, 35, 37], repsBase: 11 },
+          { ejKey: "Jalón al Pecho en Polea", cargas: [55, 55, 57], repsBase: 11 },
+          { ejKey: "Curl de Bíceps con Barra", cargas: [35, 35, 37], repsBase: 11 },
         ]
       },
       3: {
-        rutinaId: rutinaLegs.id, diasEj: [ // MiÃ©rcoles
+        rutinaId: rutinaLegs.id, diasEj: [ // Miércoles
           { ejKey: "Sentadilla Libre", cargas: [100, 100, 102, 102], repsBase: 6 },
-          { ejKey: "Prensa de Piernas 45Â°", cargas: [160, 160, 165, 165], repsBase: 9 },
+          { ejKey: "Prensa de Piernas 45°", cargas: [160, 160, 165, 165], repsBase: 9 },
           { ejKey: "Hip Thrust con Barra", cargas: [90, 90, 95], repsBase: 11 },
           { ejKey: "Curl Femoral Tumbado", cargas: [40, 40, 42], repsBase: 11 },
-          { ejKey: "Plancha IsomÃ©trica", cargas: [0, 0, 0], repsBase: 60 }, // segundos
+          { ejKey: "Plancha Isométrica", cargas: [0, 0, 0], repsBase: 60 }, // segundos
         ]
       },
       4: {
@@ -1014,7 +1014,7 @@ async function seed() {
           { ejKey: "Press de Banca Inclinado", cargas: [62, 62, 64], repsBase: 9 },
           { ejKey: "Press Militar con Barra", cargas: [62, 62, 64, 64], repsBase: 8 },
           { ejKey: "Aperturas con Mancuernas", cargas: [16, 16, 18], repsBase: 11 },
-          { ejKey: "ExtensiÃ³n de TrÃ­ceps en Polea Alta", cargas: [32, 32, 34], repsBase: 11 },
+          { ejKey: "Extensión de Tríceps en Polea Alta", cargas: [32, 32, 34], repsBase: 11 },
         ]
       },
       5: {
@@ -1022,17 +1022,17 @@ async function seed() {
           { ejKey: "Peso Muerto Convencional", cargas: [125, 125, 130, 130], repsBase: 5 },
           { ejKey: "Dominadas Supinas", cargas: [0, 0, 0, 0], repsBase: 7 },
           { ejKey: "Remo con Barra", cargas: [77, 77, 80, 80], repsBase: 9 },
-          { ejKey: "JalÃ³n al Pecho en Polea", cargas: [57, 57, 60], repsBase: 11 },
+          { ejKey: "Jalón al Pecho en Polea", cargas: [57, 57, 60], repsBase: 11 },
           { ejKey: "Curl Martillo con Mancuernas", cargas: [16, 16, 18], repsBase: 13 },
         ]
       },
       6: {
-        rutinaId: rutinaLegs.id, diasEj: [ // SÃ¡bado â†’ Legs
+        rutinaId: rutinaLegs.id, diasEj: [ // Sábado â†’ Legs
           { ejKey: "Sentadilla Libre", cargas: [105, 105, 107, 107], repsBase: 5 },
-          { ejKey: "Prensa de Piernas 45Â°", cargas: [165, 165, 170, 170], repsBase: 9 },
+          { ejKey: "Prensa de Piernas 45°", cargas: [165, 165, 170, 170], repsBase: 9 },
           { ejKey: "Hip Thrust con Barra", cargas: [95, 95, 100], repsBase: 11 },
           { ejKey: "Peso Muerto Rumano", cargas: [70, 70, 72], repsBase: 11 },
-          { ejKey: "Plancha IsomÃ©trica", cargas: [0, 0, 0], repsBase: 60 },
+          { ejKey: "Plancha Isométrica", cargas: [0, 0, 0], repsBase: 60 },
         ]
       },
     };
@@ -1045,7 +1045,7 @@ async function seed() {
     let semana = 0;
     const iterDate = new Date(fecha3meses);
     while (iterDate <= new Date()) {
-      const dow = iterDate.getDay(); // 0=Dom, 1=Lun...6=SÃ¡b
+      const dow = iterDate.getDay(); // 0=Dom, 1=Lun...6=Sáb
       if (schedulePPL[dow]) {
         // El cliente asiste con un 80% de probabilidad (realista)
         if (Math.random() < 0.80) {
@@ -1054,7 +1054,7 @@ async function seed() {
             const ejId = ej[ejercicioSesion.ejKey];
             if (!ejId) continue;
             const factorProgresion = 1 + (semana * porcentajeProgresion);
-            // RPE varÃ­a: el primer mes (semanas 0-4) es mÃ¡s fÃ¡cil, sube gradualmente
+            // RPE varía: el primer mes (semanas 0-4) es más fácil, sube gradualmente
             const rpe = Math.min(10, Math.max(6, 7 + Math.floor(semana / 3)));
 
             for (let s = 0; s < ejercicioSesion.cargas.length; s++) {
@@ -1070,7 +1070,7 @@ async function seed() {
                 carga_real: cargaReal > 0 ? `${cargaReal} kg` : "Peso corporal",
                 rpe,
                 comentarios: s === ejercicioSesion.cargas.length - 1
-                  ? getRandomItem(["Ãšltima serie con buen control", "Se siente fuerte hoy", "TÃ©cnica sÃ³lida", "Ligera fatiga acumulada", null, null, null])
+                  ? getRandomItem(["Última serie con buen control", "Se siente fuerte hoy", "Técnica sólida", "Ligera fatiga acumulada", null, null, null])
                   : null,
                 id_cliente: devClientId,
                 id_ejercicio: ejId,
@@ -1080,7 +1080,7 @@ async function seed() {
           }
         }
       }
-      // Incrementar semana cada 7 dÃ­as
+      // Incrementar semana cada 7 días
       if (dow === 0) semana++;
       iterDate.setDate(iterDate.getDate() + 1);
     }
@@ -1105,11 +1105,11 @@ async function seed() {
       const tipoD = getRandomItem(tiposReporte);
       const fechaGeneracion = getHistoricalDate(0, 1);
       reportesBuffer.push({
-        titulo: `AuditorÃ­a ${tipoD.charAt(0).toUpperCase() + tipoD.slice(1)} - ${fechaGeneracion.toLocaleString("es-CL", { month: "long", year: "numeric" })}`,
+        titulo: `Auditoría ${tipoD.charAt(0).toUpperCase() + tipoD.slice(1)} - ${fechaGeneracion.toLocaleString("es-CL", { month: "long", year: "numeric" })}`,
         tipo: tipoD,
         contenido: sql.json({
           analisis:
-            "Generado automÃ¡ticamente por el sistema de auditorÃ­a mensual.",
+            "Generado automáticamente por el sistema de auditoría mensual.",
           metricas_clave: {
             transacciones_revisadas: getRandomInt(100, 500),
             margen_error: "0.2%",
@@ -1126,13 +1126,13 @@ async function seed() {
     console.log("âœ… SIEMBRA 5.0 COMPLETADA EXITOSAMENTE");
     console.log(`   ðŸ“Š Clientes: 151 (150 random + 1 dev)`);
     console.log(`   ðŸ’ª Sesiones de entrenador: ${sesionesBuffer.length}`);
-    console.log(`   ðŸ“… Asistencias orgÃ¡nicas: ${totalAsistencias}`);
+    console.log(`   ðŸ“… Asistencias orgánicas: ${totalAsistencias}`);
     console.log(`   ðŸ‹ï¸ Ejercicios en biblioteca: ${ejerciciosDb.length} (con URL de video)`);
     console.log(`   ðŸ—‚ï¸ Rutinas: 4 PPL para cliente_dev + 5 para alumnos + 1 plantilla`);
     console.log(`   ðŸ“Š Registros de progreso: ${progresoBuffer.length} entradas (3 meses, cliente_dev)`);
-    console.log(`   ðŸ“… Asistencias orgÃ¡nicas: ${totalAsistencias}`);
+    console.log(`   ðŸ“… Asistencias orgánicas: ${totalAsistencias}`);
     console.log(`   ðŸ‹ï¸ Ejercicios en biblioteca: ${ejerciciosDb.length}`);
-    console.log(`   ðŸ“ˆ Reportes histÃ³ricos: ${reportesBuffer.length}`);
+    console.log(`   ðŸ“ˆ Reportes históricos: ${reportesBuffer.length}`);
     console.log("==========================================");
     console.log("ðŸ”‘ CREDENCIALES DE PRUEBA:");
     console.log(`   admin          â†’ admin / 123456   (${DEV_EMAIL_ADMIN})`);
