@@ -68,7 +68,17 @@ export function Ejercicios() {
       setIsModalOpen(false);
       fetchExercises();
     } catch (e) {
-      alert("Error al guardar: " + (e.response?.data?.error || "Desconocido"));
+      let errorMsg = "Desconocido";
+      if (e.response?.data) {
+        if (Array.isArray(e.response.data)) {
+           errorMsg = e.response.data.map(err => err.message).join(', ');
+        } else if (e.response.data.body) {
+           errorMsg = e.response.data.body;
+        } else if (e.response.data.error && typeof e.response.data.error === 'string') {
+           errorMsg = e.response.data.error;
+        }
+      }
+      alert("Error al guardar: " + errorMsg);
     }
   };
 
@@ -160,24 +170,48 @@ export function Ejercicios() {
           {filtered.map((ex) => (
             <div
               key={ex.id}
-              className="bg-gym-card border border-white/5 rounded-2xl p-4 hover:border-white/20 transition-all group flex flex-col"
+              onClick={(e) => {
+                if(e.target.closest('a') || e.target.closest('button')) return;
+                setSelectedExercise(ex);
+                setIsModalOpen(true);
+              }}
+              className="bg-gym-card border border-white/5 rounded-2xl p-4 hover:border-white/20 transition-all group flex flex-col cursor-pointer"
             >
-              {/* Header Card */}
-              <div className="flex justify-between items-start mb-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-zinc-800 to-black border border-white/5 flex items-center justify-center text-gym-orange shadow-inner">
-                    <Dumbbell size={20} />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-white text-sm line-clamp-1">
-                      {ex.nombre}
-                    </h3>
-                    <span className="text-[10px] text-zinc-400 uppercase tracking-wider">
-                      {ex.grupo_muscular}
-                    </span>
+              {/* Media o Icono */}
+              {ex.url_video && (
+                /\.(gif|jpe?g|png|webp)$/i.test(ex.url_video) || ['tenor.com', 'imgur.com', 'giphy.com'].some(d => ex.url_video.includes(d))
+              ) ? (
+                <div className="w-full h-48 mb-3 rounded-xl overflow-hidden bg-zinc-200 border border-white/5 relative">
+                  <img 
+                    src={ex.url_video} 
+                    alt={ex.nombre}
+                    className="w-full h-full object-contain mix-blend-multiply opacity-90 group-hover:opacity-100 transition-opacity p-2"
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent flex items-end p-3">
+                     <div>
+                      <h3 className="font-bold text-white text-sm line-clamp-1">{ex.nombre}</h3>
+                      <span className="text-[10px] text-gym-orange uppercase tracking-wider font-bold">{ex.grupo_muscular}</span>
+                     </div>
                   </div>
                 </div>
-              </div>
+              ) : (
+                <div className="flex justify-between items-start mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-zinc-800 to-black border border-white/5 flex items-center justify-center text-gym-orange shadow-inner">
+                      <Dumbbell size={20} />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-white text-sm line-clamp-1">
+                        {ex.nombre}
+                      </h3>
+                      <span className="text-[10px] text-zinc-400 uppercase tracking-wider">
+                        {ex.grupo_muscular}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Descripción Corta */}
               <p className="text-xs text-zinc-500 line-clamp-2 mb-4 flex-1">
@@ -185,8 +219,8 @@ export function Ejercicios() {
               </p>
 
               {/* Footer y Acciones */}
-              <div className="flex justify-between items-center pt-3 border-t border-white/5">
-                {ex.url_video ? (
+              <div className="flex justify-between items-center mt-auto pt-3 border-t border-white/5">
+                {ex.url_video && !/\.(gif|jpe?g|png|webp)$/i.test(ex.url_video) && !['tenor.com', 'imgur.com', 'giphy.com'].some(d => ex.url_video.includes(d)) ? (
                   <a
                     href={ex.url_video}
                     target="_blank"
@@ -196,8 +230,8 @@ export function Ejercicios() {
                     <Youtube size={14} /> Ver Video
                   </a>
                 ) : (
-                  <span className="text-[10px] text-zinc-600 italic">
-                    Sin video
+                  <span className="text-[10px] text-zinc-500 italic">
+                    {ex.url_video ? "Animación integrada" : "Sin URL"}
                   </span>
                 )}
 

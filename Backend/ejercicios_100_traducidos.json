@@ -1,0 +1,702 @@
+[
+  {
+    "original_id": "0001",
+    "nombre": "3/4 abdominales",
+    "grupo_muscular": "Abdominales",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/0001-2gPfomN.gif",
+    "descripcion": "Acuéstese boca arriba con las rodillas dobladas y los pies apoyados en el suelo.  Coloque las manos detrás de la cabeza con los codos apuntando hacia afuera.  Contrayendo los abdominales, levante lentamente la parte superior del cuerpo del suelo, inclinándose hacia adelante hasta que el torso forme un ángulo de 45 grados.  Haga una pausa por un momento en la parte superior, luego baje lentamente la parte superior del cuerpo hasta la posición inicial.  Repita hasta el número deseado de "
+  },
+  {
+    "original_id": "0002",
+    "nombre": "Curva lateral de 45°",
+    "grupo_muscular": "Abdominales",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/0002-Hy9D21L.gif",
+    "descripcion": "Párese con los pies separados a la altura de los hombros y los brazos extendidos hacia abajo a los lados.  Manteniendo la espalda recta y el core comprometido, doble lentamente el torso hacia un lado y baje la mano hacia la rodilla.  Haga una pausa por un momento en la parte inferior y luego regrese lentamente a la posición inicial.  Repita del otro lado.  Continúe alternando lados para el número deseado de repeticiones."
+  },
+  {
+    "original_id": "0003",
+    "nombre": "Bicicleta de aire",
+    "grupo_muscular": "Abdominales",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/0003-1ZFqTDN.gif",
+    "descripcion": "Acuéstese boca arriba con las manos colocadas detrás de la cabeza.  Levanta las piernas del suelo y dobla las rodillas en un ángulo de 90 grados.  Lleve el codo derecho hacia la rodilla izquierda mientras al mismo tiempo estira la pierna derecha.  Regresa a la posición inicial y repite el movimiento en el lado opuesto, llevando el codo izquierdo hacia la rodilla derecha mientras estiras la pierna izquierda.  Continúe alternando lados en un movimiento de pedaleo durante el número desead"
+  },
+  {
+    "original_id": "1512",
+    "nombre": "Estiramiento del equipo a cuatro patas",
+    "grupo_muscular": "Piernas",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/1512-qBcKorM.gif",
+    "descripcion": "Comience a cuatro patas con las manos directamente debajo de los hombros y las rodillas directamente debajo de las caderas.  Extienda una pierna hacia atrás, manteniendo la rodilla doblada y el pie flexionado.  Baja lentamente las caderas hacia el suelo, sintiendo un estiramiento en los cuádriceps.  Mantenga esta posición durante 20-30 segundos.  Cambia de pierna y repite el estiramiento del otro lado."
+  },
+  {
+    "original_id": "0006",
+    "nombre": "Tocadores alternos del talón.",
+    "grupo_muscular": "Abdominales",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/0006-qaZVsGk.gif",
+    "descripcion": "Acuéstese boca arriba con las rodillas dobladas y los pies apoyados en el suelo.  Extiende los brazos hacia los lados, paralelos al suelo.  Contrayendo los abdominales, levante los hombros del suelo y lleve la mano derecha hacia el talón derecho.  Regresa a la posición inicial y repite en el lado izquierdo, llevando tu mano izquierda hacia tu talón izquierdo.  Continúe alternando lados para el número deseado de repeticiones."
+  },
+  {
+    "original_id": "0007",
+    "nombre": "Pulldown lateral alternativo",
+    "grupo_muscular": "Espalda",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/0007-4IKbhHV.gif",
+    "descripcion": "Siéntese en la máquina de cable con la espalda recta y los pies apoyados en el suelo.  Sujete las manijas con un agarre por encima de la cabeza, ligeramente más separadas que el ancho de los hombros.  Inclínese ligeramente hacia atrás y tire de las manijas hacia su pecho, apretando los omóplatos.  Haga una pausa por un momento en el punto máximo del movimiento, luego suelte lentamente las manijas hasta la posición inicial.  Repita hasta el número deseado de repeticiones."
+  },
+  {
+    "original_id": "1368",
+    "nombre": "Círculos de tobillo",
+    "grupo_muscular": "Piernas",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/1368-uL9CsKm.gif",
+    "descripcion": "Siéntate en el suelo con las piernas extendidas frente a ti.  Levante una pierna del suelo y gire el tobillo con un movimiento circular.  Realice el número deseado de círculos en una dirección y luego cambie a la otra dirección.  Repita con la otra pierna."
+  },
+  {
+    "original_id": "3293",
+    "nombre": "Arquero se levanta",
+    "grupo_muscular": "Espalda",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/3293-72BC5Za.gif",
+    "descripcion": "Comience colgando de una barra de dominadas con un agarre por encima de la cabeza, ligeramente más ancho que el ancho de los hombros.  Involucre su núcleo y tire de sus omóplatos hacia abajo y hacia atrás.  Mientras te levantas, dobla un brazo y lleva el codo hacia un costado, mientras mantienes el otro brazo recto.  Continúe tirando hasta que su barbilla esté por encima de la barra y su brazo doblado esté completamente flexionado.  Vuelve a bajar con control, enderezando el brazo dobl"
+  },
+  {
+    "original_id": "3294",
+    "nombre": "Arquero empuja hacia arriba",
+    "grupo_muscular": "Pecho",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/3294-A9qxk2F.gif",
+    "descripcion": "Comience en una posición de flexión con las manos ligeramente más separadas que el ancho de los hombros.  Extienda un brazo hacia un lado, paralelo al suelo.  Baje el cuerpo doblando los codos, manteniendo la espalda recta y el core comprometido.  Empuje hacia atrás hasta la posición inicial.  Repita del otro lado, extendiendo el brazo opuesto hacia un lado.  Continúe alternando lados para el número deseado de repeticiones."
+  },
+  {
+    "original_id": "2355",
+    "nombre": "Honderos colgando rodilla doblada piernas",
+    "grupo_muscular": "Piernas",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/2355-uWpxD4v.gif",
+    "descripcion": "Cuélguese de una barra de dominadas con los brazos completamente extendidos y las rodillas dobladas en un ángulo de 90 grados.  Involucre su núcleo y levante las rodillas hacia el pecho, acercándolas lo más posible a los codos.  Baje lentamente las piernas hasta la posición inicial.  Repita hasta el número deseado de repeticiones."
+  },
+  {
+    "original_id": "2333",
+    "nombre": "Honderos colgando piernas rectas",
+    "grupo_muscular": "Piernas",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/2333-PXTIwgu.gif",
+    "descripcion": "Cuélgate de una barra de dominadas con los brazos completamente extendidos y las piernas estiradas hacia abajo.  Involucre su núcleo y levante las piernas frente a usted hasta que queden paralelas al suelo.  Mantén la posición superior por un momento y luego baja lentamente las piernas hasta la posición inicial.  Repita hasta el número deseado de repeticiones."
+  },
+  {
+    "original_id": "3214",
+    "nombre": "Brazos separados, toque circular con los dedos del pie (masculino)",
+    "grupo_muscular": "Piernas",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/3214-RtyAsy1.gif",
+    "descripcion": "Párese con los pies separados a la altura de los hombros y los brazos extendidos hacia los lados.  Manteniendo las piernas rectas, inclínese hacia adelante por la cintura y alcance los dedos de los pies con la mano derecha.  Mientras se agacha, levante simultáneamente la pierna izquierda hacia atrás, manteniendo el equilibrio.  Regrese a la posición inicial y repita el movimiento con la mano izquierda extendiéndose hacia los dedos de los pies y levantando la pierna derecha detrás de us"
+  },
+  {
+    "original_id": "3204",
+    "nombre": "Abdominales completos con brazos por encima de la cabeza (masculino)",
+    "grupo_muscular": "Abdominales",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/3204-NAkmgdx.gif",
+    "descripcion": "Acuéstese boca arriba con las rodillas dobladas y los pies apoyados en el suelo.  Extiende los brazos por encima de la cabeza, manteniéndolos rectos.  Activando los abdominales, levante lentamente la parte superior del cuerpo del suelo, inclinándose hacia adelante hasta que el torso esté erguido.  Haga una pausa por un momento en la parte superior, luego baje lentamente la parte superior del cuerpo hasta la posición inicial.  Repita hasta el número deseado de repeticiones."
+  },
+  {
+    "original_id": "0009",
+    "nombre": "Inmersión de pecho asistida (arrodillándose)",
+    "grupo_muscular": "Pecho",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/0009-PAgTVaK.gif",
+    "descripcion": "Ajuste la máquina a la altura deseada y asegure sus rodillas en la almohadilla.  Agarre las manijas con las palmas hacia abajo y los brazos completamente extendidos.  Baje el cuerpo doblando los codos hasta que la parte superior de los brazos quede paralela al suelo.  Haga una pausa por un momento y luego vuelva a subir a la posición inicial.  Repita hasta el número deseado de repeticiones."
+  },
+  {
+    "original_id": "0011",
+    "nombre": "Elevación asistida de rodilla en suspensión.",
+    "grupo_muscular": "Abdominales",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/0011-03lzqwk.gif",
+    "descripcion": "Cuélgate de una barra de dominadas con los brazos completamente extendidos y las palmas de las manos mirando hacia afuera.  Involucre sus músculos centrales y levante las rodillas hacia el pecho, doblando las caderas y las rodillas.  Haz una pausa por un momento en la parte superior del movimiento, apretando los abdominales.  Baje lentamente las piernas hasta la posición inicial.  Repita hasta el número deseado de repeticiones."
+  },
+  {
+    "original_id": "0010",
+    "nombre": "Elevación asistida de rodillas colgantes con lanzamiento hacia abajo.",
+    "grupo_muscular": "Espalda",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/0010-8K0w2yA.gif",
+    "descripcion": "Cuélgate de una barra de dominadas con los brazos completamente extendidos y las palmas de las manos mirando hacia afuera.  Involucre su núcleo y levante las rodillas hacia el pecho, manteniendo las piernas juntas.  Una vez que tus rodillas estén a la altura del pecho, lanza explosivamente las piernas hacia el suelo, extendiéndolas por completo.  Permita que sus piernas vuelvan a subir y repita el movimiento durante el número deseado de repeticiones."
+  },
+  {
+    "original_id": "1708",
+    "nombre": "Estiramiento de pantorrillas en tumbado asistido",
+    "grupo_muscular": "Piernas",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/1708-GxDwDX0.gif",
+    "descripcion": "Acuéstese boca arriba con las piernas extendidas.  Doble una rodilla y coloque el pie apoyado en el suelo.  Con las manos o una toalla, jale suavemente los dedos de los pies hacia el cuerpo y sienta un estiramiento en la pantorrilla.  Mantenga el estiramiento durante 20-30 segundos.  Suelta el estiramiento y repite con la otra pierna."
+  },
+  {
+    "original_id": "1709",
+    "nombre": "Estiramiento de glúteos asistido en tumbado.",
+    "grupo_muscular": "Piernas",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/1709-yn0LjwL.gif",
+    "descripcion": "Acuéstese boca arriba con las piernas extendidas.  Doble la rodilla derecha y coloque el tobillo derecho sobre el muslo izquierdo, justo encima de la rodilla.  Sujete su muslo izquierdo con ambas manos y jálelo suavemente hacia su pecho.  Mantenga el estiramiento durante 20-30 segundos.  Suelta y repite del otro lado."
+  },
+  {
+    "original_id": "1710",
+    "nombre": "Estiramiento asistido de glúteos y piriformes en decúbito supino",
+    "grupo_muscular": "Piernas",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/1710-RQNVT10.gif",
+    "descripcion": "Acuéstese boca arriba con las piernas extendidas.  Doble la rodilla derecha y coloque el tobillo derecho sobre el muslo izquierdo, justo encima de la rodilla.  Sujete su muslo izquierdo con ambas manos y jálelo suavemente hacia su pecho.  Mantenga el estiramiento durante 20-30 segundos.  Suelta el estiramiento y repite del otro lado."
+  },
+  {
+    "original_id": "0012",
+    "nombre": "Elevación asistida de la pierna acostada con lanzamiento lateral hacia abajo.",
+    "grupo_muscular": "Espalda",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/0012-UGhRD1A.gif",
+    "descripcion": "Acuéstese boca arriba con las piernas extendidas y los brazos a los lados.  Coloque sus manos debajo de sus glúteos como apoyo.  Contrae tus abdominales y levanta las piernas del suelo, manteniéndolas rectas.  Mientras mantienes las piernas juntas, bájalas hacia un lado hasta que estén a unos centímetros del suelo.  Haga una pausa por un momento, luego levante las piernas hasta la posición inicial.  Repite el movimiento hacia el otro lado.  Continúe alternando lados para el número dese"
+  },
+  {
+    "original_id": "0013",
+    "nombre": "Elevación asistida de piernas tumbadas con lanzamiento hacia abajo.",
+    "grupo_muscular": "Espalda",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/0013-VX5YKR5.gif",
+    "descripcion": "Acuéstese boca arriba con las piernas extendidas y los brazos a los lados.  Coloque sus manos debajo de sus glúteos como apoyo.  Involucre su núcleo y levante las piernas del suelo, manteniéndolas rectas.  Levanta las piernas hasta que queden perpendiculares al suelo.  Baje las piernas hasta la posición inicial.  Al mismo tiempo, baja las piernas hacia el suelo, manteniéndolas rectas.  Levanta las piernas hasta la posición inicial.  Repita hasta el número deseado de repeticiones."
+  },
+  {
+    "original_id": "0014",
+    "nombre": "Movimiento asistido giro ruso",
+    "grupo_muscular": "Abdominales",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/0014-r7cT9YD.gif",
+    "descripcion": "Siéntate en el suelo con las rodillas dobladas y los pies apoyados en el suelo.  Sostenga el balón medicinal con ambas manos frente a su pecho.  Inclínese ligeramente hacia atrás, ejerciendo presión sobre los abdominales y manteniendo la espalda recta.  Gira lentamente el torso hacia la derecha, llevando el balón medicinal hacia el lado derecho de tu cuerpo.  Haga una pausa por un momento, luego gire el torso hacia la izquierda, llevando el balón medicinal hacia el lado izquierdo de su"
+  },
+  {
+    "original_id": "0015",
+    "nombre": "Dominadas paralelas asistidas con agarre cerrado",
+    "grupo_muscular": "Espalda",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/0015-vrhHa6D.gif",
+    "descripcion": "Ajuste la máquina a su peso y altura deseados.  Coloque sus manos sobre las barras paralelas con un agarre firme, con las palmas una frente a la otra.  Cuélgate de las barras con los brazos completamente extendidos y los pies alejados del suelo.  Involucre los músculos de la espalda y levante el cuerpo hacia las barras, manteniendo los codos cerca del cuerpo.  Continúe tirando hasta que su barbilla esté por encima de las barras.  Haga una pausa por un momento en la parte superior, lueg"
+  },
+  {
+    "original_id": "0016",
+    "nombre": "Tendón de la corva en decúbito prono asistido",
+    "grupo_muscular": "Piernas",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/0016-VedGSby.gif",
+    "descripcion": "Acuéstate boca abajo sobre una colchoneta o banco con las piernas completamente extendidas.  Tenga un compañero o use una banda de resistencia para asegurar sus tobillos.  Enganche los isquiotibiales y levante las piernas hacia los glúteos, manteniendo las rodillas rectas.  Haga una pausa por un momento en la parte superior, luego baje lentamente las piernas hasta la posición inicial.  Repita hasta el número deseado de repeticiones."
+  },
+  {
+    "original_id": "1713",
+    "nombre": "Estiramiento de cuádriceps en decúbito prono asistido",
+    "grupo_muscular": "Piernas",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/1713-YUYAMEj.gif",
+    "descripcion": "Acuéstate boca abajo en el suelo con las piernas extendidas.  Doble la rodilla izquierda y estire la mano izquierda hacia atrás para agarrar el pie o el tobillo izquierdo.  Tire suavemente del pie izquierdo hacia los glúteos y sienta un estiramiento en el cuádriceps izquierdo.  Mantenga el estiramiento durante 20 a 30 segundos y luego suéltelo.  Repita con la pierna derecha."
+  },
+  {
+    "original_id": "1714",
+    "nombre": "Estiramiento asistido del recto femoral en decúbito prono",
+    "grupo_muscular": "Abdominales",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/1714-2Ryn564.gif",
+    "descripcion": "Acuéstate boca abajo en el suelo con las piernas estiradas.  Doble la rodilla derecha y estire la mano derecha hacia atrás para agarrar el pie o el tobillo derecho.  Tire suavemente del pie o del tobillo derecho hacia los glúteos y sienta un estiramiento en la parte delantera del muslo derecho.  Mantenga el estiramiento durante 20-30 segundos.  Suelta y repite del otro lado."
+  },
+  {
+    "original_id": "0017",
+    "nombre": "Dominadas asistidas",
+    "grupo_muscular": "Espalda",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/0017-kiJ4Z2K.gif",
+    "descripcion": "Ajuste la máquina a la configuración de peso y altura deseada.  Sujete las manijas con un agarre por encima de la cabeza, ligeramente más separadas que el ancho de los hombros.  Cuelga con los brazos completamente extendidos y los pies alejados del suelo.  Involucre los músculos de la espalda y levante el cuerpo hacia las manijas, manteniendo los codos cerca del cuerpo.  Continúe tirando hasta que su barbilla esté por encima de las manijas.  Haga una pausa por un momento en la parte su"
+  },
+  {
+    "original_id": "1716",
+    "nombre": "Estiramiento asistido del pectoral mayor sentado con balón de estabilidad",
+    "grupo_muscular": "Pecho",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/1716-RoV1Rfa.gif",
+    "descripcion": "Siéntate sobre una pelota de estabilidad con los pies apoyados en el suelo y la espalda recta.  Sostenga una pelota de estabilidad con ambas manos y extienda los brazos hacia adelante.  Baje lentamente la pelota de estabilidad hacia su pecho, sintiendo un estiramiento en los músculos pectorales.  Mantenga el estiramiento durante unos segundos y luego regrese lentamente a la posición inicial.  Repita hasta el número deseado de repeticiones."
+  },
+  {
+    "original_id": "1712",
+    "nombre": "Estiramiento de aductores en decúbito lateral asistido",
+    "grupo_muscular": "Piernas",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/1712-hC6oYY5.gif",
+    "descripcion": "Acuéstese de lado con las piernas estiradas y apiladas una encima de la otra.  Doble ligeramente la pierna de abajo para mayor estabilidad.  Coloque el pie superior sobre una superficie estable, como un banco o un escalón.  Manteniendo la pierna superior recta, bájela lentamente hacia el suelo y sienta un estiramiento en la parte interna del muslo.  Mantenga el estiramiento durante 20-30 segundos.  Regresa a la posición inicial y repite del otro lado."
+  },
+  {
+    "original_id": "1758",
+    "nombre": "Abdominales asistidos",
+    "grupo_muscular": "Abdominales",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/1758-aumB2IV.gif",
+    "descripcion": "Siéntese en el borde de un banco o pídale a alguien que le sujete los pies.  Acuéstese boca arriba con las rodillas dobladas y los pies apoyados en el suelo.  Coloque las manos detrás de la cabeza con los codos apuntando hacia afuera.  Contrayendo los abdominales, levante lentamente la parte superior del cuerpo del suelo, inclinándose hacia adelante hasta que el torso forme un ángulo de 45 grados.  Haga una pausa por un momento en la parte superior, luego baje lentamente la parte super"
+  },
+  {
+    "original_id": "1431",
+    "nombre": "Dominadas de pie asistidas",
+    "grupo_muscular": "Espalda",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/1431-7OeHptV.gif",
+    "descripcion": "Ajuste la máquina al nivel de asistencia deseado.  Párese en la plataforma para los pies y agarre las manijas con un agarre por encima de la cabeza, ligeramente más ancho que el ancho de los hombros.  Mantenga el pecho erguido y los hombros hacia atrás, active el núcleo y doble ligeramente las rodillas.  Levante su cuerpo flexionando los codos y llevándolos hacia los costados.  Continúe tirando hasta que su barbilla esté por encima de la barra.  Haga una pausa por un momento en la part"
+  },
+  {
+    "original_id": "1432",
+    "nombre": "Dominadas de pie asistidas",
+    "grupo_muscular": "Espalda",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/1432-f4xtKBj.gif",
+    "descripcion": "Ajuste la máquina a la configuración de peso y altura deseada.  Párese frente a la máquina con los pies separados a la altura de los hombros.  Sujete las manijas con un agarre por encima de la cabeza, ligeramente más separadas que el ancho de los hombros.  Involucre sus dorsales y bíceps y levántese hacia las manijas.  Haga una pausa por un momento en la parte superior, apretando los músculos de la espalda.  Baje lentamente hasta la posición inicial.  Repita hasta el número deseado de "
+  },
+  {
+    "original_id": "0018",
+    "nombre": "Extensión de tríceps de pie asistida (con toalla)",
+    "grupo_muscular": "Tríceps",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/0018-7HcfMBP.gif",
+    "descripcion": "Párese con los pies separados a la altura de los hombros y sostenga una toalla con ambas manos detrás de la cabeza.  Mantenga los codos cerca de las orejas y la parte superior de los brazos inmóviles.  Extiende lentamente los antebrazos hacia arriba, apretando los tríceps en la parte superior.  Haga una pausa por un momento, luego baje lentamente la toalla hasta la posición inicial.  Repita hasta el número deseado de repeticiones."
+  },
+  {
+    "original_id": "0019",
+    "nombre": "Fondos de tríceps asistidos (arrodillados)",
+    "grupo_muscular": "Pecho",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/0019-J60bN17.gif",
+    "descripcion": "Ajuste la máquina a su peso y altura deseados.  Arrodíllese sobre la plataforma frente a la máquina, con las manos agarrando las manijas.  Baja el cuerpo doblando los codos, manteniendo la espalda recta y cerca de la máquina.  Haga una pausa por un momento en la parte inferior y luego vuelva a subir a la posición inicial.  Repita hasta el número deseado de repeticiones."
+  },
+  {
+    "original_id": "2364",
+    "nombre": "Inmersión pectoral asistida con agarre amplio (de rodillas)",
+    "grupo_muscular": "Pecho",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/2364-PnZJIrk.gif",
+    "descripcion": "Ajuste la máquina a la altura deseada y asegure sus rodillas en la almohadilla.  Sujete las manijas con un agarre amplio y mantenga los codos ligeramente doblados.  Baje el cuerpo doblando los codos hasta que la parte superior de los brazos quede paralela al suelo.  Vuelve a subir a la posición inicial extendiendo los brazos.  Repita hasta el número deseado de repeticiones."
+  },
+  {
+    "original_id": "3220",
+    "nombre": "Saltos a horcajadas (masculino)",
+    "grupo_muscular": "Abdominales",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/3220-f9lVSSI.gif",
+    "descripcion": "Párese con los pies separados a la altura de los hombros.  Doble las rodillas y baje el cuerpo hasta quedar en cuclillas.  Salta explosivamente hacia arriba, extendiendo piernas y brazos.  Mientras estás en el aire, separa las piernas y extiende los brazos hacia los lados.  Aterriza suavemente con los pies separados a la altura de los hombros y dobla las rodillas para absorber el impacto.  Repita hasta el número deseado de repeticiones."
+  },
+  {
+    "original_id": "3672",
+    "nombre": "Paso de ida y vuelta",
+    "grupo_muscular": "Abdominales",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/3672-fNGumX0.gif",
+    "descripcion": "Párese con los pies separados a la altura de los hombros.  Da un paso adelante con el pie derecho, dobla la rodilla y baja el cuerpo a una posición de estocada.  Empuja con el pie derecho y regresa a la posición inicial.  Repite el movimiento con el pie izquierdo, alternando piernas en cada paso.  Continúe dando pasos hacia adelante y hacia atrás, manteniendo un ritmo constante.  Repita durante la duración deseada o el número de repeticiones."
+  },
+  {
+    "original_id": "1314",
+    "nombre": "Extensión de espalda en pelota de ejercicio",
+    "grupo_muscular": "Espalda",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/1314-qLpO4vV.gif",
+    "descripcion": "Coloque la pelota de estabilidad en el suelo y acuéstese boca abajo sobre ella, con las caderas apoyadas sobre la pelota y los pies contra una pared u otra superficie estable.  Coloque sus manos detrás de su cabeza o cruzadas sobre su pecho.  Involucre su núcleo y levante lentamente la parte superior del cuerpo de la pelota, extendiendo la espalda hasta que su cuerpo forme una línea recta desde la cabeza hasta los talones.  Haga una pausa por un momento en la parte superior, luego baje"
+  },
+  {
+    "original_id": "3297",
+    "nombre": "Palanca trasera",
+    "grupo_muscular": "Espalda",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/3297-GaSzzuh.gif",
+    "descripcion": "Comience colgando de una barra de dominadas con un agarre por encima de la cabeza, con las manos un poco más separadas que el ancho de los hombros.  Involucre su núcleo y tire de sus omóplatos hacia abajo y hacia atrás.  Doble las rodillas y métalas hacia el pecho.  Levanta lentamente las piernas, manteniéndolas rectas, hasta que tu cuerpo quede paralelo al suelo.  Mantenga esta posición durante unos segundos y luego baje lentamente las piernas hasta la posición inicial.  Repita hasta "
+  },
+  {
+    "original_id": "1405",
+    "nombre": "Estiramiento de pectorales de espalda",
+    "grupo_muscular": "Pecho",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/1405-chfnQnM.gif",
+    "descripcion": "Párese erguido con los pies separados a la altura de los hombros.  Extiende los brazos hacia delante, paralelos al suelo.  Cruza los brazos frente a tu cuerpo, con el brazo derecho sobre el brazo izquierdo.  Entrelaza los dedos y gira las palmas lejos del cuerpo.  Levante lentamente los brazos hacia arriba y lejos del cuerpo, sintiendo un estiramiento en la espalda y el pecho.  Mantenga el estiramiento durante 15 a 30 segundos y luego suéltelo.  Repita en el lado opuesto."
+  },
+  {
+    "original_id": "1473",
+    "nombre": "Salto hacia atrás",
+    "grupo_muscular": "Piernas",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/1473-SaDOwk7.gif",
+    "descripcion": "Párese con los pies separados a la altura de los hombros.  Doble ligeramente las rodillas y salte hacia atrás, impulsándose con ambos pies.  Aterriza suavemente sobre las puntas de los pies, doblando las rodillas para absorber el impacto.  Repita hasta el número deseado de repeticiones."
+  },
+  {
+    "original_id": "0020",
+    "nombre": "Tabla de equilibrio",
+    "grupo_muscular": "Piernas",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/0020-xAySMB0.gif",
+    "descripcion": "Coloque la tabla de equilibrio sobre una superficie plana.  Súbase a la tabla de equilibrio con un pie, asegurándose de que esté centrado.  Cambie lentamente su peso sobre el pie en la tabla de equilibrio, manteniendo su núcleo comprometido.  Mantenga el equilibrio y la estabilidad mientras mantiene la posición durante el tiempo deseado.  Repite el ejercicio con el otro pie."
+  },
+  {
+    "original_id": "0968",
+    "nombre": "Curl de bíceps alterno con banda",
+    "grupo_muscular": "Bíceps",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/0968-3omWx6P.gif",
+    "descripcion": "Párese con los pies separados a la altura de los hombros y sostenga la banda con un agarre desde abajo, con las palmas hacia arriba.  Mantenga los codos cerca de los costados y doble lentamente un brazo hacia el hombro, apretando los bíceps en la parte superior.  Baje el brazo nuevamente a la posición inicial y repita con el otro brazo.  Continúe alternando brazos durante el número deseado de repeticiones."
+  },
+  {
+    "original_id": "0969",
+    "nombre": "Banda alterna v-up",
+    "grupo_muscular": "Abdominales",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/0969-ztAa1RK.gif",
+    "descripcion": "Acuéstese boca arriba con las piernas estiradas y los brazos extendidos sobre la cabeza, sosteniendo la banda.  Contraiga sus abdominales y levante las piernas y la parte superior del cuerpo del suelo simultáneamente, llevando las manos hacia los dedos de los pies.  A medida que bajas las piernas y la parte superior del cuerpo, cambia la posición de las piernas, cruzando una sobre la otra.  Repite el movimiento, alternando la posición de tus piernas en cada repetición.  Continúe durant"
+  },
+  {
+    "original_id": "0970",
+    "nombre": "Dominadas asistidas por banda",
+    "grupo_muscular": "Espalda",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/0970-r1XNRYB.gif",
+    "descripcion": "Fije la banda a una barra de dominadas o a un punto de anclaje resistente.  Súbete a la banda y agarra la barra con las palmas de las manos mirando hacia afuera, con las manos un poco más separadas que el ancho de los hombros.  Cuelga con los brazos completamente extendidos, manteniendo el core enganchado y los hombros hacia abajo y hacia atrás.  Tire de su cuerpo hacia la barra apretando los omóplatos y empujando los codos hacia las caderas.  Continúe tirando hasta que su barbilla est"
+  },
+  {
+    "original_id": "0971",
+    "nombre": "Despliegue de ruedas asistido por banda",
+    "grupo_muscular": "Abdominales",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/0971-zhF9lW4.gif",
+    "descripcion": "Arrodíllate en el suelo y sujeta las asas de la banda con ambas manos, con las palmas hacia abajo.  Coloque la banda en el suelo frente a usted y separe las manos a la altura de los hombros.  Involucre su núcleo y gire lentamente la rueda hacia adelante, extendiendo su cuerpo lo más que pueda mientras mantiene el control.  Haga una pausa por un momento en el punto más alejado, luego gire lentamente la rueda hacia las rodillas para volver a la posición inicial.  Repita hasta el número d"
+  },
+  {
+    "original_id": "1254",
+    "nombre": "Press de banca con banda",
+    "grupo_muscular": "Pecho",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/1254-khlHMqs.gif",
+    "descripcion": "Acuéstese sobre un banco con los pies apoyados en el suelo y la espalda apoyada contra el banco.  Sujete las asas de la banda con un agarre por encima de la cabeza, ligeramente más separadas que el ancho de los hombros.  Extiende tus brazos completamente, alejando las bandas de tu pecho.  Baje lentamente las bandas hasta el pecho, manteniendo los codos en un ángulo de 90 grados.  Repita hasta el número deseado de repeticiones."
+  },
+  {
+    "original_id": "0980",
+    "nombre": "Extensión de cadera inclinada con banda",
+    "grupo_muscular": "Piernas",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/0980-wSScovH.gif",
+    "descripcion": "Fije la banda a un punto de anclaje resistente a la altura del tobillo.  Párese de espaldas al punto de anclaje con los pies separados a la altura de los hombros.  Da un paso atrás para crear tensión en la banda, manteniendo las rodillas ligeramente dobladas.  Gire las caderas e inclínese hacia adelante, manteniendo la columna neutra.  Extiende la pierna derecha hacia atrás, apretando los glúteos en la parte superior.  Baje la pierna derecha hacia abajo y repita con la pierna izquierda"
+  },
+  {
+    "original_id": "0972",
+    "nombre": "Crujido de bicicleta de banda",
+    "grupo_muscular": "Abdominales",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/0972-tZkGYZ9.gif",
+    "descripcion": "Acuéstese boca arriba con las manos detrás de la cabeza y las rodillas dobladas.  Levante los pies del suelo y lleve la rodilla derecha hacia el pecho mientras gira simultáneamente el torso para llevar el codo izquierdo hacia la rodilla derecha.  Estire la pierna derecha mientras lleva la rodilla izquierda hacia el pecho y gira el torso para llevar el codo derecho hacia la rodilla izquierda.  Continúe alternando el movimiento de torsión, como si estuviera pedaleando una bicicleta, mien"
+  },
+  {
+    "original_id": "0974",
+    "nombre": "Pulldown con agarre cercano de banda",
+    "grupo_muscular": "Espalda",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/0974-DptumMx.gif",
+    "descripcion": "Fije la banda a un punto de anclaje alto, como una barra de dominadas o una viga resistente.  Párese frente al punto de anclaje y agarre la banda con las manos separadas a la altura de los hombros.  Da un paso atrás para crear tensión en la banda, manteniendo los pies separados a la altura de las caderas.  Involucre su núcleo y mantenga la espalda recta mientras tira de la banda hacia su pecho, apretando los omóplatos.  Haga una pausa por un momento en la parte inferior del movimiento,"
+  },
+  {
+    "original_id": "0975",
+    "nombre": "Flexión de banda con agarre cerrado",
+    "grupo_muscular": "Pecho",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/0975-ufaxB52.gif",
+    "descripcion": "Coloque una banda alrededor de la parte superior de sus brazos, justo por encima de los codos.  Asuma una posición de flexión con las manos directamente debajo de los hombros y el cuerpo en línea recta desde la cabeza hasta los talones.  Doble los codos y baje el pecho hacia el suelo, manteniendo los codos cerca de los costados.  Empuja con las palmas de las manos para extender los brazos y volver a la posición inicial.  Repita hasta el número deseado de repeticiones."
+  },
+  {
+    "original_id": "0976",
+    "nombre": "Curl de concentración de banda",
+    "grupo_muscular": "Bíceps",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/0976-kmVVAfu.gif",
+    "descripcion": "Siéntate en un banco o silla con las piernas separadas y los pies apoyados en el suelo.  Sostenga un extremo de la banda en su mano y pise el otro extremo con el pie del mismo lado.  Inclínese ligeramente hacia adelante y apoye el codo en la parte interna del muslo, justo por encima de la rodilla.  Con la palma hacia arriba, doble lentamente la mano hacia el hombro, manteniendo la parte superior del brazo inmóvil.  Haga una pausa por un momento en la parte superior, luego baje lentamen"
+  },
+  {
+    "original_id": "3117",
+    "nombre": "Banda trasera fija cierre agarre pulldown",
+    "grupo_muscular": "Espalda",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/3117-4LoWllp.gif",
+    "descripcion": "Fije la banda a un punto fijo encima de usted, como una barra de dominadas o una viga resistente.  Siéntate en un banco o silla de cara a la banda, con los pies apoyados en el suelo y las rodillas dobladas.  Sujete la banda con fuerza, con las palmas hacia usted.  Mantenga la espalda recta y active su núcleo.  Tire de la banda hacia su pecho, apretando los omóplatos.  Haga una pausa por un momento en la parte inferior del movimiento, sintiendo la contracción en sus dorsales.  Suelte le"
+  },
+  {
+    "original_id": "3116",
+    "nombre": "Pulldown por debajo de la espalda fija con banda",
+    "grupo_muscular": "Espalda",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/3116-ZH68exZ.gif",
+    "descripcion": "Fije la banda a un punto de anclaje resistente sobre su cabeza.  Párese frente al punto de anclaje con los pies separados a la altura de los hombros.  Sujete la banda con un agarre por debajo, con las manos ligeramente más separadas que el ancho de los hombros.  Da un paso atrás para crear tensión en la banda, manteniendo los brazos completamente extendidos.  Involucre su núcleo y apriete los omóplatos.  Tire de la banda hacia su pecho, guiándola con los codos.  Haga una pausa por un m"
+  },
+  {
+    "original_id": "0977",
+    "nombre": "Elevación lateral frontal con banda",
+    "grupo_muscular": "Hombros",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/0977-sTg7iys.gif",
+    "descripcion": "Párese con los pies separados a la altura de los hombros y sostenga la banda delante de los muslos con las palmas hacia abajo.  Mantenga los brazos rectos y levante la banda frente a usted hasta que sus brazos queden paralelos al suelo.  Haga una pausa por un momento en la parte superior, luego baje lentamente la banda hasta la posición inicial.  Repita hasta el número deseado de repeticiones."
+  },
+  {
+    "original_id": "0978",
+    "nombre": "Elevación frontal de banda",
+    "grupo_muscular": "Hombros",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/0978-TFA88iB.gif",
+    "descripcion": "Párese con los pies separados a la altura de los hombros y sostenga la banda delante de los muslos con las palmas hacia abajo.  Mantén los brazos rectos y levántalos lentamente hacia adelante hasta que queden paralelos al suelo.  Haga una pausa por un momento en la parte superior, luego baje lentamente los brazos hasta la posición inicial.  Repita hasta el número deseado de repeticiones."
+  },
+  {
+    "original_id": "1408",
+    "nombre": "Levantamiento de cadera con banda",
+    "grupo_muscular": "Piernas",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/1408-E4R8Hz1.gif",
+    "descripcion": "Acuéstese boca arriba con las rodillas dobladas y los pies apoyados en el suelo.  Coloque una banda de resistencia justo encima de sus rodillas.  Involucre sus glúteos y músculos centrales.  Presiona los talones contra el suelo y levanta las caderas del suelo, apretando los glúteos en la parte superior.  Haga una pausa por un momento en la parte superior, luego baje lentamente las caderas hasta la posición inicial.  Repita hasta el número deseado de repeticiones."
+  },
+  {
+    "original_id": "0979",
+    "nombre": "Prensa pallof horizontal de banda",
+    "grupo_muscular": "Hombros",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/0979-9pa4H5m.gif",
+    "descripcion": "Fije la banda a un punto de anclaje resistente a la altura de la cintura.  Párese perpendicular al punto de anclaje con los pies separados a la altura de los hombros.  Sujete el mango de la banda con ambas manos y aléjese del punto de anclaje para crear tensión en la banda.  Lleva las manos al pecho, manteniendo los codos doblados y cerca del cuerpo.  Involucre su núcleo y mantenga una postura estable.  Extiende los brazos frente a ti, alejando la banda de tu cuerpo.  Mantenga la posic"
+  },
+  {
+    "original_id": "0981",
+    "nombre": "Abdominales con banda jack-navaja",
+    "grupo_muscular": "Abdominales",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/0981-KCBKjma.gif",
+    "descripcion": "Acuéstese boca arriba con las piernas estiradas y los brazos extendidos sobre la cabeza, sosteniendo la banda.  Contrae tus abdominales y levanta las piernas y la parte superior del cuerpo simultáneamente, llevando las manos hacia los pies.  Haga una pausa por un momento en la parte superior, luego baje lentamente las piernas y la parte superior del cuerpo hasta la posición inicial.  Repita hasta el número deseado de repeticiones."
+  },
+  {
+    "original_id": "0983",
+    "nombre": "Banda arrodillada con un brazo",
+    "grupo_muscular": "Espalda",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/0983-pmnrOp0.gif",
+    "descripcion": "Fije la banda a un punto de anclaje resistente sobre su cabeza.  Arrodíllate y sujeta la banda con una mano, con la palma hacia abajo.  Extienda el brazo completamente por encima de la cabeza, manteniendo el codo ligeramente doblado.  Involucra tus músculos dorsales y tira de la banda hacia tu costado, llevando tu codo hacia tu caja torácica.  Haga una pausa por un momento en la parte inferior, luego libere lentamente la tensión y regrese a la posición inicial.  Repita hasta el número "
+  },
+  {
+    "original_id": "0985",
+    "nombre": "Banda arrodillada torciendo crujido",
+    "grupo_muscular": "Abdominales",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/0985-225x2Vd.gif",
+    "descripcion": "Fije la banda a un punto de anclaje resistente a la altura de la cintura.  Arrodíllate de espaldas al punto de anclaje y sujeta la banda con ambas manos, manteniendo los codos doblados y cerca de los costados.  Contrae tus abdominales y gira lentamente tu torso hacia un lado, llevando tus manos hacia la cadera opuesta.  Haga una pausa por un momento y luego regrese lentamente a la posición inicial.  Repita del otro lado.  Continúe alternando lados para el número deseado de repeticiones"
+  },
+  {
+    "original_id": "0984",
+    "nombre": "Banda acostada cadera rotación interna",
+    "grupo_muscular": "Piernas",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/0984-vIICElP.gif",
+    "descripcion": "Acuéstese boca arriba con las piernas estiradas y una banda de resistencia enrollada alrededor de los pies.  Doble las rodillas y llévelas hacia el pecho, manteniendo los pies juntos.  Gire lentamente las rodillas hacia afuera, separándolas, mientras mantiene los pies juntos.  Haga una pausa por un momento al final de la rotación, luego regrese lentamente a la posición inicial.  Repita hasta el número deseado de repeticiones."
+  },
+  {
+    "original_id": "1002",
+    "nombre": "Banda acostada elevación de pierna estirada",
+    "grupo_muscular": "Piernas",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/1002-bbLR7fB.gif",
+    "descripcion": "Acuéstese boca arriba con las piernas estiradas y los pies juntos.  Coloque la banda alrededor de los arcos de sus pies y sostenga los extremos de la banda con las manos.  Contrayendo los abdominales, levante ambas piernas del suelo hasta que queden perpendiculares al suelo.  Haga una pausa por un momento en la parte superior, luego baje lentamente las piernas hasta la posición inicial.  Repita hasta el número deseado de repeticiones."
+  },
+  {
+    "original_id": "0986",
+    "nombre": "Curl de bíceps por encima de la cabeza con un brazo con banda",
+    "grupo_muscular": "Bíceps",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/0986-UNAB8ak.gif",
+    "descripcion": "Párese con los pies separados a la altura de los hombros y coloque un extremo de la banda debajo de su pie.  Sostenga el otro extremo de la banda con el brazo completamente extendido por encima de la cabeza, con la palma hacia adelante.  Manteniendo la parte superior del brazo inmóvil, doble el antebrazo hacia el hombro, apretando el bíceps.  Haga una pausa por un momento en la parte superior, luego baje lentamente el antebrazo hasta la posición inicial.  Repita hasta el número deseado"
+  },
+  {
+    "original_id": "0987",
+    "nombre": "Sentadilla dividida con una sola pierna y un brazo con banda",
+    "grupo_muscular": "Piernas",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/0987-arsYEd3.gif",
+    "descripcion": "Párese con los pies separados a la altura de las caderas y coloque una banda de resistencia alrededor de los tobillos.  Extienda una pierna hacia adelante y apoye la parte superior del pie en un banco o dé un paso detrás de usted.  Sujétese de un soporte con una mano para mantener el equilibrio.  Doble la pierna de apoyo y baje el cuerpo hasta quedar en cuclillas, manteniendo la rodilla alineada con los dedos del pie.  Empuja con el talón para volver a la posición inicial.  Repita hast"
+  },
+  {
+    "original_id": "0988",
+    "nombre": "Banda un brazo de pie fila baja",
+    "grupo_muscular": "Espalda",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/0988-km0sQC0.gif",
+    "descripcion": "Fije la banda a un punto de anclaje estable a la altura de la cintura.  Párese frente al punto de anclaje con los pies separados a la altura de los hombros.  Sostenga la banda con una mano, con la palma hacia adentro, y dé un paso atrás para crear tensión en la banda.  Doble ligeramente las rodillas y gire hacia adelante a la altura de las caderas, manteniendo la espalda recta.  Tire de la banda hacia su cintura, apretando los omóplatos.  Haga una pausa por un momento en la parte super"
+  },
+  {
+    "original_id": "0989",
+    "nombre": "Prensa de pecho con torsión de un brazo con banda",
+    "grupo_muscular": "Pecho",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/0989-c16nYGA.gif",
+    "descripcion": "Fije la banda a un punto de anclaje resistente a la altura del pecho.  Párese con su costado hacia el punto de anclaje y agarre la banda con una mano.  Aléjese del punto de anclaje para crear tensión en la banda.  Separe los pies a la altura de los hombros y doble ligeramente las rodillas.  Lleva la mano que sostiene la banda a través de tu cuerpo, hacia el hombro opuesto.  Mientras mantienes la tensión en la banda, empuja tu mano hacia adelante y lejos de tu cuerpo, extendiendo tu bra"
+  },
+  {
+    "original_id": "0990",
+    "nombre": "Banda con torsión de un brazo en remo sentado",
+    "grupo_muscular": "Espalda",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/0990-DKBwJrL.gif",
+    "descripcion": "Siéntate en un banco o silla con los pies apoyados en el suelo y la espalda recta.  Sostenga la banda con una mano y extienda el brazo completamente frente a usted.  Manteniendo la espalda recta, tire de la banda hacia su cuerpo doblando el codo y apretando los omóplatos.  Al mismo tiempo, gire el torso hacia el lado del brazo que tira.  Haga una pausa por un momento en la parte superior, luego libere lentamente la tensión en la banda y regrese a la posición inicial.  Repita hasta el n"
+  },
+  {
+    "original_id": "0991",
+    "nombre": "Banda para pasar",
+    "grupo_muscular": "Piernas",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/0991-VtTbiP3.gif",
+    "descripcion": "Conecte una banda de resistencia a un punto de anclaje resistente al nivel del suelo.  Párese de espaldas al punto de anclaje con los pies separados a la altura de los hombros.  Da un paso adelante para crear tensión en la banda, manteniendo las rodillas ligeramente dobladas.  Gire las caderas y empuje los glúteos hacia atrás, manteniendo una ligera flexión de las rodillas.  Baja el torso hasta que quede paralelo al suelo, sintiendo un estiramiento en los isquiotibiales.  Impulsa las c"
+  },
+  {
+    "original_id": "0992",
+    "nombre": "Abdominales con empuje de banda",
+    "grupo_muscular": "Abdominales",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/0992-zFzbBfL.gif",
+    "descripcion": "Fije la banda de forma segura a un punto de anclaje estable.  Acuéstese boca arriba con las rodillas dobladas y los pies apoyados en el suelo.  Sostenga la banda con ambas manos y extienda los brazos hacia el techo.  Contrayendo los abdominales, levante lentamente la parte superior del cuerpo del suelo, inclinándose hacia adelante hasta que el torso forme un ángulo de 45 grados.  Haga una pausa por un momento en la parte superior, luego baje lentamente la parte superior del cuerpo hast"
+  },
+  {
+    "original_id": "0993",
+    "nombre": "Mosca inversa de banda",
+    "grupo_muscular": "Hombros",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/0993-sTfvVsG.gif",
+    "descripcion": "Conecte la banda a un objeto estacionario a la altura del pecho.  Párese con los pies separados a la altura de los hombros y sostenga la banda con ambas manos frente a usted.  Mantén los brazos rectos y levántalos hacia los lados hasta que queden paralelos al suelo.  Apriete los omóplatos en la parte superior del movimiento.  Baja lentamente los brazos hasta la posición inicial.  Repita hasta el número deseado de repeticiones."
+  },
+  {
+    "original_id": "0994",
+    "nombre": "Curl de muñeca inverso con banda",
+    "grupo_muscular": "Bíceps",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/0994-Ezpnw9d.gif",
+    "descripcion": "Siéntate en un banco o silla con los pies apoyados en el suelo.  Sostenga la banda con un agarre por encima de la cabeza, con las palmas hacia abajo, y envuélvala alrededor de sus dedos.  Apoye los antebrazos sobre los muslos, con las muñecas colgando del borde.  Lentamente doble las muñecas hacia arriba, apretando los antebrazos.  Haga una pausa por un momento en la parte superior, luego baje lentamente las muñecas hasta la posición inicial.  Repita hasta el número deseado de repetici"
+  },
+  {
+    "original_id": "0996",
+    "nombre": "Rotación interna de cadera con banda sentada",
+    "grupo_muscular": "Piernas",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/0996-9gbyYKk.gif",
+    "descripcion": "Siéntate en una silla o banco con la espalda recta y los pies apoyados en el suelo.  Coloque una banda de resistencia alrededor de sus muslos, justo por encima de sus rodillas.  Mantenga las rodillas dobladas en un ángulo de 90 grados y los pies separados a la altura de los hombros.  Enganche los glúteos y gire lentamente las rodillas hacia afuera, empujando contra la resistencia de la banda.  Haga una pausa por un momento al final del movimiento y luego regrese lentamente a la posició"
+  },
+  {
+    "original_id": "1011",
+    "nombre": "Giro sentado con banda",
+    "grupo_muscular": "Abdominales",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/1011-S1JXDAG.gif",
+    "descripcion": "Siéntate en el suelo con las piernas extendidas frente a ti y la espalda recta.  Envuelve la banda alrededor de tu cintura y sujeta los extremos con ambas manos.  Contrae tus abdominales y gira lentamente tu torso hacia un lado, manteniendo la espalda recta y los pies en el suelo.  Haga una pausa por un momento al final del giro y luego regrese lentamente a la posición inicial.  Repite el giro hacia el otro lado.  Continúe alternando lados para el número deseado de repeticiones."
+  },
+  {
+    "original_id": "0997",
+    "nombre": "Press de hombros con banda",
+    "grupo_muscular": "Hombros",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/0997-peAeMR3.gif",
+    "descripcion": "Párate con los pies separados a la altura de los hombros y coloca la banda debajo de tus pies.  Sostenga la banda con las palmas hacia adelante y levante las manos hasta la altura de los hombros, con los codos doblados.  Presione la banda sobre su cabeza, extendiendo completamente los brazos.  Haga una pausa por un momento en la parte superior, luego baje lentamente la banda hasta la altura de los hombros.  Repita hasta el número deseado de repeticiones."
+  },
+  {
+    "original_id": "1018",
+    "nombre": "Encogimiento de hombros",
+    "grupo_muscular": "Espalda",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/1018-trmte8s.gif",
+    "descripcion": "Párate con los pies separados a la altura de los hombros y coloca la banda debajo de tus pies, sujetando los extremos con las manos.  Mantenga los brazos rectos y relajados y deje que la banda cuelgue delante de sus muslos.  Active sus trampas encogiéndose de hombros hacia arriba y levantando la banda lo más alto posible.  Mantenga la contracción por un momento, luego baje lentamente los hombros hasta la posición inicial.  Repita hasta el número deseado de repeticiones."
+  },
+  {
+    "original_id": "0998",
+    "nombre": "Extensión de tríceps lateral con banda",
+    "grupo_muscular": "Tríceps",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/0998-obe5LMq.gif",
+    "descripcion": "Párese con los pies separados a la altura de los hombros y sostenga la banda con ambas manos, con las palmas hacia abajo.  Extiende los brazos hacia los lados, manteniéndolos paralelos al suelo.  Doble lentamente los codos y lleve las manos hacia los hombros, manteniendo quietos los brazos.  Haga una pausa por un momento, luego extienda lentamente los brazos hacia la posición inicial.  Repita hasta el número deseado de repeticiones."
+  },
+  {
+    "original_id": "0999",
+    "nombre": "Elevación de pantorrilla con una sola pierna con banda",
+    "grupo_muscular": "Piernas",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/0999-9JprnPh.gif",
+    "descripcion": "Párese con los pies separados a la altura de las caderas y coloque la banda alrededor de la punta del pie izquierdo.  Sujétese de un objeto estable para mantener el equilibrio si es necesario.  Levante lentamente el talón izquierdo del suelo, levantando el peso de su cuerpo sobre la punta del pie.  Haga una pausa por un momento en la parte superior, luego baje lentamente el talón izquierdo hasta la posición inicial.  Repita hasta el número deseado de repeticiones, luego cambie a la pie"
+  },
+  {
+    "original_id": "1000",
+    "nombre": "Elevación de pantorrilla inversa con una pierna y banda",
+    "grupo_muscular": "Piernas",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/1000-QsSQWbf.gif",
+    "descripcion": "Párese con los pies separados a la altura de las caderas y coloque la banda alrededor de la punta del pie.  Sujétese de un objeto estable para mantener el equilibrio.  Levante lentamente el talón del suelo y levante el peso de su cuerpo sobre la punta del pie.  Haga una pausa por un momento en la parte superior, luego baje lentamente el talón hasta la posición inicial.  Repita hasta el número deseado de repeticiones, luego cambie a la otra pierna."
+  },
+  {
+    "original_id": "1001",
+    "nombre": "Sentadilla dividida con una pierna con banda",
+    "grupo_muscular": "Piernas",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/1001-y8bYM8w.gif",
+    "descripcion": "Párese con los pies separados a la altura de las caderas y coloque una banda de resistencia alrededor de los tobillos.  Da un gran paso hacia adelante con el pie derecho y un paso más pequeño hacia atrás con el pie izquierdo.  Doble las rodillas y baje el cuerpo hasta que el muslo derecho quede paralelo al suelo, manteniendo la rodilla izquierda ligeramente por encima del suelo.  Empuja con el talón derecho para volver a la posición inicial.  Repita del otro lado."
+  },
+  {
+    "original_id": "1004",
+    "nombre": "Sentadilla con banda",
+    "grupo_muscular": "Piernas",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/1004-TUZLh71.gif",
+    "descripcion": "Párese con los pies separados a la altura de los hombros y con la banda colocada justo por encima de las rodillas.  Manteniendo el pecho erguido y el core comprometido, empuja las caderas hacia atrás y dobla las rodillas para bajar a una posición en cuclillas.  Asegúrese de que sus rodillas estén sobre los dedos de los pies y que su peso esté en los talones.  Haga una pausa por un momento en la parte inferior, luego empuje los talones para regresar a la posición inicial.  Repita hasta "
+  },
+  {
+    "original_id": "1003",
+    "nombre": "Remo en sentadilla con banda",
+    "grupo_muscular": "Espalda",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/1003-w1NOByi.gif",
+    "descripcion": "Fije la banda a un punto de anclaje resistente a la altura de la cintura.  Párese frente al punto de anclaje con los pies separados a la altura de los hombros.  Sostenga las manijas de la banda con las palmas una frente a la otra y los brazos extendidos frente a usted.  Doble las rodillas y bájese hasta ponerse en cuclillas, manteniendo la espalda recta y el pecho levantado.  Desde la posición en cuclillas, tire de las asas de la banda hacia su cuerpo, apretando los omóplatos.  Haga un"
+  },
+  {
+    "original_id": "1005",
+    "nombre": "Crujido de banda de pie",
+    "grupo_muscular": "Abdominales",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/1005-Kzg30R7.gif",
+    "descripcion": "Fije la banda a un punto de anclaje resistente a la altura de la cintura.  Párese de espaldas al punto de anclaje con los pies separados a la altura de los hombros.  Sostenga la banda con ambas manos y llévela hacia su pecho, manteniendo los codos doblados y cerca de su cuerpo.  Contrae tus abdominales y haz abdominales lentamente hacia adelante, llevando tu pecho hacia las rodillas.  Haga una pausa por un momento en la parte superior del abdominal y luego regrese lentamente a la posic"
+  },
+  {
+    "original_id": "1022",
+    "nombre": "Fila deltónica trasera de pie con banda",
+    "grupo_muscular": "Espalda",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/1022-tc5dYrf.gif",
+    "descripcion": "Párate con los pies separados a la altura de los hombros y coloca la banda debajo de tus pies.  Sostenga las manijas de la banda con las palmas una frente a la otra y los brazos extendidos frente a usted.  Doble ligeramente las rodillas y gire hacia adelante a la altura de las caderas, manteniendo la espalda recta.  Tire de la banda hacia su pecho, apretando los omóplatos.  Haga una pausa por un momento en la cima, luego libere lentamente la tensión y regrese a la posición inicial.  Re"
+  },
+  {
+    "original_id": "1007",
+    "nombre": "Banda de pie torciendo crujido",
+    "grupo_muscular": "Abdominales",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/1007-euq4pwp.gif",
+    "descripcion": "Párese con los pies separados a la altura de los hombros y coloque la banda alrededor de la parte superior de la espalda, cruzándola por delante del pecho.  Sostenga los extremos de la banda con las manos, manteniendo los codos doblados y cerca de los costados.  Contrae tus abdominales y gira tu torso hacia un lado, llevando tu codo hacia la rodilla opuesta.  Haga una pausa por un momento y luego regrese a la posición inicial.  Repita del otro lado.  Continúe alternando lados para el n"
+  },
+  {
+    "original_id": "1008",
+    "nombre": "Intensificación de la banda",
+    "grupo_muscular": "Piernas",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/1008-d5bTEPV.gif",
+    "descripcion": "Coloca una banda alrededor de tus muslos, justo por encima de tus rodillas.  Párese frente a un escalón o plataforma con los pies separados a la altura de las caderas.  Sube a la plataforma con el pie derecho, empujando con el talón.  Extiende tu pierna izquierda detrás de ti, manteniéndola recta.  Baje el pie izquierdo hasta el suelo.  Repita con el pie izquierdo subiendo a la plataforma.  Continúe alternando piernas durante el número deseado de repeticiones."
+  },
+  {
+    "original_id": "1009",
+    "nombre": "Peso muerto con pierna rígida con banda",
+    "grupo_muscular": "Piernas",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/1009-kuMiR2T.gif",
+    "descripcion": "Párese con los pies separados a la altura de los hombros y coloque la banda alrededor de los tobillos.  Sostenga la banda con ambas manos frente a sus muslos, con las palmas hacia su cuerpo.  Manteniendo la espalda recta y el core comprometido, gire las caderas y baje lentamente la parte superior del cuerpo hacia el suelo.  A medida que bajas, empuja las caderas hacia atrás y deja que las rodillas se doblen ligeramente.  Baja la banda hacia el suelo, sintiendo un estiramiento en los is"
+  },
+  {
+    "original_id": "1023",
+    "nombre": "Peso muerto con banda y espalda recta y piernas rígidas",
+    "grupo_muscular": "Piernas",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/1023-lHeUULr.gif",
+    "descripcion": "Párese con los pies separados a la altura de los hombros y coloque la banda alrededor de la parte superior de las piernas.  Sostenga la banda con ambas manos frente a sus muslos, con las palmas hacia su cuerpo.  Manteniendo la espalda recta y las rodillas ligeramente flexionadas, gire las caderas y baje la banda hacia el suelo.  Siente el estiramiento en los isquiotibiales a medida que bajas la banda.  Involucre sus glúteos e isquiotibiales para levantar su cuerpo nuevamente a la posic"
+  },
+  {
+    "original_id": "1010",
+    "nombre": "Peso muerto con pierna recta con banda",
+    "grupo_muscular": "Espalda",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/1010-KUaoUV8.gif",
+    "descripcion": "Párate con los pies separados a la altura de los hombros y coloca la banda alrededor de tus pies.  Sostenga la banda con ambas manos, con las palmas hacia el cuerpo, y mantenga los brazos rectos.  Involucre su núcleo y mantenga una ligera flexión de las rodillas.  Gire lentamente hacia adelante a la altura de las caderas, manteniendo la espalda recta y el pecho levantado.  Baja la banda hacia el suelo manteniendo las piernas estiradas.  Haga una pausa por un momento en la parte inferio"
+  },
+  {
+    "original_id": "1012",
+    "nombre": "Press de hombros con torsión de banda",
+    "grupo_muscular": "Hombros",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/1012-u4bAmKp.gif",
+    "descripcion": "Párate con los pies separados a la altura de los hombros y coloca la banda debajo de tus pies.  Sostenga las asas de la banda a la altura de los hombros con las palmas hacia adelante.  Involucre su núcleo y presione la banda sobre su cabeza, extendiendo completamente sus brazos.  Mientras presionas, gira el torso hacia un lado, manteniendo las caderas estables.  Haga una pausa por un momento en la cima, luego regrese a la posición inicial.  Repetir la prensa y girar en el lado opuesto."
+  },
+  {
+    "original_id": "1369",
+    "nombre": "Elevación de pantorrilla con dos piernas con banda - (banda debajo de ambas piernas) v.2",
+    "grupo_muscular": "Piernas",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/1369-jl6uxZV.gif",
+    "descripcion": "Párese con los pies separados a la altura de los hombros y coloque una banda de resistencia debajo de ambos pies.  Sostenga los extremos de la banda con las manos para mayor estabilidad.  Levanta los talones del suelo lo más alto posible, utilizando las pantorrillas.  Haga una pausa por un momento en la parte superior, luego baje lentamente los talones hasta la posición inicial.  Repita hasta el número deseado de repeticiones."
+  },
+  {
+    "original_id": "1013",
+    "nombre": "Pulldown de banda por debajo",
+    "grupo_muscular": "Espalda",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/1013-k6tUeqS.gif",
+    "descripcion": "Fije la banda a un punto de anclaje alto, como una barra de dominadas o una viga resistente.  Párese frente al punto de anclaje con los pies separados a la altura de los hombros.  Sujete la banda con un agarre por debajo, con las manos ligeramente más separadas que el ancho de los hombros.  Extienda los brazos completamente por encima de la cabeza, manteniendo los codos ligeramente doblados.  Enganche los dorsales y tire de la banda hacia el pecho, apretando los omóplatos.  Haga una pa"
+  },
+  {
+    "original_id": "1014",
+    "nombre": "Banda v-up",
+    "grupo_muscular": "Abdominales",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/1014-H6ETwO9.gif",
+    "descripcion": "Acuéstese boca arriba con las piernas estiradas y los brazos extendidos sobre la cabeza, sosteniendo la banda.  Contrayendo los abdominales, levante las piernas y la parte superior del cuerpo del suelo simultáneamente, llevando las manos hacia los dedos de los pies.  Haga una pausa por un momento en la parte superior, luego baje lentamente las piernas y la parte superior del cuerpo hasta la posición inicial.  Repita hasta el número deseado de repeticiones."
+  },
+  {
+    "original_id": "1015",
+    "nombre": "Prensa pallof vertical de banda",
+    "grupo_muscular": "Hombros",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/1015-G7PXMlT.gif",
+    "descripcion": "Párese con los pies separados a la altura de los hombros y envuelva la banda alrededor de un objeto resistente a la altura del pecho.  Sostenga la banda con ambas manos y aléjese del punto de anclaje, creando tensión en la banda.  Colóquese perpendicular al punto de anclaje, con el costado hacia la banda.  Extiende los brazos frente a ti, manteniendo las manos a la altura del pecho.  Involucre su núcleo y presione la banda lejos de su pecho, extendiendo completamente sus brazos.  Mante"
+  },
+  {
+    "original_id": "1016",
+    "nombre": "Flexión de muñeca con banda",
+    "grupo_muscular": "Bíceps",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/1016-vUTfFHw.gif",
+    "descripcion": "Siéntate en un banco o silla con los pies apoyados en el suelo.  Sostenga la banda con ambas manos, con las palmas hacia arriba, y apoye los antebrazos sobre los muslos.  Lentamente doble las muñecas hacia arriba, apretando los antebrazos.  Haga una pausa por un momento en la parte superior, luego baje lentamente las muñecas hasta la posición inicial.  Repita hasta el número deseado de repeticiones."
+  },
+  {
+    "original_id": "1017",
+    "nombre": "Banda y-levantar",
+    "grupo_muscular": "Hombros",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/1017-aHDy5O5.gif",
+    "descripcion": "Párese con los pies separados a la altura de los hombros y sostenga la banda delante de los muslos con las palmas hacia adentro.  Mantenga los brazos rectos y levántelos hacia los lados, formando una forma de \"Y\" con su cuerpo.  Apriete los omóplatos en la parte superior del movimiento.  Baje lentamente los brazos hasta la posición inicial.  Repita hasta el número deseado de repeticiones."
+  },
+  {
+    "original_id": "0023",
+    "nombre": "Curl alterno de bíceps con barra",
+    "grupo_muscular": "Bíceps",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/0023-Yza7XrQ.gif",
+    "descripcion": "Párese derecho con los pies separados a la altura de los hombros y sostenga una barra en cada mano, con las palmas hacia adelante.  Mantenga la parte superior de los brazos inmóviles y exhale mientras flexiona las pesas mientras contrae los bíceps.  Continúe levantando las barras hasta que sus bíceps estén completamente contraídos y las barras estén al nivel de los hombros.  Mantenga la posición contraída durante una breve pausa mientras aprieta los bíceps.  Inhala mientras comienzas a"
+  },
+  {
+    "original_id": "0024",
+    "nombre": "Sentadilla frontal en banco con barra",
+    "grupo_muscular": "Piernas",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/0024-Y7YcmIJ.gif",
+    "descripcion": "Comience parándose con los pies separados a la altura de los hombros y la barra apoyada en la parte superior del pecho, justo debajo de la clavícula.  Sostenga la barra con un agarre por encima de la cabeza, manteniendo los codos hacia arriba y la parte superior de los brazos paralela al suelo.  Baje el cuerpo hasta quedar en cuclillas doblando las rodillas y las caderas, manteniendo la espalda recta y el pecho hacia arriba.  Haga una pausa por un momento en la parte inferior de la sen"
+  },
+  {
+    "original_id": "0025",
+    "nombre": "Press de banca con barra",
+    "grupo_muscular": "Pecho",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/0025-EIeI8Vf.gif",
+    "descripcion": "Acuéstese sobre un banco con los pies apoyados en el suelo y la espalda apoyada contra el banco.  Sujete la barra con un agarre por encima de la cabeza ligeramente más ancho que el ancho de los hombros.  Levante la barra del soporte y sosténgala directamente sobre su pecho con los brazos completamente extendidos.  Baje la barra lentamente hacia su pecho, manteniendo los codos doblados hacia adentro. Haga una pausa por un momento cuando la barra toque su pecho.  Empuja la barra hacia ar"
+  },
+  {
+    "original_id": "0026",
+    "nombre": "Sentadilla en banco con barra",
+    "grupo_muscular": "Piernas",
+    "url_video": "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/videos/0026-W9pFVv1.gif",
+    "descripcion": "Coloque una barra sobre una rejilla para sentadillas a la altura del pecho.  Párese de espaldas a la rejilla, con los pies separados a la altura de los hombros.  Doble las rodillas y baje el cuerpo hasta quedar en cuclillas, manteniendo la espalda recta y el pecho hacia arriba.  Sujete la barra con un agarre por encima de la cabeza, ligeramente más ancha que el ancho de los hombros.  Levante la barra del estante y dé un paso atrás, asegurándose de que sus pies todavía estén separados a"
+  }
+]

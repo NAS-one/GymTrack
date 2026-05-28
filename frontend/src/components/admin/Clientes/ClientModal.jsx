@@ -102,13 +102,7 @@ export function ClientModal({ isOpen, onClose, clientToEdit, onSave, coaches = [
             newErrors.nombre = "El nombre solo debe contener letras";
         }
 
-        if (!clientToEdit) {
-            if (!formData.rut.trim()) {
-                newErrors.rut = "El RUT es obligatorio";
-            } else if (!isValidRut(formData.rut)) {
-                newErrors.rut = "RUT inválido (Dígito verificador incorrecto)";
-            }
-        }
+
 
         if (!formData.fecha_nacimiento) {
             newErrors.fecha_nacimiento = "La fecha es obligatoria";
@@ -159,34 +153,7 @@ export function ClientModal({ isOpen, onClose, clientToEdit, onSave, coaches = [
         return Object.keys(newErrors).length === 0;
     };
 
-    // --- VERIFICACIÓN DE RUT EN API EXTERNA ---
-    const verifyRealRut = async (rutFormateado) => {
-        const rutLimpio = rutFormateado.replace(/[^0-9kK]/g, '');
-        try {
-            // Nota: Esta es una URL de ejemplo. Dependiendo de la API que uses (LibreAPI, Boostr, etc.) 
-            // la URL y la respuesta cambiarán.
-            const response = await fetch(`https://api.libreapi.cl/rut/rut?rut=${rutLimpio}`);
 
-            if (!response.ok) {
-                // Si la API falla (ej. 404, 500) asumimos que el RUT no se encontró o la API está caída.
-                // Retornamos true para no bloquear el registro si la API externa se cae.
-                console.warn("La API de RUT no respondió con éxito. Permitiendo registro por precaución.");
-                return true;
-            }
-
-            const data = await response.json();
-
-            // Ajustar según la estructura de respuesta de la API elegida
-            if (data.status === 'success' || data.data) {
-                return true;
-            }
-            return false;
-        } catch (error) {
-            console.error("Error al consultar la API de RUT:", error);
-            // Si hay un error de red o de la API, dejamos pasar para no bloquear la app
-            return true;
-        }
-    };
 
     // --- MANEJO DE CAMBIOS ---
     const handleChange = (field, value) => {
@@ -214,16 +181,7 @@ export function ClientModal({ isOpen, onClose, clientToEdit, onSave, coaches = [
 
         setIsSubmitting(true);
 
-        // Verificación de RUT Real si es un cliente nuevo
-        if (!clientToEdit) {
-            const isRutReal = await verifyRealRut(formData.rut);
-            if (!isRutReal) {
-                setErrors(prev => ({ ...prev, rut: "El RUT ingresado no existe o no pudo ser verificado." }));
-                setIsSubmitting(false);
-                toast.error("RUT Inválido", { description: "El RUT parece no pertenecer a una persona real." });
-                return;
-            }
-        }
+
 
         try {
             const payload = { ...formData };
@@ -258,7 +216,7 @@ export function ClientModal({ isOpen, onClose, clientToEdit, onSave, coaches = [
                 <div className="px-8 py-5 border-b border-white/10 flex justify-between items-center bg-white/5">
                     <div>
                         <h3 className="text-xl font-bold text-white">
-                            {clientToEdit ? 'Editar Perfil' : 'Registrar Cliente'}
+                            Editar Perfil
                         </h3>
                         <p className="text-xs text-gym-gray mt-1">Complete la ficha técnica del socio.</p>
                     </div>
@@ -290,14 +248,12 @@ export function ClientModal({ isOpen, onClose, clientToEdit, onSave, coaches = [
                                 <Label text="RUT / DNI *" />
                                 <input
                                     type="text"
-                                    disabled={!!clientToEdit}
-                                    className={inputClass(errors.rut, !!clientToEdit)}
+                                    disabled={true}
+                                    className={inputClass(errors.rut, true)}
                                     value={formData.rut}
-                                    onChange={e => handleChange('rut', e.target.value)}
                                     placeholder="12.345.678-9"
-                                    maxLength={12}
                                 />
-                                {clientToEdit && <Lock size={14} className="absolute right-3 top-9 text-zinc-500" title="El RUT no se puede modificar" />}
+                                <Lock size={14} className="absolute right-3 top-9 text-zinc-500" title="El RUT no se puede modificar" />
                                 {errors.rut && <p className="text-red-400 text-xs mt-1 flex items-center gap-1"><AlertCircle size={10} /> {errors.rut}</p>}
                             </div>
                         </div>
@@ -336,15 +292,6 @@ export function ClientModal({ isOpen, onClose, clientToEdit, onSave, coaches = [
                                 />
                                 {errors.email && <p className="text-red-400 text-xs mt-1 flex items-center gap-1"><AlertCircle size={10} /> {errors.email}</p>}
                             </div>
-
-                            {!clientToEdit && (
-                                <div>
-                                    <Label text="Activación de Cuenta" />
-                                    <div className="bg-white/5 border border-white/10 rounded-lg p-3 text-xs text-gray-300">
-                                        Se enviará un correo a esta dirección para que el cliente configure su propia contraseña.
-                                    </div>
-                                </div>
-                            )}
                         </div>
 
                         <div>

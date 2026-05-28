@@ -25,7 +25,10 @@ const entrenadorSchema = z.object({
   sueldo_base: z.number().nonnegative().optional(),
 
   porcentaje_retencion: z.number().min(0).max(1).optional(),
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/master
   tarifa_arriendo: z.number().nonnegative().optional(),
 });
 

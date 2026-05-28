@@ -51,6 +51,15 @@ export class EntrenadorModel {
   }
 
   // 2. CREAR
+  static async checkTelefonoExists(telefono, currentId = null) {
+    if (!telefono) return false;
+    const [existingTrainer] = currentId 
+      ? await sql`SELECT id FROM entrenadores WHERE telefono = ${telefono} AND id != ${currentId}`
+      : await sql`SELECT id FROM entrenadores WHERE telefono = ${telefono}`;
+    const [existingStaff] = await sql`SELECT id FROM staff WHERE telefono = ${telefono}`;
+    return !!existingTrainer || !!existingStaff;
+  }
+
   static async create(input) {
     const {
       email,

@@ -460,7 +460,7 @@ async function seed() {
       });
     }
 
-    // 5. SIMULACIÓN TEMPORAL
+    // 5. SIMULACIÃ“N TEMPORAL
     console.log("â³ Ejecutando simulación temporal...");
     const startDate = new Date(2025, 0, 1);
     const endDate = new Date();
@@ -759,7 +759,34 @@ async function seed() {
       { nombre: "Sentadilla Búlgara", grupo_muscular: "Piernas", url_video: "https://youtu.be/2C-uNgKwPLE", descripcion: "Sentadilla unilateral con pie posterior elevado. Máximo estímulo para cuádriceps y glúteo. Corrige desequilibrios laterales." },
       { nombre: "Déficit Push-Up", grupo_muscular: "Pecho", url_video: "https://youtu.be/9GkGXuJMdrg", descripcion: "Flexión de brazos con rango de movimiento extendido usando plataformas. Máximo estiramiento del pectoral menor y mayor." },
     ];
-    await sql`INSERT INTO ejercicios ${sql(ejerciciosDb, "nombre", "grupo_muscular", "url_video", "descripcion")}`;
+
+    try {
+      const fs = await import('fs');
+      const path = await import('path');
+      const url = await import('url');
+      const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
+      const translatedExercisesPath = path.join(__dirname, 'ejercicios_100_traducidos.json');
+      if (fs.existsSync(translatedExercisesPath)) {
+        const translatedExercises = JSON.parse(fs.readFileSync(translatedExercisesPath, 'utf8'));
+        console.log(`💪 Agregando ${translatedExercises.length} ejercicios adicionales desde el archivo JSON...`);
+        const existingNames = new Set(ejerciciosDb.map(e => e.nombre));
+        for (const ex of translatedExercises) {
+          if (!existingNames.has(ex.nombre)) {
+            ejerciciosDb.push({
+              nombre: ex.nombre,
+              grupo_muscular: ex.grupo_muscular,
+              url_video: ex.url_video,
+              descripcion: ex.descripcion
+            });
+            existingNames.add(ex.nombre);
+          }
+        }
+      }
+    } catch(err) {
+      console.error("Error al cargar ejercicios adicionales:", err.message);
+    }
+
+    await sql`INSERT INTO ejercicios ${sql(ejerciciosDb, "nombre", "grupo_muscular", "url_video", "descripcion")} ON CONFLICT (nombre) DO NOTHING`;
     // Mapa por nombre para referenciarlos en rutinas
     const ejDB = await sql`SELECT id, nombre FROM ejercicios`;
     const ej = {};
@@ -770,8 +797,8 @@ async function seed() {
     // =========================================================
     console.log("ðŸ‹ï¸ Creando programa de entrenamiento PUSH/PULL/LEGS para cliente_dev...");
 
-    // — PROGRAMA PPL (Push / Pull / Legs) para cliente_dev —
-    // Rutina 1: PUSH (Pecho + Hombros + Tríceps) — Lunes / Jueves
+    // â€” PROGRAMA PPL (Push / Pull / Legs) para cliente_dev â€”
+    // Rutina 1: PUSH (Pecho + Hombros + Tríceps) â€” Lunes / Jueves
     const [rutinaPush] = await sql`
       INSERT INTO rutinas (nombre, fecha_inicio, fecha_fin, activa, id_cliente, id_entrenador, es_plantilla, created_at)
       VALUES (
@@ -801,11 +828,11 @@ async function seed() {
     ];
     await sql`INSERT INTO detalle_rutina ${sql(detallePush, "dia", "series", "repeticiones", "carga_proyectada", "id_rutina", "id_ejercicio")}`;
 
-    // Rutina 2: PULL (Espalda + Bíceps) — Martes / Viernes
+    // Rutina 2: PULL (Espalda + Bíceps) â€” Martes / Viernes
     const [rutinaPull] = await sql`
       INSERT INTO rutinas (nombre, fecha_inicio, fecha_fin, activa, id_cliente, id_entrenador, es_plantilla, created_at)
       VALUES (
-        'PPL — Pull (Tracción)',
+        'PPL â€” Pull (Tracción)',
         CURRENT_DATE - INTERVAL '3 months',
         CURRENT_DATE + INTERVAL '3 months',
         true,
@@ -832,7 +859,7 @@ async function seed() {
     ];
     await sql`INSERT INTO detalle_rutina ${sql(detallePull, "dia", "series", "repeticiones", "carga_proyectada", "id_rutina", "id_ejercicio")}`;
 
-    // Rutina 3: LEGS (Piernas + Core) — Miércoles / Sábado
+    // Rutina 3: LEGS (Piernas + Core) â€” Miércoles / Sábado
     const [rutinaLegs] = await sql`
       INSERT INTO rutinas (nombre, fecha_inicio, fecha_fin, activa, id_cliente, id_entrenador, es_plantilla, created_at)
       VALUES (
@@ -913,7 +940,7 @@ async function seed() {
         ]
       },
       {
-        nombre: "Tonificación — Full Body C", ejDias: [
+        nombre: "Tonificación â€” Full Body C", ejDias: [
           { dia: "Lunes", series: 3, repeticiones: "12-15", carga: "60%RM", ejKey: "Sentadilla Libre" },
           { dia: "Lunes", series: 3, repeticiones: "12-15", carga: "60%RM", ejKey: "Press de Banca Plano" },
           { dia: "Miércoles", series: 3, repeticiones: "12-15", carga: "65%RM", ejKey: "Remo con Barra" },
@@ -923,7 +950,7 @@ async function seed() {
         ]
       },
       {
-        nombre: "Composición — Push-Pull D", ejDias: [
+        nombre: "Composición â€” Push-Pull D", ejDias: [
           { dia: "Lunes", series: 4, repeticiones: "8-10", carga: "75%RM", ejKey: "Press de Banca Plano" },
           { dia: "Lunes", series: 3, repeticiones: "10-12", carga: "55%RM", ejKey: "Press Militar con Barra" },
           { dia: "Martes", series: 4, repeticiones: "6-8", carga: "85%RM", ejKey: "Peso Muerto Convencional" },
@@ -1070,7 +1097,7 @@ async function seed() {
                 carga_real: cargaReal > 0 ? `${cargaReal} kg` : "Peso corporal",
                 rpe,
                 comentarios: s === ejercicioSesion.cargas.length - 1
-                  ? getRandomItem(["Última serie con buen control", "Se siente fuerte hoy", "Técnica sólida", "Ligera fatiga acumulada", null, null, null])
+                  ? getRandomItem(["Ãšltima serie con buen control", "Se siente fuerte hoy", "Técnica sólida", "Ligera fatiga acumulada", null, null, null])
                   : null,
                 id_cliente: devClientId,
                 id_ejercicio: ejId,

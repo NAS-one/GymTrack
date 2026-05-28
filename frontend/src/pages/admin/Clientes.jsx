@@ -78,9 +78,6 @@ export function Clientes() {
         if (!payload.password) delete payload.password;
         await axios.patch(`/clientes/${selectedClient.id}`, payload);
         toast.success("Perfil actualizado", { description: `Los datos de ${formData.nombre} fueron guardados.` });
-      } else {
-        await axios.post('/clientes', formData);
-        toast.success("Cliente registrado", { description: `${formData.nombre} ha sido añadido al sistema.` });
       }
       setIsModalOpen(false);
       fetchData();
@@ -298,12 +295,7 @@ export function Clientes() {
               <FileSpreadsheet size={18} className="text-gym-orange" /> Exportar
             </button>
           )}
-          <button
-            onClick={() => { setSelectedClient(null); setIsModalOpen(true); }}
-            className="bg-gym-orange hover:bg-orange-500 text-white px-6 py-3.5 rounded-2xl font-black text-xs uppercase tracking-wider flex items-center gap-2 shadow-[0_0_20px_rgba(249,115,22,0.3)] transition-all active:scale-95 group"
-          >
-            <Plus size={18} className="group-hover:rotate-90 transition-transform" /> Nuevo Socio
-          </button>
+
         </div>
       </header>
 

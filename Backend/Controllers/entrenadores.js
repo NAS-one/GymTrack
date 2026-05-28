@@ -31,6 +31,16 @@ export class EntrenadorController {
     }
 
     try {
+      const input = result.data;
+
+      // Check unique phone
+      if (input.telefono) {
+        const telefonoExiste = await this.EntrenadorModel.checkTelefonoExists(input.telefono);
+        if (telefonoExiste) {
+          return res.status(409).json({ error: "Este número de teléfono ya está registrado." });
+        }
+      }
+
       const hashedPassword = await bcrypt.hash(result.data.password, 10);
 
       const newTrainer = await this.EntrenadorModel.create({
@@ -95,6 +105,16 @@ export class EntrenadorController {
     }
 
     try {
+      const input = result.data;
+
+      // Check unique phone
+      if (input.telefono) {
+        const telefonoExiste = await this.EntrenadorModel.checkTelefonoExists(input.telefono, id);
+        if (telefonoExiste) {
+          return res.status(409).json({ error: "Este número de teléfono ya está registrado por otro colaborador." });
+        }
+      }
+
       const updatedTrainer = await this.EntrenadorModel.update({
         id,
         input: result.data,
