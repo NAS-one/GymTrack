@@ -33,7 +33,7 @@ export class PlanEntrenamientoController {
       const plan = await this.Model.create({
         nombre: nombre.trim(),
         objetivo: objetivo || null,
-        id_entrenador,
+        id_creador: id_entrenador,
       });
 
       success(req, res, plan, 201);
@@ -50,7 +50,7 @@ export class PlanEntrenamientoController {
         return error(req, res, "No se encontró perfil de entrenador", 403);
       }
 
-      const planes = await this.Model.getByCreador({ id_entrenador });
+      const planes = await this.Model.getByCreador({ id_creador: id_entrenador });
       success(req, res, planes, 200);
     } catch (e) {
       console.error(e);

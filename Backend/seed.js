@@ -648,7 +648,7 @@ async function seed() {
     console.log(`   ðŸ“Š Sesiones generadas: ${sesionesBuffer.length}`);
 
     // =========================================================
-    // 7. MÃ“DULO DE ENTRENAMIENTO â€” referencias reservadas
+    // 7. MÓDULO DE ENTRENAMIENTO — referencias reservadas
     // =========================================================
     // Los ejercicios se crean en el paso 9 (necesitamos sus IDs).
     // Las rutinas y detalle_rutina se insertan en el paso 9.5.
@@ -775,7 +775,7 @@ async function seed() {
     const [rutinaPush] = await sql`
       INSERT INTO rutinas (nombre, fecha_inicio, fecha_fin, activa, id_cliente, id_entrenador, es_plantilla, created_at)
       VALUES (
-        'PPL â€” Push (Empuje)',
+        'PPL — Push (Empuje)',
         CURRENT_DATE - INTERVAL '3 months',
         CURRENT_DATE + INTERVAL '3 months',
         true,
@@ -836,7 +836,7 @@ async function seed() {
     const [rutinaLegs] = await sql`
       INSERT INTO rutinas (nombre, fecha_inicio, fecha_fin, activa, id_cliente, id_entrenador, es_plantilla, created_at)
       VALUES (
-        'PPL â€” Legs (Tren Inferior + Core)',
+        'PPL — Legs (Tren Inferior + Core)',
         CURRENT_DATE - INTERVAL '3 months',
         CURRENT_DATE + INTERVAL '3 months',
         true,
@@ -867,7 +867,7 @@ async function seed() {
     const [rutinaPlantilla] = await sql`
       INSERT INTO rutinas (nombre, fecha_inicio, activa, id_cliente, id_entrenador, es_plantilla, created_at)
       VALUES (
-        'Plantilla â€” Full Body Fuerza',
+        'Plantilla — Full Body Fuerza',
         CURRENT_DATE,
         true,
         NULL, ${devTrainerId}, true,
@@ -893,7 +893,7 @@ async function seed() {
     console.log("ðŸ“‹ Asignando rutinas a los 5 clientes del entrenador dev...");
     const rutinaTemplates = [
       {
-        nombre: "Hipertrofia â€” Tren Superior A", ejDias: [
+        nombre: "Hipertrofia — Tren Superior A", ejDias: [
           { dia: "Lunes", series: 4, repeticiones: "8-10", carga: "70%RM", ejKey: "Press de Banca Plano" },
           { dia: "Lunes", series: 4, repeticiones: "8-10", carga: "65%RM", ejKey: "Remo con Barra" },
           { dia: "Lunes", series: 3, repeticiones: "10-12", carga: "50%RM", ejKey: "Press Militar con Barra" },
@@ -903,7 +903,7 @@ async function seed() {
         ]
       },
       {
-        nombre: "Fuerza â€” Tren Inferior B", ejDias: [
+        nombre: "Fuerza — Tren Inferior B", ejDias: [
           { dia: "Martes", series: 5, repeticiones: "5", carga: "80%RM", ejKey: "Sentadilla Libre" },
           { dia: "Martes", series: 4, repeticiones: "8", carga: "140kg", ejKey: "Prensa de Piernas 45°" },
           { dia: "Martes", series: 3, repeticiones: "10", carga: "80kg", ejKey: "Hip Thrust con Barra" },
@@ -933,7 +933,7 @@ async function seed() {
         ]
       },
       {
-        nombre: "Fuerza Base â€” Principiante E", ejDias: [
+        nombre: "Fuerza Base — Principiante E", ejDias: [
           { dia: "Lunes", series: 3, repeticiones: "10", carga: "Barra sola", ejKey: "Sentadilla Libre" },
           { dia: "Lunes", series: 3, repeticiones: "10", carga: "40kg", ejKey: "Press de Banca Plano" },
           { dia: "Lunes", series: 3, repeticiones: "10", carga: "50kg", ejKey: "Peso Muerto Convencional" },
@@ -974,7 +974,7 @@ async function seed() {
     console.log(`   âœ… Rutinas creadas: 4 para cliente_dev (PPL x3 + plantilla) + ${clientesDevAsignados.length} para sus alumnos`);
 
     // =========================================================
-    // 10.5 REGISTRO DE PROGRESO HISTÃ“RICO (3 meses, cliente_dev)
+    // 10.5 REGISTRO DE PROGRESO HISTÓRICO (3 meses, cliente_dev)
     // =========================================================
     console.log("ðŸ“Š Generando historial de progreso para cliente_dev (3 meses)...");
 
