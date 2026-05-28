@@ -5,7 +5,7 @@ import axios from '../../../api/axios';
 const INITIAL_STATE = {
     nombre: '',
     rut: '',
-    telefono: '',
+    telefono: '+56',
     direccion: '',
     cargo: 'Administrador',
     turno: 'Mañana',
@@ -71,6 +71,7 @@ export function StaffModal({ isOpen, onClose, staffToEdit, onSave }) {
                 setFormData({
                     ...INITIAL_STATE,
                     ...staffToEdit,
+                    telefono: staffToEdit.telefono || '+56',
                     sueldo_base: staffToEdit.sueldo_base ? Number(staffToEdit.sueldo_base) : 0,
                     email: staffToEdit.email || '',
                     password: ''
@@ -87,25 +88,58 @@ export function StaffModal({ isOpen, onClose, staffToEdit, onSave }) {
 
     const validateForm = () => {
         const newErrors = {};
-        if (!formData.nombre.trim()) newErrors.nombre = "El nombre es obligatorio";
+
+        // --- NOMBRE (obligatorio, min 2 palabras, cada una con min 2 letras) ---
+        const nombreTrimmed = formData.nombre.trim();
+        if (!nombreTrimmed) {
+            newErrors.nombre = "El nombre es obligatorio";
+        } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/.test(nombreTrimmed)) {
+            newErrors.nombre = "El nombre solo puede contener letras y espacios";
+        } else {
+            const words = nombreTrimmed.split(/\s+/);
+            if (words.length < 2) newErrors.nombre = "Ingresa nombre y apellido";
+            else if (words.length > 4) newErrors.nombre = "Máximo 4 palabras";
+            else if (words.some(w => w.length < 2)) newErrors.nombre = "Cada palabra debe tener al menos 2 letras";
+        }
+
+        // --- RUT ---
         if (!formData.rut.trim()) newErrors.rut = "El RUT es obligatorio";
         else if (!isValidRut(formData.rut)) newErrors.rut = "RUT inválido (Dígito verificador incorrecto)";
 
-        if (formData.email) {
-            if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(formData.email)) {
-                newErrors.email = "Correo inválido";
-            } else if (formData.email.split("@")[0].length < 2) {
-                newErrors.email = "Usuario de correo muy corto";
+        // --- EMAIL (validación idéntica al Register) ---
+        if (formData.email && formData.email.trim()) {
+            const emailTrimmed = formData.email.trim();
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(emailTrimmed)) {
+                newErrors.email = "Formato de correo inválido";
+            } else if (emailTrimmed.split("@")[0].length < 2) {
+                newErrors.email = "Usuario de correo muy corto (mínimo 2 caracteres antes del @)";
+            } else {
+                const domain = emailTrimmed.split("@")[1];
+                if (!domain || !domain.includes(".") || domain.split(".").pop().length < 2) {
+                    newErrors.email = "El dominio del correo no es válido";
+                }
             }
         }
 
-        // Validación de teléfono
-        if (formData.telefono && formData.telefono.trim()) {
-            const tel = formData.telefono.trim();
-            if (tel.length > 12) {
-                newErrors.telefono = "El teléfono no puede superar 12 caracteres";
-            } else if (!/^\+?\d+$/.test(tel)) {
-                newErrors.telefono = "Solo se permite '+' al inicio y números";
+        // --- PASSWORD (si se proporciona, debe cumplir requisitos) ---
+        if (formData.password && formData.password.trim()) {
+            const pass = formData.password;
+            if (pass.length < 8) {
+                newErrors.password = "La contraseña debe tener al menos 8 caracteres";
+            } else if (!/[A-Z]/.test(pass)) {
+                newErrors.password = "Debe contener al menos una mayúscula";
+            } else if (!/\d/.test(pass)) {
+                newErrors.password = "Debe contener al menos un número";
+            } else if (!/[@$!%*?.&\-]/.test(pass)) {
+                newErrors.password = "Debe contener al menos un símbolo (@$!%*?.&-)";
+            }
+        }
+
+        // --- TELÉFONO ---
+        const tel = formData.telefono ? formData.telefono.trim() : '';
+        if (tel && tel !== '+56') {
+            if (!/^\+\d{8,15}$/.test(tel)) {
+                newErrors.telefono = "El teléfono debe iniciar con '+' y tener entre 8 y 15 números";
             }
         }
 
@@ -133,7 +167,7 @@ export function StaffModal({ isOpen, onClose, staffToEdit, onSave }) {
             if (plusCount > 1) {
                 cleaned = '+' + cleaned.replace(/\+/g, '');
             }
-            finalValue = cleaned.slice(0, 12);
+            finalValue = cleaned.slice(0, 16);
         } else if (field === 'sueldo_base') {
             finalValue = value.toString().replace(/\D/g, '');
         }
@@ -166,7 +200,7 @@ export function StaffModal({ isOpen, onClose, staffToEdit, onSave }) {
 
             if (!payload.email || payload.email.trim() === '') delete payload.email;
             if (!payload.password || payload.password.trim() === '') delete payload.password;
-            if (!payload.telefono || payload.telefono.trim() === '') delete payload.telefono;
+            if (!payload.telefono || payload.telefono.trim() === '' || payload.telefono.trim() === '+56') delete payload.telefono;
             if (!payload.direccion || payload.direccion.trim() === '') delete payload.direccion;
 
             delete payload.id;
@@ -217,7 +251,7 @@ export function StaffModal({ isOpen, onClose, staffToEdit, onSave }) {
                 <div className="px-6 py-4 border-b border-white/10 flex justify-between items-center bg-white/5 shrink-0">
                     <h3 className="text-xl font-bold text-white flex items-center gap-2">
                         <Briefcase className="text-gym-orange" size={20} />
-                        {staffToEdit ? 'Editar Staff' : 'Nuevo Colaborador'}
+                        {staffToEdit ? 'Editar Colaborador' : 'Nuevo Colaborador'}
                     </h3>
                     <button onClick={onClose} className="text-zinc-400 hover:text-white"><X /></button>
                 </div>
@@ -298,7 +332,8 @@ export function StaffModal({ isOpen, onClose, staffToEdit, onSave }) {
                                 {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email}</p>}
                             </div>
                             <div>
-                                <input type="text" placeholder={staffToEdit ? "Nueva Password (o vacía)" : "Password"} className={inputClass(null)} value={formData.password} onChange={e => handleChange('password', e.target.value)} />
+                                <input type="text" placeholder={staffToEdit ? "Nueva Password (o vacía)" : "Password"} className={inputClass(errors.password)} value={formData.password} onChange={e => handleChange('password', e.target.value)} />
+                                {errors.password && <p className="text-red-400 text-xs mt-1">{errors.password}</p>}
                             </div>
                         </div>
                         {staffToEdit && (

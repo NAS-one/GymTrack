@@ -11,6 +11,15 @@ export class ColaboradorModel {
     `;
   }
 
+  static async checkTelefonoExists(telefono, currentId = null) {
+    if (!telefono) return false;
+    const [existingStaff] = currentId 
+      ? await sql`SELECT id FROM staff WHERE telefono = ${telefono} AND id != ${currentId}`
+      : await sql`SELECT id FROM staff WHERE telefono = ${telefono}`;
+    const [existingTrainer] = await sql`SELECT id FROM entrenadores WHERE telefono = ${telefono}`;
+    return !!existingStaff || !!existingTrainer;
+  }
+
   static async create(input) {
     const { email, password, cargo, ...staffData } = input;
 

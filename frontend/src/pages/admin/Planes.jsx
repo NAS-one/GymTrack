@@ -118,14 +118,35 @@ export function Planes() {
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
                             {plans.map((plan) => (
-                                <div key={plan.id} className="bg-gym-card border border-white/5 rounded-2xl p-5 relative group hover:border-gym-orange/30 transition-all hover:-translate-y-1 shadow-lg flex flex-col">
-                                    <div className="absolute top-4 right-4 bg-white/5 px-2 py-1 rounded text-[10px] font-bold text-gym-gray border border-white/5 uppercase">
-                                        {plan.duracion_meses} {plan.duracion_meses === 1 ? 'Mes' : 'Meses'}
+                                <div key={plan.id} className={`bg-gym-card border rounded-2xl p-5 relative group transition-all hover:-translate-y-1 shadow-lg flex flex-col
+                                    ${plan.tipo_plan === 'oferta' ? 'border-orange-500/30 hover:border-orange-500' : 
+                                      plan.tipo_plan === 'estudiante' ? 'border-blue-500/30 hover:border-blue-500' : 
+                                      plan.tipo_plan === 'combo' ? 'border-emerald-500/30 hover:border-emerald-500' : 
+                                      'border-white/5 hover:border-gym-orange/30'}`}
+                                >
+                                    {/* Duración y Etiqueta de Tipo */}
+                                    <div className="absolute top-4 right-4 flex gap-2">
+                                        {plan.tipo_plan === 'oferta' && <span className="bg-orange-500/20 text-orange-400 px-2 py-1 rounded text-[9px] font-black uppercase border border-orange-500/30">🔥 Oferta</span>}
+                                        {plan.tipo_plan === 'estudiante' && <span className="bg-blue-500/20 text-blue-400 px-2 py-1 rounded text-[9px] font-black uppercase border border-blue-500/30">🎓 Convenio</span>}
+                                        {plan.tipo_plan === 'combo' && <span className="bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded text-[9px] font-black uppercase border border-emerald-500/30">⚡ Combo</span>}
+                                        
+                                        <div className="bg-white/5 px-2 py-1 rounded text-[10px] font-bold text-gym-gray border border-white/5 uppercase">
+                                            {plan.duracion_meses} {plan.duracion_meses === 1 ? 'Mes' : 'Meses'}
+                                        </div>
                                     </div>
-                                    <div className="mb-3">
+                                    
+                                    <div className="mb-3 pr-20">
                                         <h3 className="text-lg font-bold text-white">{plan.nombre}</h3>
-                                        <div className="flex items-baseline gap-1">
-                                            <span className="text-2xl font-bold text-gym-orange">${parseInt(plan.precio).toLocaleString()}</span>
+                                        <div className="flex flex-col">
+                                            {plan.precio_comparacion && plan.precio_comparacion > plan.precio && (
+                                                <div className="flex items-center gap-2 mb-0.5">
+                                                    <span className="text-xs text-zinc-500 line-through">${parseInt(plan.precio_comparacion).toLocaleString()}</span>
+                                                    <span className="bg-red-500/20 text-red-500 text-[10px] font-black px-1.5 py-0.5 rounded border border-red-500/30 shadow-[0_0_10px_rgba(239,68,68,0.2)]">
+                                                        -{Math.round((1 - plan.precio / plan.precio_comparacion) * 100)}%
+                                                    </span>
+                                                </div>
+                                            )}
+                                            <span className="text-3xl font-black text-gym-orange tracking-tight">${parseInt(plan.precio).toLocaleString()}</span>
                                         </div>
                                     </div>
 
@@ -134,9 +155,21 @@ export function Planes() {
                                         <Users size={14} /> {plan.usuarios_activos || 0} Activos
                                     </div>
 
-                                    <p className="text-xs text-gray-400 leading-relaxed mb-4 line-clamp-2 flex-1">
+                                    <p className="text-xs text-gray-400 leading-relaxed mb-3 line-clamp-2">
                                         {plan.descripcion || "Acceso a instalaciones."}
                                     </p>
+
+                                    {/* Beneficios Extra */}
+                                    {plan.beneficios_extra && plan.beneficios_extra.length > 0 && (
+                                        <div className="mb-4 space-y-1 flex-1">
+                                            {plan.beneficios_extra.map((ben, idx) => (
+                                                <div key={idx} className="text-[10px] text-emerald-400 flex items-center gap-1.5">
+                                                    <span className="w-1 h-1 bg-emerald-400 rounded-full"></span> {ben}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                    {(!plan.beneficios_extra || plan.beneficios_extra.length === 0) && <div className="flex-1"></div>}
 
                                     <div className="pt-3 border-t border-white/5 flex gap-2">
                                         {/* Botón Ver Detalle */}

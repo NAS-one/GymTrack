@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useCallback } from 'react';
-import { AlertTriangle, Info, Trash2, X, CheckCircle } from 'lucide-react';
+import { AlertTriangle, Info, Trash2, X, CheckCircle, LogOut } from 'lucide-react';
 
 const ConfirmContext = createContext();
 
@@ -54,6 +54,11 @@ export function ConfirmProvider({ children }) {
             icon: <Info size={24} className="text-blue-500" />,
             bgIcon: 'bg-blue-500/10',
             btnConfirm: 'bg-blue-600 hover:bg-blue-500 text-white shadow-[0_0_15px_rgba(59,130,246,0.3)]',
+        },
+        logout: {
+            icon: <LogOut size={24} className="text-red-500" />,
+            bgIcon: 'bg-red-500/10',
+            btnConfirm: 'bg-red-500 hover:bg-red-600 text-white shadow-[0_0_15px_rgba(239,68,68,0.3)]',
         }
     };
 

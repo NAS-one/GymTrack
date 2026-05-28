@@ -187,7 +187,7 @@ export function AdminLayout() {
             description: 'Tendrás que volver a ingresar tus credenciales para acceder al panel de control.',
             confirmText: 'Sí, salir',
             cancelText: 'Cancelar',
-            type: 'danger'
+            type: 'logout'
         });
 
         if (isConfirmed) {

@@ -118,9 +118,13 @@ CREATE TABLE planes (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     nombre VARCHAR(100) NOT NULL,
     precio INTEGER NOT NULL,
+    precio_comparacion INTEGER,
     duracion_meses INTEGER NOT NULL,
     descripcion TEXT,
     estado VARCHAR(20) DEFAULT 'active',
+    tipo_plan VARCHAR(50) DEFAULT 'regular',
+    requiere_validacion BOOLEAN DEFAULT false,
+    beneficios_extra JSONB DEFAULT '[]'::jsonb,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

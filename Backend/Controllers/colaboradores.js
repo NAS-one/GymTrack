@@ -29,6 +29,15 @@ export class ColaboradorController {
 
     try {
       const input = result.data;
+
+      // Check unique phone
+      if (input.telefono) {
+        const telefonoExiste = await this.ColaboradorModel.checkTelefonoExists(input.telefono);
+        if (telefonoExiste) {
+          return res.status(409).json({ error: "Este número de teléfono ya está registrado." });
+        }
+      }
+
       if (input.password)
         input.password = await bcrypt.hash(input.password, 10);
 
@@ -49,6 +58,15 @@ export class ColaboradorController {
 
     try {
       const input = result.data;
+
+      // Check unique phone
+      if (input.telefono) {
+        const telefonoExiste = await this.ColaboradorModel.checkTelefonoExists(input.telefono, id);
+        if (telefonoExiste) {
+          return res.status(409).json({ error: "Este número de teléfono ya está registrado por otro colaborador." });
+        }
+      }
+
       if (input.password)
         input.password = await bcrypt.hash(input.password, 10);
 

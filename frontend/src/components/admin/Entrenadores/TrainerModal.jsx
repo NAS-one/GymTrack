@@ -7,7 +7,7 @@ const INITIAL_STATE = {
   email: '',
   password: '123456',
   especialidad: 'Musculación',
-  telefono: '',
+  telefono: '+56',
   turno: 'Mañana',
   // Campos financieros nuevos
   modelo_contrato: 'sueldo_fijo',
@@ -75,7 +75,7 @@ export function TrainerModal({ isOpen, onClose, trainerToEdit, onSave }) {
           email: trainerToEdit.email || '',
           password: '',
           especialidad: trainerToEdit.especialidad || 'Musculación',
-          telefono: trainerToEdit.telefono || '',
+          telefono: trainerToEdit.telefono || '+56',
           turno: trainerToEdit.turno || 'Mañana',
           modelo_contrato: trainerToEdit.modelo_contrato || 'sueldo_fijo',
           sueldo_base: trainerToEdit.sueldo_base || 0,
@@ -93,25 +93,60 @@ export function TrainerModal({ isOpen, onClose, trainerToEdit, onSave }) {
 
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.nombre.trim()) newErrors.nombre = "Requerido";
-    if (!formData.rut.trim()) newErrors.rut = "Requerido";
-    else if (!isValidRut(formData.rut)) newErrors.rut = "Inválido";
 
-    if (!formData.email) {
-      newErrors.email = "El correo es obligatorio";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(formData.email)) {
-      newErrors.email = "Correo inválido";
-    } else if (formData.email.split("@")[0].length < 2) {
-      newErrors.email = "Usuario de correo muy corto";
+    // --- NOMBRE (obligatorio, min 2 palabras, cada una con min 2 letras) ---
+    const nombreTrimmed = formData.nombre.trim();
+    if (!nombreTrimmed) {
+      newErrors.nombre = "El nombre es obligatorio";
+    } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/.test(nombreTrimmed)) {
+      newErrors.nombre = "Solo letras y espacios";
+    } else {
+      const words = nombreTrimmed.split(/\s+/);
+      if (words.length < 2) newErrors.nombre = "Ingresa nombre y apellido";
+      else if (words.length > 4) newErrors.nombre = "Máximo 4 palabras";
+      else if (words.some(w => w.length < 2)) newErrors.nombre = "Cada palabra debe tener al menos 2 letras";
     }
 
-    // Validación de teléfono
-    if (formData.telefono && formData.telefono.trim()) {
-      const tel = formData.telefono.trim();
-      if (tel.length > 12) {
-        newErrors.telefono = "El teléfono no puede superar 12 caracteres";
-      } else if (!/^\+?\d+$/.test(tel)) {
-        newErrors.telefono = "Solo se permite '+' al inicio y números";
+    // --- RUT ---
+    if (!formData.rut.trim()) newErrors.rut = "El RUT es obligatorio";
+    else if (!isValidRut(formData.rut)) newErrors.rut = "RUT inválido";
+
+    // --- EMAIL (validación idéntica al Register) ---
+    if (!formData.email) {
+      newErrors.email = "El correo es obligatorio";
+    } else {
+      const emailTrimmed = formData.email.trim();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(emailTrimmed)) {
+        newErrors.email = "Formato de correo inválido";
+      } else if (emailTrimmed.split("@")[0].length < 2) {
+        newErrors.email = "Usuario de correo muy corto (mínimo 2 caracteres antes del @)";
+      } else {
+        const domain = emailTrimmed.split("@")[1];
+        if (!domain || !domain.includes(".") || domain.split(".").pop().length < 2) {
+          newErrors.email = "El dominio del correo no es válido";
+        }
+      }
+    }
+
+    // --- PASSWORD (solo al crear, debe cumplir requisitos de seguridad) ---
+    if (!trainerToEdit && formData.password) {
+      const pass = formData.password;
+      if (pass.length < 8) {
+        newErrors.password = "La contraseña debe tener al menos 8 caracteres";
+      } else if (!/[A-Z]/.test(pass)) {
+        newErrors.password = "Debe contener al menos una mayúscula";
+      } else if (!/\d/.test(pass)) {
+        newErrors.password = "Debe contener al menos un número";
+      } else if (!/[@$!%*?.&\-]/.test(pass)) {
+        newErrors.password = "Debe contener al menos un símbolo (@$!%*?.&-)";
+      }
+    }
+
+    // --- TELÉFONO ---
+    const tel = formData.telefono ? formData.telefono.trim() : '';
+    if (tel && tel !== '+56') {
+      if (!/^\+\d{8,15}$/.test(tel)) {
+        newErrors.telefono = "El teléfono debe iniciar con '+' y tener entre 8 y 15 números";
       }
     }
 
@@ -139,7 +174,7 @@ export function TrainerModal({ isOpen, onClose, trainerToEdit, onSave }) {
       if (plusCount > 1) {
         cleaned = '+' + cleaned.replace(/\+/g, '');
       }
-      finalValue = cleaned.slice(0, 12);
+      finalValue = cleaned.slice(0, 16);
     } else if (field === 'sueldo_base' || field === 'tarifa_arriendo') {
       finalValue = value.toString().replace(/\D/g, '');
     } else if (field === 'porcentaje_retencion') {
@@ -171,6 +206,7 @@ export function TrainerModal({ isOpen, onClose, trainerToEdit, onSave }) {
 
         const payload = {
           ...formData,
+          telefono: formData.telefono === '+56' ? '' : formData.telefono,
           sueldo_base: formData.sueldo_base === '' ? 0 : parseInt(formData.sueldo_base, 10),
           tarifa_arriendo: formData.tarifa_arriendo === '' ? 0 : parseInt(formData.tarifa_arriendo, 10),
           porcentaje_retencion: formData.porcentaje_retencion === '' ? 0 : parseFloat(formData.porcentaje_retencion)
@@ -198,7 +234,7 @@ export function TrainerModal({ isOpen, onClose, trainerToEdit, onSave }) {
       <div className="bg-gym-card border border-white/10 w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto custom-scrollbar">
 
         <div className="px-6 py-4 border-b border-white/10 flex justify-between items-center bg-white/5">
-          <h3 className="text-xl font-bold text-white">{trainerToEdit ? 'Editar Entrenador' : 'Nuevo Entrenador'}</h3>
+          <h3 className="text-xl font-bold text-white">{trainerToEdit ? 'Editar Colaborador' : 'Nuevo Entrenador'}</h3>
           <button onClick={onClose} className="text-gym-gray hover:text-white"><X size={24} /></button>
         </div>
 
@@ -258,7 +294,12 @@ export function TrainerModal({ isOpen, onClose, trainerToEdit, onSave }) {
           </div>
 
           {!trainerToEdit && (
-            <div><Label text="Password Inicial" /><input type="text" className={inputClass()} value={formData.password} onChange={e => handleChange('password', e.target.value)} /></div>
+            <div>
+              <Label text="Password Inicial" />
+              <input type="text" className={inputClass(errors.password)} value={formData.password} onChange={e => handleChange('password', e.target.value)} />
+              {errors.password && <p className="text-red-400 text-xs mt-1">{errors.password}</p>}
+              <p className="text-zinc-600 text-[10px] mt-1">Mín. 8 chars, 1 mayúscula, 1 número, 1 símbolo</p>
+            </div>
           )}
 
           <hr className="border-white/5 my-2" />
