@@ -211,3 +211,49 @@ export const sendRegistrationCodeEmail = async (userEmail, userName, code, planI
         return false;
     }
 };
+
+// Enviar código de recuperación de contraseña
+export const sendPasswordResetCodeEmail = async (userEmail, code) => {
+    const mailOptions = {
+        from: `"GymTrack Seguridad" <${process.env.EMAIL_USER}>`,
+        to: userEmail,
+        subject: "Código de Recuperación de Contraseña - GymTrack",
+        html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #0c0c0e; color: #ffffff; border-radius: 10px; border: 1px solid #333;">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <h1 style="color: #f97316; margin-bottom: 5px; font-size: 28px;">GymTrack</h1>
+                    <p style="color: #a1a1aa; font-size: 14px; margin-top: 0;">Recuperación de Contraseña</p>
+                </div>
+                
+                <h2 style="color: #ffffff; text-align: center; margin-bottom: 5px;">Restablecer tu contraseña</h2>
+                <p style="text-align: center; color: #a1a1aa; font-size: 14px; margin-top: 5px;">Recibimos una solicitud para restablecer la contraseña de tu cuenta.</p>
+                
+                <p style="margin-top: 25px; color: #d4d4d8;">Ingresa el siguiente código de 6 dígitos en la pantalla de recuperación:</p>
+                
+                <div style="text-align: center; margin: 30px 0;">
+                    <span style="font-size: 36px; letter-spacing: 12px; background-color: #f97316; color: #ffffff; padding: 15px 20px; border-radius: 10px; font-weight: bold; font-family: monospace;">
+                        ${code}
+                    </span>
+                </div>
+                
+                <p style="color: #ef4444; font-size: 12px; text-align: center; font-weight: bold;">⚠️ Este código expirará en 5 minutos.</p>
+                
+                <hr style="border-color: #27272a; margin: 30px 0;" />
+                
+                <div style="text-align: center;">
+                    <p style="font-size: 13px; color: #a1a1aa;">📍 GymTrack Fitness — Osorno</p>
+                    <p style="font-size: 11px; color: #71717a;">Si no solicitaste este cambio, ignora este correo. Tu contraseña no será modificada.</p>
+                </div>
+            </div>
+        `,
+    };
+
+    try {
+        const info = await transporter.sendMail(mailOptions);
+        console.log("Correo de recuperación enviado a:", userEmail, "ID:", info.messageId);
+        return true;
+    } catch (error) {
+        console.error("Error al enviar correo de recuperación:", error);
+        return false;
+    }
+};

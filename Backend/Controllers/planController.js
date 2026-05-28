@@ -18,8 +18,10 @@ export class PlanController {
 
   create = async (req, res) => {
     const result = validatePlan(req.body);
-    if (!result.success)
-      return res.status(400).json(JSON.parse(result.error.message));
+    if (!result.success) {
+      const firstError = result.error.errors[0]?.message || "Datos inválidos";
+      return res.status(400).json({ error: firstError });
+    }
 
     try {
       const newPlan = await this.PlanModel.create(result.data);
@@ -33,8 +35,10 @@ export class PlanController {
   update = async (req, res) => {
     const { id } = req.params;
     const result = validatePartialPlan(req.body);
-    if (!result.success)
-      return res.status(400).json(JSON.parse(result.error.message));
+    if (!result.success) {
+      const firstError = result.error.errors[0]?.message || "Datos inválidos";
+      return res.status(400).json({ error: firstError });
+    }
 
     try {
       const updatedPlan = await this.PlanModel.update({

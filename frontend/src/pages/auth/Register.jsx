@@ -46,6 +46,7 @@ function calcAge(dateStr) {
 const passwordReqs = [
   { id: "len", text: "Mínimo 8 caracteres", test: p => p.length >= 8 },
   { id: "let", text: "Contiene letras", test: p => /[A-Za-z]/.test(p) },
+  { id: "upp", text: "Una mayúscula", test: p => /[A-Z]/.test(p) },
   { id: "num", text: "Al menos un número", test: p => /\d/.test(p) },
   { id: "sym", text: "Un símbolo (@$!%*?.&-)", test: p => /[@$!%*?.&\-]/.test(p) },
 ];
@@ -225,6 +226,7 @@ export function Register() {
     { num: 1, label: "Tu Gimnasio", icon: <MapPin size={14}/> },
     { num: 2, label: "Tus Datos", icon: <User size={14}/> },
     { num: 3, label: "Membresía", icon: <CreditCard size={14}/> },
+    { num: 4, label: "Activar Cuenta", icon: <CheckCircle2 size={14}/> },
   ];
 
   const fieldStyle = (name) => ({ width:"100%", background:"rgba(9,9,11,0.6)", border:`1px solid ${errors[name] ? "#ef4444" : "rgba(63,63,70,0.5)"}`, borderRadius:"10px", padding:"12px 14px", color:"#fff", fontSize:"14px", outline:"none", fontFamily:"'Inter',sans-serif", boxSizing:"border-box", transition:"border-color 0.2s" });
@@ -268,7 +270,7 @@ export function Register() {
                 <div style={{ display:"flex", alignItems:"center", gap:"5px", padding:"6px 14px", borderRadius:"20px", fontSize:"12px", fontWeight:"600", background: step >= s.num ? "rgba(249,115,22,0.12)" : "transparent", color: step >= s.num ? "#f97316" : "#52525b", border: step === s.num ? "1px solid rgba(249,115,22,0.3)" : "1px solid transparent" }}>
                   <span style={{ fontSize:"10px", fontWeight:"700" }}>0{s.num}</span> {s.label}
                 </div>
-                {i < 2 && <div style={{ width:"32px", height:"1px", background: step > s.num ? "#f97316" : "rgba(63,63,70,0.4)" }} />}
+                {i < steps.length - 1 && <div style={{ width:"32px", height:"1px", background: step > s.num ? "#f97316" : "rgba(63,63,70,0.4)" }} />}
               </div>
             ))}
             <button onClick={() => navigate("/")} style={{ marginLeft:"auto", background:"none", border:"none", color:"#52525b", cursor:"pointer", padding:"4px" }}><X size={20}/></button>
@@ -330,7 +332,7 @@ export function Register() {
                 {/* Nombre */}
                 <div>
                   <label style={labelStyle}>Nombre Completo</label>
-                  <input className="reg-input" style={fieldStyle("nombre")} placeholder="Nombre Apellido" value={form.nombre} onChange={e => set("nombre", e.target.value)} />
+                  <input className="reg-input" style={fieldStyle("nombre")} placeholder="Nombre Apellido" value={form.nombre} onChange={e => set("nombre", e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, ""))} />
                   {errors.nombre && <p style={errStyle}>{errors.nombre}</p>}
                 </div>
                 {/* RUT */}
@@ -451,15 +453,15 @@ export function Register() {
 
             {/* ═══ STEP 4: OTP Verification ═══ */}
             {step === 4 && (
-              <div style={{ display:"flex", flexDirection:"column", gap:"14px", alignItems:"center" }}>
-                <div style={{ textAlign:"center", marginBottom:"10px" }}>
+              <div style={{ display:"flex", flexDirection:"column", gap:"14px", alignItems:"flex-start" }}>
+                <div style={{ textAlign:"left", marginBottom:"10px" }}>
                   <p style={{ fontSize:"14px", color:"#a1a1aa", margin:"0 0 8px 0" }}>
                     Enviamos un código de 6 dígitos a:
                   </p>
                   
                   {isEditingEmail ? (
-                    <div style={{ display:"flex", gap:"8px", justifyContent:"center" }}>
-                      <input className="reg-input" style={{...fieldStyle("email"), width:"220px", padding:"8px 12px", textAlign:"center"}} value={newEmail} onChange={e => setNewEmail(e.target.value)} placeholder="Nuevo correo" />
+                    <div style={{ display:"flex", gap:"8px", justifyContent:"flex-start" }}>
+                      <input className="reg-input" style={{...fieldStyle("email"), width:"220px", padding:"8px 12px"}} value={newEmail} onChange={e => setNewEmail(e.target.value)} placeholder="Nuevo correo" />
                       <button onClick={handleResendOTP} disabled={loading} style={{ background:"#f97316", color:"#fff", border:"none", borderRadius:"8px", padding:"0 12px", fontSize:"12px", fontWeight:"600", cursor:"pointer" }}>
                         Guardar
                       </button>
@@ -468,7 +470,7 @@ export function Register() {
                       </button>
                     </div>
                   ) : (
-                    <div style={{ display:"flex", alignItems:"center", gap:"8px", justifyContent:"center" }}>
+                    <div style={{ display:"flex", alignItems:"center", gap:"8px", justifyContent:"flex-start" }}>
                       <span style={{ fontSize:"16px", fontWeight:"700", color:"#fff" }}>{registeredEmail}</span>
                       <button onClick={() => { setIsEditingEmail(true); setNewEmail(registeredEmail); }} style={{ background:"none", border:"none", color:"#f97316", fontSize:"12px", textDecoration:"underline", cursor:"pointer" }}>
                         Editar
@@ -480,7 +482,7 @@ export function Register() {
                 <div style={{ width: "100%", maxWidth: "300px" }}>
                   <input
                     className="reg-input"
-                    style={{...fieldStyle("otpCode"), fontSize:"24px", letterSpacing:"8px", textAlign:"center", padding:"16px"}}
+                    style={{...fieldStyle("otpCode"), fontSize:"24px", letterSpacing:"8px", textAlign:"left", padding:"16px"}}
                     placeholder="••••••"
                     value={otpCode}
                     onChange={e => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
