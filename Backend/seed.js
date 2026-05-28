@@ -759,7 +759,34 @@ async function seed() {
       { nombre: "Sentadilla Búlgara", grupo_muscular: "Piernas", url_video: "https://youtu.be/2C-uNgKwPLE", descripcion: "Sentadilla unilateral con pie posterior elevado. Máximo estímulo para cuádriceps y glúteo. Corrige desequilibrios laterales." },
       { nombre: "Déficit Push-Up", grupo_muscular: "Pecho", url_video: "https://youtu.be/9GkGXuJMdrg", descripcion: "Flexión de brazos con rango de movimiento extendido usando plataformas. Máximo estiramiento del pectoral menor y mayor." },
     ];
-    await sql`INSERT INTO ejercicios ${sql(ejerciciosDb, "nombre", "grupo_muscular", "url_video", "descripcion")}`;
+
+    try {
+      const fs = await import('fs');
+      const path = await import('path');
+      const url = await import('url');
+      const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
+      const translatedExercisesPath = path.join(__dirname, 'ejercicios_100_traducidos.json');
+      if (fs.existsSync(translatedExercisesPath)) {
+        const translatedExercises = JSON.parse(fs.readFileSync(translatedExercisesPath, 'utf8'));
+        console.log(`💪 Agregando ${translatedExercises.length} ejercicios adicionales desde el archivo JSON...`);
+        const existingNames = new Set(ejerciciosDb.map(e => e.nombre));
+        for (const ex of translatedExercises) {
+          if (!existingNames.has(ex.nombre)) {
+            ejerciciosDb.push({
+              nombre: ex.nombre,
+              grupo_muscular: ex.grupo_muscular,
+              url_video: ex.url_video,
+              descripcion: ex.descripcion
+            });
+            existingNames.add(ex.nombre);
+          }
+        }
+      }
+    } catch(err) {
+      console.error("Error al cargar ejercicios adicionales:", err.message);
+    }
+
+    await sql`INSERT INTO ejercicios ${sql(ejerciciosDb, "nombre", "grupo_muscular", "url_video", "descripcion")} ON CONFLICT (nombre) DO NOTHING`;
     // Mapa por nombre para referenciarlos en rutinas
     const ejDB = await sql`SELECT id, nombre FROM ejercicios`;
     const ej = {};
