@@ -7,13 +7,17 @@ const planSchema = z.object({
     .min(2, { message: "El nombre debe tener al menos 2 letras" }),
   precio: z.coerce
     .number()
-    .min(9990, { message: "El precio mínimo es $9.990" }),
+    .min(6750, { message: "El precio mínimo es $6.750 (Máx. 85% desc.)" }),
   duracion_meses: z.coerce
     .number()
     .int()
     .min(1, { message: "Mínimo 1 mes de duración" })
-    .max(12, { message: "Máximo 12 meses de duración" }),
+    .max(36, { message: "Máximo 36 meses de duración" }),
   descripcion: z.string().trim().optional(),
+  precio_comparacion: z.coerce.number().optional().nullable(),
+  tipo_plan: z.enum(['regular', 'oferta', 'estudiante', 'combo']).default('regular'),
+  requiere_validacion: z.boolean().default(false),
+  beneficios_extra: z.array(z.string()).default([]),
 });
 
 export function validatePlan(input) {

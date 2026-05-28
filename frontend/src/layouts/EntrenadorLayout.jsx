@@ -103,7 +103,7 @@ export function EntrenadorLayout() {
         "Tendrás que volver a ingresar tus credenciales para acceder al panel.",
       confirmText: "Sí, salir",
       cancelText: "Cancelar",
-      type: "danger",
+      type: "logout",
     });
 
     if (isConfirmed) {

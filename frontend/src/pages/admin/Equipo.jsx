@@ -137,7 +137,7 @@ export function Equipo() {
                     onClick={handleOpenCreate}
                     className="bg-gym-orange hover:bg-orange-600 text-white px-4 py-2.5 rounded-xl font-medium flex items-center gap-2 transition-all shadow-lg shadow-orange-500/20"
                 >
-                    <Plus size={20} /> Nuevo {activeTab === 'entrenadores' ? 'Entrenador' : 'Colaborador'}
+                    <Plus size={20} /> {activeTab === 'entrenadores' ? 'Nuevo Entrenador' : 'Nuevo Colaborador'}
                 </button>
             </div>
 

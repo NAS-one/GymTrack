@@ -19,10 +19,13 @@ export class PlanModel {
 
   // 2. Crear
   static async create(input) {
-    const { nombre, precio, duracion_meses, descripcion } = input;
+    const { 
+      nombre, precio, duracion_meses, descripcion, 
+      tipo_plan = 'regular', requiere_validacion = false, beneficios_extra = [], precio_comparacion = null 
+    } = input;
     const [plan] = await sql`
-      INSERT INTO planes (nombre, precio, duracion_meses, descripcion)
-      VALUES (${nombre}, ${precio}, ${duracion_meses}, ${descripcion})
+      INSERT INTO planes (nombre, precio, duracion_meses, descripcion, tipo_plan, requiere_validacion, beneficios_extra, precio_comparacion)
+      VALUES (${nombre}, ${precio}, ${duracion_meses}, ${descripcion}, ${tipo_plan}, ${requiere_validacion}, ${sql.json(beneficios_extra)}, ${precio_comparacion})
       RETURNING *
     `;
     return plan;
@@ -30,16 +33,24 @@ export class PlanModel {
 
   // 3. Actualizar
   static async update({ id, input }) {
-    const { nombre, precio, duracion_meses, descripcion } = input;
+    const { 
+      nombre, precio, duracion_meses, descripcion,
+      tipo_plan, requiere_validacion, beneficios_extra, precio_comparacion
+    } = input;
 
     // Solo actualizamos si hay datos (COALESCE mantiene el valor anterior si viene null)
+    // Para beneficios_extra, si viene, lo parseamos como JSON
     const [plan] = await sql`
       UPDATE planes 
       SET 
         nombre = COALESCE(${nombre}, nombre),
         precio = COALESCE(${precio}, precio),
         duracion_meses = COALESCE(${duracion_meses}, duracion_meses),
-        descripcion = COALESCE(${descripcion}, descripcion)
+        descripcion = COALESCE(${descripcion}, descripcion),
+        tipo_plan = COALESCE(${tipo_plan}, tipo_plan),
+        requiere_validacion = COALESCE(${requiere_validacion}, requiere_validacion),
+        beneficios_extra = COALESCE(${beneficios_extra ? sql.json(beneficios_extra) : null}, beneficios_extra),
+        precio_comparacion = ${precio_comparacion !== undefined ? precio_comparacion : sql`precio_comparacion`}
       WHERE id = ${id}
       RETURNING *
     `;
