@@ -9,6 +9,7 @@ import { useConfirm } from '../../contexts/ConfirmContext';
 export function Planes() {
     const confirm = useConfirm();
     const [plans, setPlans] = useState([]);
+    const [archivedPlans, setArchivedPlans] = useState([]);
     const [loading, setLoading] = useState(true);
 
     // Modales
@@ -22,9 +23,14 @@ export function Planes() {
     const fetchPlans = async () => {
         try {
             setLoading(true);
-            const res = await axios.get('/planes');
+            const [res, archivedRes] = await Promise.all([
+                axios.get('/planes'),
+                axios.get('/planes/archived')
+            ]);
             const data = res.data.body || [];
+            const archivedData = archivedRes.data.body || [];
             setPlans(data);
+            setArchivedPlans(archivedData);
             calculateStats(data);
         } catch (e) {
             console.error("Error fetching plans:", e);
@@ -76,19 +82,35 @@ export function Planes() {
         }
     };
 
-    const handleDelete = async (id) => {
+    const handleDelete = async (plan) => {
+        const isLastPlan = plans.length <= 1;
+        if (isLastPlan) {
+            toast.error('No se puede eliminar el último plan', {
+                description: 'Debe existir al menos 1 plan activo en el sistema.'
+            });
+            return;
+        }
+
+        const activeUsersCount = Number(plan.usuarios_activos) || 0;
+        let warningText = 'Esta acción no se puede deshacer. ';
+        if (activeUsersCount > 0) {
+            warningText += `¡ATENCIÓN! Este plan tiene ${activeUsersCount} usuarios activos. Sus membresías se mantendrán vigentes hasta su fecha de vencimiento, pero no podrán renovar este plan.`;
+        } else {
+            warningText += 'Los socios activos con este plan conservarán su membresía hasta el vencimiento.';
+        }
+
         const isConfirmed = await confirm({
-            title: '¿Eliminar Plan?',
-            description: 'Esta acción no se puede deshacer. Los socios activos con este plan conservarán su membresía hasta el vencimiento.',
-            confirmText: 'Sí, eliminar',
+            title: '¿Archivar Plan?',
+            description: warningText,
+            confirmText: 'Sí, archivar',
             cancelText: 'Cancelar',
             type: 'danger'
         });
         if (!isConfirmed) return;
         try {
-            await axios.delete(`/planes/${id}`);
+            await axios.delete(`/planes/${plan.id}`);
             fetchPlans();
-            toast.success('Plan eliminado correctamente');
+            toast.success('Plan archivado correctamente');
         } catch (e) {
             const mensajeError = e.response?.data?.error || 'Error al eliminar el plan.';
             toast.error('Error', { description: mensajeError });
@@ -124,19 +146,20 @@ export function Planes() {
                                       plan.tipo_plan === 'combo' ? 'border-emerald-500/30 hover:border-emerald-500' : 
                                       'border-white/5 hover:border-gym-orange/30'}`}
                                 >
-                                    {/* Duración y Etiqueta de Tipo */}
-                                    <div className="absolute top-4 right-4 flex gap-2">
-                                        {plan.tipo_plan === 'oferta' && <span className="bg-orange-500/20 text-orange-400 px-2 py-1 rounded text-[9px] font-black uppercase border border-orange-500/30">🔥 Oferta</span>}
-                                        {plan.tipo_plan === 'estudiante' && <span className="bg-blue-500/20 text-blue-400 px-2 py-1 rounded text-[9px] font-black uppercase border border-blue-500/30">🎓 Convenio</span>}
-                                        {plan.tipo_plan === 'combo' && <span className="bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded text-[9px] font-black uppercase border border-emerald-500/30">⚡ Combo</span>}
+                                    <div className="mb-3">
+                                        <h3 className="text-lg font-bold text-white truncate" title={plan.nombre}>{plan.nombre}</h3>
                                         
-                                        <div className="bg-white/5 px-2 py-1 rounded text-[10px] font-bold text-gym-gray border border-white/5 uppercase">
-                                            {plan.duracion_meses} {plan.duracion_meses === 1 ? 'Mes' : 'Meses'}
+                                        {/* Duración y Etiqueta de Tipo (Debajo del nombre para que no choquen) */}
+                                        <div className="flex gap-2 mt-1 mb-2">
+                                            {plan.tipo_plan === 'oferta' && <span className="bg-orange-500/20 text-orange-400 px-2 py-1 rounded text-[9px] font-black uppercase border border-orange-500/30">🔥 Oferta</span>}
+                                            {plan.tipo_plan === 'estudiante' && <span className="bg-blue-500/20 text-blue-400 px-2 py-1 rounded text-[9px] font-black uppercase border border-blue-500/30">🎓 Convenio</span>}
+                                            {plan.tipo_plan === 'combo' && <span className="bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded text-[9px] font-black uppercase border border-emerald-500/30">⚡ Combo</span>}
+                                            
+                                            <div className="bg-white/5 px-2 py-1 rounded text-[10px] font-bold text-gym-gray border border-white/5 uppercase">
+                                                {plan.duracion_meses} {plan.duracion_meses === 1 ? 'Mes' : 'Meses'}
+                                            </div>
                                         </div>
-                                    </div>
-                                    
-                                    <div className="mb-3 pr-20">
-                                        <h3 className="text-lg font-bold text-white">{plan.nombre}</h3>
+
                                         <div className="flex flex-col">
                                             {plan.precio_comparacion && plan.precio_comparacion > plan.precio && (
                                                 <div className="flex items-center gap-2 mb-0.5">
@@ -146,7 +169,7 @@ export function Planes() {
                                                     </span>
                                                 </div>
                                             )}
-                                            <span className="text-3xl font-black text-gym-orange tracking-tight">${parseInt(plan.precio).toLocaleString()}</span>
+                                            <span className="text-2xl font-black text-gym-orange tracking-tight truncate w-full" title={`$${parseInt(plan.precio).toLocaleString()}`}>${parseInt(plan.precio).toLocaleString()}</span>
                                         </div>
                                     </div>
 
@@ -184,7 +207,7 @@ export function Planes() {
                                         <button onClick={() => { setSelectedPlan(plan); setIsModalOpen(true); }} className="flex-1 py-1.5 bg-white/5 hover:bg-white/10 rounded-lg text-xs font-bold text-white transition-colors uppercase">
                                             Editar
                                         </button>
-                                        <button onClick={() => handleDelete(plan.id)} className="p-1.5 hover:bg-red-500/10 text-gym-gray hover:text-red-500 rounded-lg transition-colors">
+                                        <button onClick={() => handleDelete(plan)} className="p-1.5 hover:bg-red-500/10 text-gym-gray hover:text-red-500 rounded-lg transition-colors">
                                             <Trash2 size={18} />
                                         </button>
                                     </div>
@@ -235,6 +258,29 @@ export function Planes() {
                             <p className="text-xs text-gym-gray mt-1">Mayor preferencia actual</p>
                         </div>
                     </div>
+
+                    {/* KPI 3: Planes Archivados */}
+                    {archivedPlans.length > 0 && (
+                        <div className="bg-gym-card border border-white/10 rounded-2xl p-5">
+                            <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
+                                <Trash2 size={16} className="text-red-500" /> Planes Archivados
+                            </h3>
+                            <div className="space-y-3">
+                                {archivedPlans.map(plan => (
+                                    <div key={plan.id} className="p-3 bg-red-500/5 border border-red-500/10 rounded-xl space-y-2">
+                                        <div className="flex justify-between items-start">
+                                            <span className="text-sm font-bold text-white truncate pr-2">{plan.nombre}</span>
+                                            <span className="text-xs text-zinc-500 font-mono">${parseInt(plan.precio).toLocaleString()}</span>
+                                        </div>
+                                        <div className="flex justify-between text-xs">
+                                            <span className="text-red-400">{plan.usuarios_activos_restantes || 0} activos</span>
+                                            <span className="text-zinc-500">{plan.total_membresias_historicas || 0} históricas</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
 
                 </div>
             </div>
