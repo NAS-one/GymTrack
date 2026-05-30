@@ -5,13 +5,13 @@ const INITIAL_STATE = {
   nombre: '',
   rut: '',
   email: '',
-  password: '123456',
+  password: 'Gym2026!',
   especialidad: 'Musculación',
   telefono: '+56',
   turno: 'Mañana',
   // Campos financieros nuevos
   modelo_contrato: 'sueldo_fijo',
-  sueldo_base: 400000,
+  sueldo_base: 270000,
   porcentaje_retencion: 0.30,
   tarifa_arriendo: 0
 };
@@ -157,6 +157,17 @@ export function TrainerModal({ isOpen, onClose, trainerToEdit, onSave }) {
   const handleChange = (field, value) => {
     setGeneralError(null);
     let finalValue = value;
+
+    if (field === 'turno') {
+      const minSalary = value === 'Full Time' ? 539000 : 270000;
+      setFormData(prev => ({ 
+        ...prev, 
+        turno: value,
+        sueldo_base: prev.sueldo_base < minSalary ? minSalary : prev.sueldo_base
+      }));
+      if (errors.turno) setErrors(prev => ({ ...prev, turno: null }));
+      return;
+    }
 
     if (field === 'rut') {
       finalValue = formatRut(value);
@@ -334,7 +345,9 @@ export function TrainerModal({ isOpen, onClose, trainerToEdit, onSave }) {
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400">$</span>
                     <input type="number" className={`${inputClass()} pl-8`} value={formData.sueldo_base} onChange={e => handleChange('sueldo_base', e.target.value)} />
                   </div>
-                  <p className="text-[10px] text-zinc-500 mt-2">Gasto fijo mensual para el gimnasio.</p>
+                  <p className="text-[10px] text-zinc-500 mt-2">
+                    Mínimo legal: ${formData.turno === 'Full Time' ? '539.000 (Full Time)' : '270.000 (Media Jornada)'}. Gasto fijo mensual para el gimnasio.
+                  </p>
                 </div>
               )}
 

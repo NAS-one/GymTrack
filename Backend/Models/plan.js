@@ -57,7 +57,25 @@ export class PlanModel {
     return plan;
   }
 
-  // 4. Eliminar (Soft Delete)
+  // 4. Contar planes activos
+  static async countActivePlans() {
+    const [result] = await sql`
+      SELECT COUNT(*)::int as total FROM planes WHERE estado = 'active'
+    `;
+    return result.total;
+  }
+
+  // 5. Contar usuarios activos en un plan
+  static async getUsersOnPlan({ id }) {
+    const [result] = await sql`
+      SELECT COUNT(*)::int as total 
+      FROM membresias m 
+      WHERE m.id_plan = ${id} AND m.estado = 'active'
+    `;
+    return result.total;
+  }
+
+  // 6. Eliminar (Soft Delete) — con validaciones
   static async delete({ id }) {
     const [plan] = await sql`
       UPDATE planes SET estado = 'inactive' WHERE id = ${id} RETURNING id
@@ -65,7 +83,34 @@ export class PlanModel {
     return !!plan;
   }
 
-  // 5. OBTENER DETALLE PROFUNDO (Para el Modal)
+  // 7. Obtener planes archivados (inactivos) con info histórica
+  static async getArchived() {
+    return await sql`
+      SELECT 
+        p.*,
+        (
+          SELECT COUNT(*)::int 
+          FROM membresias m 
+          WHERE m.id_plan = p.id
+        ) as total_membresias_historicas,
+        (
+          SELECT COUNT(*)::int 
+          FROM membresias m 
+          WHERE m.id_plan = p.id AND m.estado = 'active'
+        ) as usuarios_activos_restantes,
+        (
+          SELECT COALESCE(SUM(pg.monto), 0)::int 
+          FROM pagos pg
+          JOIN membresias m ON pg.id_membresia = m.id
+          WHERE m.id_plan = p.id
+        ) as ingresos_historicos
+      FROM planes p
+      WHERE p.estado = 'inactive' 
+      ORDER BY p.nombre ASC
+    `;
+  }
+
+  // 8. OBTENER DETALLE PROFUNDO (Para el Modal)
   static async getStats({ id }) {
     try {
       const [stats, ingresos, clientes] = await Promise.all([
@@ -115,3 +160,4 @@ export class PlanModel {
     }
   }
 }
+

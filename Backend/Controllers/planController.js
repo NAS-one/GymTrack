@@ -57,10 +57,18 @@ export class PlanController {
   delete = async (req, res) => {
     const { id } = req.params;
     try {
+      // Verificar que no sea el último plan activo
+      const activePlans = await this.PlanModel.countActivePlans();
+      if (activePlans <= 1) {
+        return res.status(400).json({ 
+          error: "No se puede eliminar el último plan activo. Debe existir al menos 1 plan en el sistema." 
+        });
+      }
+
       const deleted = await this.PlanModel.delete({ id });
       if (!deleted) return error(req, res, "Plan no encontrado", 404);
 
-      success(req, res, { message: "Plan eliminado correctamente" }, 200);
+      success(req, res, { message: "Plan archivado correctamente. Las membresías activas se mantienen hasta su vencimiento." }, 200);
     } catch (e) {
       console.error(e);
       error(req, res, "Error al eliminar plan", 500);
@@ -76,4 +84,15 @@ export class PlanController {
       res.status(500).json({ error: "Error al cargar estadísticas del plan" });
     }
   };
+
+  getArchived = async (req, res) => {
+    try {
+      const archived = await this.PlanModel.getArchived();
+      success(req, res, archived, 200);
+    } catch (e) {
+      console.error(e);
+      error(req, res, "Error al obtener planes archivados", 500);
+    }
+  };
 }
+

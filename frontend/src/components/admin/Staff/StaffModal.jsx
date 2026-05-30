@@ -9,7 +9,7 @@ const INITIAL_STATE = {
     direccion: '',
     cargo: 'Administrador',
     turno: 'Mañana',
-    sueldo_base: 460000,
+    sueldo_base: 270000,
     email: '',
     password: ''
 };
@@ -150,6 +150,17 @@ export function StaffModal({ isOpen, onClose, staffToEdit, onSave }) {
     const handleChange = (field, value) => {
         setGeneralError(null);
         let finalValue = value;
+
+        if (field === 'turno') {
+            const minSalary = value === 'Full Time' ? 539000 : 270000;
+            setFormData(prev => ({ 
+                ...prev, 
+                turno: value,
+                sueldo_base: prev.sueldo_base < minSalary ? minSalary : prev.sueldo_base
+            }));
+            if (errors.turno) setErrors(prev => ({ ...prev, turno: null }));
+            return;
+        }
 
         if (field === 'rut') {
             finalValue = formatRut(value);
@@ -318,6 +329,9 @@ export function StaffModal({ isOpen, onClose, staffToEdit, onSave }) {
                             <DollarSign size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
                             <input type="text" className={`${inputClass(null)} pl-8 font-mono text-green-400 font-bold`} value={formData.sueldo_base} onChange={e => handleChange('sueldo_base', e.target.value)} required />
                         </div>
+                        <p className="text-[10px] text-zinc-500 mt-2">
+                            Mínimo legal: ${formData.turno === 'Full Time' ? '539.000 (Full Time)' : '270.000 (Media Jornada)'}
+                        </p>
                     </div>
 
                     {/* Login */}

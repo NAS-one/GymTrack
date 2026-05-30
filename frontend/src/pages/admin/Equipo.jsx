@@ -130,8 +130,8 @@ export function Equipo() {
             {/* ENCABEZADO */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h2 className="text-2xl font-bold text-white">Gestión de Talento</h2>
-                    <p className="text-gym-gray">Administra contratos, turnos y roles del equipo.</p>
+                    <h2 className="text-2xl font-bold text-white">Gestión</h2>
+                    <p className="text-gym-gray text-sm">Administración del personal y entrenadores.</p>
                 </div>
                 <button
                     onClick={handleOpenCreate}
