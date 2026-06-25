@@ -36,7 +36,20 @@ const clienteSchema = z.object({
     // Aceptamos string o null (el input date envía string "YYYY-MM-DD" o vacío)
     fecha_nacimiento: z.string().nullable().optional().or(z.literal("")),
     genero: z.string().nullable().optional().or(z.literal("")),
-    direccion: z.string().trim().nullable().optional().or(z.literal("")),
+    direccion: z
+        .string()
+        .trim()
+        .nullable()
+        .optional()
+        .or(z.literal(""))
+        .refine(
+            (val) => {
+                if (!val || val.trim() === "") return true; // Opcional, si está vacío, OK
+                // Debe contener al menos una letra y un número (formato dirección)
+                return /[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]/.test(val) && /\d/.test(val);
+            },
+            { message: "La dirección debe tener un formato válido (ej: Osorno 123)" }
+        ),
 
     // 5. Entrenador (Lógica de UUID, vacío o null)
     id_entrenador: z

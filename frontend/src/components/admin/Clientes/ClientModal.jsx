@@ -16,37 +16,29 @@ const INITIAL_STATE = {
 };
 
 // --- UTILIDADES CHILENAS ---
-const formatRut = (rut) => {
-    let value = rut.replace(/[^0-9kK]/g, '');
-    if (value.length > 1) {
-        const body = value.slice(0, -1);
-        const dv = value.slice(-1).toUpperCase();
-        const formattedBody = body.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-        return `${formattedBody}-${dv}`;
-    }
-    return value;
+const formatRut = (value) => {
+    let v = value.replace(/[^0-9kK]/g, "");
+    if (v.length > 9) v = v.slice(0, 9);
+    if (v.length <= 1) return v;
+    const dv = v.slice(-1).toUpperCase();
+    let body = v.slice(0, -1);
+    body = body.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    return `${body}-${dv}`;
 };
 
 const isValidRut = (rut) => {
-    if (!rut || rut.length < 8) return false;
-    const cleanRut = rut.replace(/[^0-9kK]/g, '');
-    const body = cleanRut.slice(0, -1);
-    const dv = cleanRut.slice(-1).toUpperCase();
-
-    if (!body || !dv) return false;
-
-    let suma = 0;
-    let multiplo = 2;
-
+    const clean = rut.replace(/[.\-]/g, "");
+    const body = clean.slice(0, -1);
+    if (/^(\d)\1+$/.test(body)) return false;
+    const dv = clean.slice(-1).toUpperCase();
+    let sum = 0, mul = 2;
     for (let i = body.length - 1; i >= 0; i--) {
-        suma += multiplo * parseInt(body.charAt(i));
-        multiplo = multiplo < 7 ? multiplo + 1 : 2;
+        sum += parseInt(body[i]) * mul;
+        mul = mul === 7 ? 2 : mul + 1;
     }
-
-    const dvEsperado = 11 - (suma % 11);
-    const dvFinal = (dvEsperado === 11) ? '0' : (dvEsperado === 10) ? 'K' : dvEsperado.toString();
-
-    return dv === dvFinal;
+    const r = 11 - (sum % 11);
+    const expected = r === 11 ? "0" : r === 10 ? "K" : r.toString();
+    return dv === expected;
 };
 
 export function ClientModal({ isOpen, onClose, clientToEdit, onSave, coaches = [] }) {
@@ -91,73 +83,85 @@ export function ClientModal({ isOpen, onClose, clientToEdit, onSave, coaches = [
 
     if (!isOpen) return null;
 
+    const calcAge = (birthDate) => {
+        const today = new Date();
+        const birth = new Date(birthDate);
+        let age = today.getFullYear() - birth.getFullYear();
+        const m = today.getMonth() - birth.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+        return age;
+    };
+
     // --- VALIDACIONES ---
     const validateForm = () => {
         const newErrors = {};
 
         if (!formData.nombre.trim()) {
             newErrors.nombre = "El nombre es obligatorio";
-        } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(formData.nombre)) {
+        } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/.test(formData.nombre)) {
             newErrors.nombre = "El nombre solo debe contener letras";
         }
 
-        if (!clientToEdit) {
-            if (!formData.rut.trim()) {
-                newErrors.rut = "El RUT es obligatorio";
-            } else if (!isValidRut(formData.rut)) {
-                newErrors.rut = "RUT inválido (Dígito verificador incorrecto)";
+
+
+        if (!formData.fecha_nacimiento) {
+            newErrors.fecha_nacimiento = "La fecha es obligatoria";
+        } else {
+            const age = calcAge(formData.fecha_nacimiento);
+            if (age < 12) {
+                newErrors.fecha_nacimiento = "Debes tener al menos 12 años";
+            } else if (age > 120) {
+                newErrors.fecha_nacimiento = "Fecha no realista";
+            } else if (formData.rut && !newErrors.rut) {
+                const rutNum = parseInt(formData.rut.replace(/[.\-kK]/g, "").slice(0, -1) || "0", 10);
+                const birthYear = new Date(formData.fecha_nacimiento).getFullYear();
+                if (rutNum > 0 && rutNum < 5000000 && birthYear > 1975) {
+                    newErrors.fecha_nacimiento = "Inconsistencia entre RUT y fecha de nacimiento";
+                } else if (rutNum > 0 && rutNum < 10000000 && birthYear > 1995) {
+                    newErrors.fecha_nacimiento = "Inconsistencia entre RUT y fecha de nacimiento";
+                } else if (rutNum > 0 && rutNum < 15000000 && birthYear > 2005) {
+                    newErrors.fecha_nacimiento = "Inconsistencia entre RUT y fecha de nacimiento";
+                } else if (rutNum > 0 && rutNum < 20000000 && birthYear > 2015) {
+                    newErrors.fecha_nacimiento = "Inconsistencia entre RUT y fecha de nacimiento";
+                }
             }
         }
 
-        if (formData.fecha_nacimiento) {
-            const fecha = new Date(formData.fecha_nacimiento);
-            const hoy = new Date();
-            if (fecha > hoy) newErrors.fecha_nacimiento = "La fecha no puede ser futura";
+        if (!formData.email) {
+            newErrors.email = "El correo es obligatorio";
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(formData.email)) {
+            newErrors.email = "Correo inválido";
+        } else if (formData.email.split("@")[0].length < 2) {
+            newErrors.email = "Usuario de correo muy corto";
         }
 
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!formData.email) newErrors.email = "El email es obligatorio";
-        else if (!emailRegex.test(formData.email)) newErrors.email = "Formato de email inválido";
+        // Validación de dirección
+        if (formData.direccion !== undefined && formData.direccion !== null && formData.direccion !== '') {
+            const dir = formData.direccion.trim();
+            if (dir === '') {
+                newErrors.direccion = "La dirección no puede contener solo espacios";
+            } else {
+                const tieneLetras = /[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]/.test(dir);
+                const tieneNumeros = /\d/.test(dir);
+                if (!tieneLetras || !tieneNumeros) {
+                    newErrors.direccion = "Formato inválido. Ej: Osorno 123";
+                }
+            }
+        }
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
 
-    // --- VERIFICACIÓN DE RUT EN API EXTERNA ---
-    const verifyRealRut = async (rutFormateado) => {
-        const rutLimpio = rutFormateado.replace(/[^0-9kK]/g, '');
-        try {
-            // Nota: Esta es una URL de ejemplo. Dependiendo de la API que uses (LibreAPI, Boostr, etc.) 
-            // la URL y la respuesta cambiarán.
-            const response = await fetch(`https://api.libreapi.cl/rut/rut?rut=${rutLimpio}`);
 
-            if (!response.ok) {
-                // Si la API falla (ej. 404, 500) asumimos que el RUT no se encontró o la API está caída.
-                // Retornamos true para no bloquear el registro si la API externa se cae.
-                console.warn("La API de RUT no respondió con éxito. Permitiendo registro por precaución.");
-                return true;
-            }
-
-            const data = await response.json();
-
-            // Ajustar según la estructura de respuesta de la API elegida
-            if (data.status === 'success' || data.data) {
-                return true;
-            }
-            return false;
-        } catch (error) {
-            console.error("Error al consultar la API de RUT:", error);
-            // Si hay un error de red o de la API, dejamos pasar para no bloquear la app
-            return true;
-        }
-    };
 
     // --- MANEJO DE CAMBIOS ---
     const handleChange = (field, value) => {
         let finalValue = value;
 
         if (field === 'rut') finalValue = formatRut(value);
-        if (field === 'nombre' && /[0-9]/.test(value)) return;
+        if (field === 'nombre') finalValue = value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, '');
+        if (field === 'objetivo') finalValue = value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, '');
 
         setFormData(prev => ({ ...prev, [field]: finalValue }));
 
@@ -177,16 +181,7 @@ export function ClientModal({ isOpen, onClose, clientToEdit, onSave, coaches = [
 
         setIsSubmitting(true);
 
-        // Verificación de RUT Real si es un cliente nuevo
-        if (!clientToEdit) {
-            const isRutReal = await verifyRealRut(formData.rut);
-            if (!isRutReal) {
-                setErrors(prev => ({ ...prev, rut: "El RUT ingresado no existe o no pudo ser verificado." }));
-                setIsSubmitting(false);
-                toast.error("RUT Inválido", { description: "El RUT parece no pertenecer a una persona real." });
-                return;
-            }
-        }
+
 
         try {
             const payload = { ...formData };
@@ -221,7 +216,7 @@ export function ClientModal({ isOpen, onClose, clientToEdit, onSave, coaches = [
                 <div className="px-8 py-5 border-b border-white/10 flex justify-between items-center bg-white/5">
                     <div>
                         <h3 className="text-xl font-bold text-white">
-                            {clientToEdit ? 'Editar Perfil' : 'Registrar Cliente'}
+                            Editar Perfil
                         </h3>
                         <p className="text-xs text-gym-gray mt-1">Complete la ficha técnica del socio.</p>
                     </div>
@@ -253,14 +248,12 @@ export function ClientModal({ isOpen, onClose, clientToEdit, onSave, coaches = [
                                 <Label text="RUT / DNI *" />
                                 <input
                                     type="text"
-                                    disabled={!!clientToEdit}
-                                    className={inputClass(errors.rut, !!clientToEdit)}
+                                    disabled={true}
+                                    className={inputClass(errors.rut, true)}
                                     value={formData.rut}
-                                    onChange={e => handleChange('rut', e.target.value)}
                                     placeholder="12.345.678-9"
-                                    maxLength={12}
                                 />
-                                {clientToEdit && <Lock size={14} className="absolute right-3 top-9 text-zinc-500" title="El RUT no se puede modificar" />}
+                                <Lock size={14} className="absolute right-3 top-9 text-zinc-500" title="El RUT no se puede modificar" />
                                 {errors.rut && <p className="text-red-400 text-xs mt-1 flex items-center gap-1"><AlertCircle size={10} /> {errors.rut}</p>}
                             </div>
                         </div>
@@ -299,20 +292,18 @@ export function ClientModal({ isOpen, onClose, clientToEdit, onSave, coaches = [
                                 />
                                 {errors.email && <p className="text-red-400 text-xs mt-1 flex items-center gap-1"><AlertCircle size={10} /> {errors.email}</p>}
                             </div>
-
-                            {!clientToEdit && (
-                                <div>
-                                    <Label text="Activación de Cuenta" />
-                                    <div className="bg-white/5 border border-white/10 rounded-lg p-3 text-xs text-gray-300">
-                                        Se enviará un correo a esta dirección para que el cliente configure su propia contraseña.
-                                    </div>
-                                </div>
-                            )}
                         </div>
 
                         <div>
                             <Label text="Dirección" />
-                            <input type="text" className={inputClass(null)} value={formData.direccion} onChange={e => handleChange('direccion', e.target.value)} placeholder="Av. Principal 123" />
+                            <input
+                                type="text"
+                                className={inputClass(errors.direccion)}
+                                value={formData.direccion}
+                                onChange={e => handleChange('direccion', e.target.value)}
+                                placeholder="Ej: Osorno 123"
+                            />
+                            {errors.direccion && <p className="text-red-400 text-xs mt-1 flex items-center gap-1"><AlertCircle size={10} /> {errors.direccion}</p>}
                         </div>
                     </div>
 

@@ -25,8 +25,10 @@ export class ClienteController {
   create = async (req, res) => {
     // Validación Zod
     const result = validateCliente(req.body);
-    if (!result.success)
-      return res.status(400).json(JSON.parse(result.error.message));
+    if (!result.success) {
+      const firstError = result.error.errors[0]?.message || "Datos inválidos";
+      return res.status(400).json({ error: firstError });
+    }
 
     try {
       const input = req.body;
@@ -71,6 +73,16 @@ export class ClienteController {
 
       const updated = await this.ClienteModel.update({ id, input });
       if (!updated) return error(req, res, "Cliente no encontrado", 404);
+
+      if (updated.emailChanged) {
+        const token = jwt.sign(
+          { id: updated.id_usuario },
+          process.env.JWT_SECRET || "secret",
+          { expiresIn: "24h" },
+        );
+        const activationLink = `http://localhost:5173/activate?token=${token}`;
+        await sendActivationEmail(input.email, updated.nombre, activationLink);
+      }
 
       success(req, res, updated, 200);
     } catch (e) {

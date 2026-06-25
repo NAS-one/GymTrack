@@ -3,9 +3,13 @@ import axios from '../../api/axios';
 import { Plus, Edit, Trash2, Users, TrendingUp, Award, Eye } from 'lucide-react';
 import { PlanModal } from '../../components/admin/Planes/PlanModal';
 import { PlanDetailModal } from '../../components/admin/Planes/PlanDetailModal';
+import { toast } from 'sonner';
+import { useConfirm } from '../../contexts/ConfirmContext';
 
 export function Planes() {
+    const confirm = useConfirm();
     const [plans, setPlans] = useState([]);
+    const [archivedPlans, setArchivedPlans] = useState([]);
     const [loading, setLoading] = useState(true);
 
     // Modales
@@ -19,9 +23,14 @@ export function Planes() {
     const fetchPlans = async () => {
         try {
             setLoading(true);
-            const res = await axios.get('/planes');
+            const [res, archivedRes] = await Promise.all([
+                axios.get('/planes'),
+                axios.get('/planes/archived')
+            ]);
             const data = res.data.body || [];
+            const archivedData = archivedRes.data.body || [];
             setPlans(data);
+            setArchivedPlans(archivedData);
             calculateStats(data);
         } catch (e) {
             console.error("Error fetching plans:", e);
@@ -61,13 +70,51 @@ export function Planes() {
             else await axios.post('/planes', formData);
             setIsModalOpen(false);
             fetchPlans();
-        } catch (e) { alert("Error al guardar"); }
+            toast.success(selectedPlan ? 'Plan actualizado' : 'Plan creado', {
+                description: `El plan "${formData.nombre}" fue guardado correctamente.`
+            });
+        } catch (e) {
+            console.error(e);
+            const mensajeError = e.response?.data?.error
+                || (Array.isArray(e.response?.data) ? e.response.data[0]?.message : null)
+                || 'Error al guardar el plan. Verifica los datos e intenta nuevamente.';
+            toast.error('Error al guardar plan', { description: mensajeError });
+        }
     };
 
-    const handleDelete = async (id) => {
-        if (!window.confirm("¿Eliminar plan?")) return;
-        try { await axios.delete(`/planes/${id}`); fetchPlans(); }
-        catch (e) { alert("Error al borrar"); }
+    const handleDelete = async (plan) => {
+        const isLastPlan = plans.length <= 1;
+        if (isLastPlan) {
+            toast.error('No se puede eliminar el último plan', {
+                description: 'Debe existir al menos 1 plan activo en el sistema.'
+            });
+            return;
+        }
+
+        const activeUsersCount = Number(plan.usuarios_activos) || 0;
+        let warningText = 'Esta acción no se puede deshacer. ';
+        if (activeUsersCount > 0) {
+            warningText += `¡ATENCIÓN! Este plan tiene ${activeUsersCount} usuarios activos. Sus membresías se mantendrán vigentes hasta su fecha de vencimiento, pero no podrán renovar este plan.`;
+        } else {
+            warningText += 'Los socios activos con este plan conservarán su membresía hasta el vencimiento.';
+        }
+
+        const isConfirmed = await confirm({
+            title: '¿Archivar Plan?',
+            description: warningText,
+            confirmText: 'Sí, archivar',
+            cancelText: 'Cancelar',
+            type: 'danger'
+        });
+        if (!isConfirmed) return;
+        try {
+            await axios.delete(`/planes/${plan.id}`);
+            fetchPlans();
+            toast.success('Plan archivado correctamente');
+        } catch (e) {
+            const mensajeError = e.response?.data?.error || 'Error al eliminar el plan.';
+            toast.error('Error', { description: mensajeError });
+        }
     };
 
     return (
@@ -93,14 +140,36 @@ export function Planes() {
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
                             {plans.map((plan) => (
-                                <div key={plan.id} className="bg-gym-card border border-white/5 rounded-2xl p-5 relative group hover:border-gym-orange/30 transition-all hover:-translate-y-1 shadow-lg flex flex-col">
-                                    <div className="absolute top-4 right-4 bg-white/5 px-2 py-1 rounded text-[10px] font-bold text-gym-gray border border-white/5 uppercase">
-                                        {plan.duracion_meses} {plan.duracion_meses === 1 ? 'Mes' : 'Meses'}
-                                    </div>
+                                <div key={plan.id} className={`bg-gym-card border rounded-2xl p-5 relative group transition-all hover:-translate-y-1 shadow-lg flex flex-col
+                                    ${plan.tipo_plan === 'oferta' ? 'border-orange-500/30 hover:border-orange-500' : 
+                                      plan.tipo_plan === 'estudiante' ? 'border-blue-500/30 hover:border-blue-500' : 
+                                      plan.tipo_plan === 'combo' ? 'border-emerald-500/30 hover:border-emerald-500' : 
+                                      'border-white/5 hover:border-gym-orange/30'}`}
+                                >
                                     <div className="mb-3">
-                                        <h3 className="text-lg font-bold text-white">{plan.nombre}</h3>
-                                        <div className="flex items-baseline gap-1">
-                                            <span className="text-2xl font-bold text-gym-orange">${parseInt(plan.precio).toLocaleString()}</span>
+                                        <h3 className="text-lg font-bold text-white truncate" title={plan.nombre}>{plan.nombre}</h3>
+                                        
+                                        {/* Duración y Etiqueta de Tipo (Debajo del nombre para que no choquen) */}
+                                        <div className="flex gap-2 mt-1 mb-2">
+                                            {plan.tipo_plan === 'oferta' && <span className="bg-orange-500/20 text-orange-400 px-2 py-1 rounded text-[9px] font-black uppercase border border-orange-500/30">🔥 Oferta</span>}
+                                            {plan.tipo_plan === 'estudiante' && <span className="bg-blue-500/20 text-blue-400 px-2 py-1 rounded text-[9px] font-black uppercase border border-blue-500/30">🎓 Convenio</span>}
+                                            {plan.tipo_plan === 'combo' && <span className="bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded text-[9px] font-black uppercase border border-emerald-500/30">⚡ Combo</span>}
+                                            
+                                            <div className="bg-white/5 px-2 py-1 rounded text-[10px] font-bold text-gym-gray border border-white/5 uppercase">
+                                                {plan.duracion_meses} {plan.duracion_meses === 1 ? 'Mes' : 'Meses'}
+                                            </div>
+                                        </div>
+
+                                        <div className="flex flex-col">
+                                            {plan.precio_comparacion && plan.precio_comparacion > plan.precio && (
+                                                <div className="flex items-center gap-2 mb-0.5">
+                                                    <span className="text-xs text-zinc-500 line-through">${parseInt(plan.precio_comparacion).toLocaleString()}</span>
+                                                    <span className="bg-red-500/20 text-red-500 text-[10px] font-black px-1.5 py-0.5 rounded border border-red-500/30 shadow-[0_0_10px_rgba(239,68,68,0.2)]">
+                                                        -{Math.round((1 - plan.precio / plan.precio_comparacion) * 100)}%
+                                                    </span>
+                                                </div>
+                                            )}
+                                            <span className="text-2xl font-black text-gym-orange tracking-tight truncate w-full" title={`$${parseInt(plan.precio).toLocaleString()}`}>${parseInt(plan.precio).toLocaleString()}</span>
                                         </div>
                                     </div>
 
@@ -109,9 +178,21 @@ export function Planes() {
                                         <Users size={14} /> {plan.usuarios_activos || 0} Activos
                                     </div>
 
-                                    <p className="text-xs text-gray-400 leading-relaxed mb-4 line-clamp-2 flex-1">
+                                    <p className="text-xs text-gray-400 leading-relaxed mb-3 line-clamp-2">
                                         {plan.descripcion || "Acceso a instalaciones."}
                                     </p>
+
+                                    {/* Beneficios Extra */}
+                                    {plan.beneficios_extra && plan.beneficios_extra.length > 0 && (
+                                        <div className="mb-4 space-y-1 flex-1">
+                                            {plan.beneficios_extra.map((ben, idx) => (
+                                                <div key={idx} className="text-[10px] text-emerald-400 flex items-center gap-1.5">
+                                                    <span className="w-1 h-1 bg-emerald-400 rounded-full"></span> {ben}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                    {(!plan.beneficios_extra || plan.beneficios_extra.length === 0) && <div className="flex-1"></div>}
 
                                     <div className="pt-3 border-t border-white/5 flex gap-2">
                                         {/* Botón Ver Detalle */}
@@ -126,7 +207,7 @@ export function Planes() {
                                         <button onClick={() => { setSelectedPlan(plan); setIsModalOpen(true); }} className="flex-1 py-1.5 bg-white/5 hover:bg-white/10 rounded-lg text-xs font-bold text-white transition-colors uppercase">
                                             Editar
                                         </button>
-                                        <button onClick={() => handleDelete(plan.id)} className="p-1.5 hover:bg-red-500/10 text-gym-gray hover:text-red-500 rounded-lg transition-colors">
+                                        <button onClick={() => handleDelete(plan)} className="p-1.5 hover:bg-red-500/10 text-gym-gray hover:text-red-500 rounded-lg transition-colors">
                                             <Trash2 size={18} />
                                         </button>
                                     </div>
@@ -177,6 +258,29 @@ export function Planes() {
                             <p className="text-xs text-gym-gray mt-1">Mayor preferencia actual</p>
                         </div>
                     </div>
+
+                    {/* KPI 3: Planes Archivados */}
+                    {archivedPlans.length > 0 && (
+                        <div className="bg-gym-card border border-white/10 rounded-2xl p-5">
+                            <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
+                                <Trash2 size={16} className="text-red-500" /> Planes Archivados
+                            </h3>
+                            <div className="space-y-3">
+                                {archivedPlans.map(plan => (
+                                    <div key={plan.id} className="p-3 bg-red-500/5 border border-red-500/10 rounded-xl space-y-2">
+                                        <div className="flex justify-between items-start">
+                                            <span className="text-sm font-bold text-white truncate pr-2">{plan.nombre}</span>
+                                            <span className="text-xs text-zinc-500 font-mono">${parseInt(plan.precio).toLocaleString()}</span>
+                                        </div>
+                                        <div className="flex justify-between text-xs">
+                                            <span className="text-red-400">{plan.usuarios_activos_restantes || 0} activos</span>
+                                            <span className="text-zinc-500">{plan.total_membresias_historicas || 0} históricas</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
 
                 </div>
             </div>

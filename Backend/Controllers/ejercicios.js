@@ -44,7 +44,10 @@ export class EjercicioController {
       if (!updated) return error(req, res, "Ejercicio no encontrado", 404);
       success(req, res, updated, 200);
     } catch (e) {
-      error(req, res, "Error al actualizar", 500);
+      if (e.code === '23505') {
+        return error(req, res, "Ya existe un ejercicio con este nombre.", 400);
+      }
+      error(req, res, e.message || "Error al actualizar", 500);
     }
   };
 

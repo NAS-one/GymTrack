@@ -21,7 +21,17 @@ const staffSchema = z.object({
 });
 
 export function validateStaff(input) {
-  return staffSchema.safeParse(input);
+  const schemaWithValidation = staffSchema.superRefine((data, ctx) => {
+    const minSalary = data.turno === "Full Time" ? 539000 : 270000;
+    if (data.sueldo_base !== undefined && data.sueldo_base < minSalary) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `El sueldo base para turno ${data.turno} no puede ser menor a $${minSalary.toLocaleString('es-CL')}`,
+        path: ["sueldo_base"]
+      });
+    }
+  });
+  return schemaWithValidation.safeParse(input);
 }
 
 export function validatePartialStaff(input) {

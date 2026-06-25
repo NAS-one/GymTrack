@@ -20,6 +20,11 @@ export const createAuthRouter = ({ UserModel }) => {
   authRouter.post("/verify-registration-code", authController.verifyRegistrationCode);
   authRouter.post("/resend-registration-code", authController.resendRegistrationCode);
 
+  // RUTAS PÚBLICAS (Recuperación de contraseña)
+  authRouter.post("/forgot-password", authController.forgotPassword);
+  authRouter.post("/verify-reset-code", authController.verifyResetCode);
+  authRouter.post("/reset-password", authController.resetPassword);
+
 
   return authRouter;
 };

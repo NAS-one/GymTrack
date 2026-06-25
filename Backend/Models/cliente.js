@@ -138,12 +138,26 @@ export class ClienteModel {
         }
 
         // Actualizar email en la tabla usuarios si fue enviado
-        if (email) {
-            await sql`
-          UPDATE usuarios SET email = ${email}
-          FROM clientes
-          WHERE usuarios.id = clientes.id_usuario AND clientes.id = ${id}
-        `;
+        if (email && updatedClient) {
+            const [user] = await sql`
+              SELECT u.email FROM usuarios u
+              JOIN clientes c ON u.id = c.id_usuario
+              WHERE c.id = ${id}
+            `;
+            if (user && user.email !== email) {
+                await sql`
+                  UPDATE usuarios SET email = ${email}, estado = 'pendiente'
+                  FROM clientes
+                  WHERE usuarios.id = clientes.id_usuario AND clientes.id = ${id}
+                `;
+                updatedClient.emailChanged = true;
+            } else {
+                await sql`
+                  UPDATE usuarios SET email = ${email}
+                  FROM clientes
+                  WHERE usuarios.id = clientes.id_usuario AND clientes.id = ${id}
+                `;
+            }
         }
 
         return updatedClient;

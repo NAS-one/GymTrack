@@ -5,92 +5,220 @@ import axios from '../../../api/axios';
 const INITIAL_STATE = {
     nombre: '',
     rut: '',
-    telefono: '',
+    telefono: '+56',
     direccion: '',
     cargo: 'Administrador',
     turno: 'Mañana',
-    sueldo_base: 460000,
+    sueldo_base: 270000,
     email: '',
     password: ''
 };
 
 // Formateador de RUT (Mantenemos tu lógica)
-const formatRut = (rut) => {
-    if (!rut) return '';
-    let value = rut.replace(/[^0-9kK]/g, '');
-    if (value.length > 1) {
-        const body = value.slice(0, -1);
-        const dv = value.slice(-1).toUpperCase();
-        return `${body.replace(/\B(?=(\d{3})+(?!\d))/g, ".")}-${dv}`;
+const formatRut = (value) => {
+    let v = value.replace(/[^0-9kK]/g, "");
+    if (v.length > 9) v = v.slice(0, 9);
+    if (v.length <= 1) return v;
+    const dv = v.slice(-1).toUpperCase();
+    let body = v.slice(0, -1);
+    body = body.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    return `${body}-${dv}`;
+};
+
+const isValidRut = (rut) => {
+    const clean = rut.replace(/[.\-]/g, "");
+    const body = clean.slice(0, -1);
+    if (/^(\d)\1+$/.test(body)) return false;
+    const dv = clean.slice(-1).toUpperCase();
+    let sum = 0, mul = 2;
+    for (let i = body.length - 1; i >= 0; i--) {
+        sum += parseInt(body[i]) * mul;
+        mul = mul === 7 ? 2 : mul + 1;
     }
-    return value;
+    const r = 11 - (sum % 11);
+    const expected = r === 11 ? "0" : r === 10 ? "K" : r.toString();
+    return dv === expected;
+};
+
+const verifyRealRut = async (rutFormateado) => {
+    const rutLimpio = rutFormateado.replace(/[^0-9kK]/g, '');
+    try {
+        const response = await fetch(`https://api.libreapi.cl/rut/rut?rut=${rutLimpio}`);
+        if (!response.ok) {
+            console.warn("La API de RUT no respondió con éxito. Permitiendo registro por precaución.");
+            return true;
+        }
+        const data = await response.json();
+        if (data.status === 'success' || data.data) {
+            return true;
+        }
+        return false;
+    } catch (error) {
+        console.error("Error al consultar la API de RUT:", error);
+        return true;
+    }
 };
 
 export function StaffModal({ isOpen, onClose, staffToEdit, onSave }) {
     const [formData, setFormData] = useState(INITIAL_STATE);
+    const [errors, setErrors] = useState({});
     const [generalError, setGeneralError] = useState(null);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         if (isOpen) {
             if (staffToEdit) {
-                // LIMPIEZA INICIAL: Aseguramos tipos correctos al abrir el modal
                 setFormData({
-                    ...INITIAL_STATE, // Base por si faltan campos
-                    ...staffToEdit,   // Datos del staff
-                    // Forzamos conversión numérica por si la BD lo devolvió como string
+                    ...INITIAL_STATE,
+                    ...staffToEdit,
+                    telefono: staffToEdit.telefono || '+56',
                     sueldo_base: staffToEdit.sueldo_base ? Number(staffToEdit.sueldo_base) : 0,
-                    // Si el email viene nulo de la BD, lo convertimos a string vacío para el input
                     email: staffToEdit.email || '',
-                    password: '' // Password siempre vacío al editar por seguridad
+                    password: ''
                 });
             } else {
                 setFormData(INITIAL_STATE);
             }
+            setErrors({});
             setGeneralError(null);
         }
     }, [isOpen, staffToEdit]);
 
     if (!isOpen) return null;
 
+    const validateForm = () => {
+        const newErrors = {};
+
+        // --- NOMBRE (obligatorio, min 2 palabras, cada una con min 2 letras) ---
+        const nombreTrimmed = formData.nombre.trim();
+        if (!nombreTrimmed) {
+            newErrors.nombre = "El nombre es obligatorio";
+        } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/.test(nombreTrimmed)) {
+            newErrors.nombre = "El nombre solo puede contener letras y espacios";
+        } else {
+            const words = nombreTrimmed.split(/\s+/);
+            if (words.length < 2) newErrors.nombre = "Ingresa nombre y apellido";
+            else if (words.length > 4) newErrors.nombre = "Máximo 4 palabras";
+            else if (words.some(w => w.length < 2)) newErrors.nombre = "Cada palabra debe tener al menos 2 letras";
+        }
+
+        // --- RUT ---
+        if (!formData.rut.trim()) newErrors.rut = "El RUT es obligatorio";
+        else if (!isValidRut(formData.rut)) newErrors.rut = "RUT inválido (Dígito verificador incorrecto)";
+
+        // --- EMAIL (validación idéntica al Register) ---
+        if (formData.email && formData.email.trim()) {
+            const emailTrimmed = formData.email.trim();
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(emailTrimmed)) {
+                newErrors.email = "Formato de correo inválido";
+            } else if (emailTrimmed.split("@")[0].length < 2) {
+                newErrors.email = "Usuario de correo muy corto (mínimo 2 caracteres antes del @)";
+            } else {
+                const domain = emailTrimmed.split("@")[1];
+                if (!domain || !domain.includes(".") || domain.split(".").pop().length < 2) {
+                    newErrors.email = "El dominio del correo no es válido";
+                }
+            }
+        }
+
+        // --- PASSWORD (si se proporciona, debe cumplir requisitos) ---
+        if (formData.password && formData.password.trim()) {
+            const pass = formData.password;
+            if (pass.length < 8) {
+                newErrors.password = "La contraseña debe tener al menos 8 caracteres";
+            } else if (!/[A-Z]/.test(pass)) {
+                newErrors.password = "Debe contener al menos una mayúscula";
+            } else if (!/\d/.test(pass)) {
+                newErrors.password = "Debe contener al menos un número";
+            } else if (!/[@$!%*?.&\-]/.test(pass)) {
+                newErrors.password = "Debe contener al menos un símbolo (@$!%*?.&-)";
+            }
+        }
+
+        // --- TELÉFONO ---
+        const tel = formData.telefono ? formData.telefono.trim() : '';
+        if (tel && tel !== '+56') {
+            if (!/^\+\d{8,15}$/.test(tel)) {
+                newErrors.telefono = "El teléfono debe iniciar con '+' y tener entre 8 y 15 números";
+            }
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
     const handleChange = (field, value) => {
         setGeneralError(null);
         let finalValue = value;
 
-        if (field === 'rut') finalValue = formatRut(value);
+        if (field === 'turno') {
+            const minSalary = value === 'Full Time' ? 539000 : 270000;
+            setFormData(prev => ({ 
+                ...prev, 
+                turno: value,
+                sueldo_base: prev.sueldo_base < minSalary ? minSalary : prev.sueldo_base
+            }));
+            if (errors.turno) setErrors(prev => ({ ...prev, turno: null }));
+            return;
+        }
 
-        // CONVERSIÓN EN TIEMPO REAL: Input type="number" devuelve string, lo forzamos a int
-        if (field === 'sueldo_base') {
-            finalValue = value === '' ? 0 : parseInt(value);
+        if (field === 'rut') {
+            finalValue = formatRut(value);
+        } else if (field === 'nombre') {
+            finalValue = value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, '');
+        } else if (field === 'telefono') {
+            // Solo permite '+' al inicio y dígitos, máximo 12 caracteres
+            let cleaned = value.replace(/[^\d+]/g, '');
+            // El '+' solo puede estar al principio
+            if (cleaned.indexOf('+') > 0) {
+                cleaned = cleaned.replace(/\+/g, '');
+            }
+            // Solo un '+' permitido
+            const plusCount = (cleaned.match(/\+/g) || []).length;
+            if (plusCount > 1) {
+                cleaned = '+' + cleaned.replace(/\+/g, '');
+            }
+            finalValue = cleaned.slice(0, 16);
+        } else if (field === 'sueldo_base') {
+            finalValue = value.toString().replace(/\D/g, '');
         }
 
         setFormData(prev => ({ ...prev, [field]: finalValue }));
+        if (errors[field]) setErrors(prev => ({ ...prev, [field]: null }));
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setLoading(true);
         setGeneralError(null);
 
-        try {
-            // --- SANITIZACIÓN DEL PAYLOAD (CRÍTICO PARA EVITAR ERROR 400) ---
-            const payload = { ...formData };
+        if (!validateForm()) {
+            setGeneralError("Por favor, corrige los campos marcados.");
+            return;
+        }
 
-            // 1. Asegurar que sueldo sea número
+        setLoading(true);
+        try {
+            const isRutReal = await verifyRealRut(formData.rut);
+            if (!isRutReal) {
+                setErrors(prev => ({ ...prev, rut: "El RUT ingresado no existe o no pudo ser verificado." }));
+                setGeneralError("El RUT parece no pertenecer a una persona real.");
+                setLoading(false);
+                return;
+            }
+
+            const payload = { ...formData };
             payload.sueldo_base = Number(payload.sueldo_base);
 
-            // 2. Eliminar campos vacíos que Zod rechazaría (ej: email: "")
             if (!payload.email || payload.email.trim() === '') delete payload.email;
             if (!payload.password || payload.password.trim() === '') delete payload.password;
-            if (!payload.telefono || payload.telefono.trim() === '') delete payload.telefono;
+            if (!payload.telefono || payload.telefono.trim() === '' || payload.telefono.trim() === '+56') delete payload.telefono;
             if (!payload.direccion || payload.direccion.trim() === '') delete payload.direccion;
 
-            // 3. Eliminar campos "basura" que vienen de la BD y no deben enviarse al update
             delete payload.id;
             delete payload.created_at;
-            delete payload.estado_usuario; // Campo extra del join
+            delete payload.estado_usuario;
 
-            console.log("Enviando Payload:", payload); // Para depuración
+            console.log("Enviando Payload:", payload);
 
             if (staffToEdit) {
                 await axios.patch(`/staff/${staffToEdit.id}`, payload);
@@ -98,19 +226,14 @@ export function StaffModal({ isOpen, onClose, staffToEdit, onSave }) {
                 await axios.post('/staff', payload);
             }
 
-            onSave(); // Refrescar tabla
-            onClose(); // Cerrar modal
+            onSave();
+            onClose();
 
         } catch (err) {
             console.error("Error al guardar:", err);
-
-            // Extracción segura del mensaje de error
             let msg = "Error desconocido al procesar la solicitud.";
-
             if (err.response) {
-                // El servidor respondió con un código de error (400, 409, 500)
                 if (err.response.data) {
-                    // Zod suele devolver errores en formato array o string
                     if (Array.isArray(err.response.data)) {
                         msg = err.response.data[0]?.message || JSON.stringify(err.response.data);
                     } else if (err.response.data.error) {
@@ -122,14 +245,13 @@ export function StaffModal({ isOpen, onClose, staffToEdit, onSave }) {
             } else if (err.request) {
                 msg = "No hay respuesta del servidor. Verifica tu conexión.";
             }
-
             setGeneralError(msg);
         } finally {
             setLoading(false);
         }
     };
 
-    const inputClass = "w-full bg-black/40 border border-white/10 rounded-lg px-4 py-2.5 text-white outline-none focus:border-gym-orange transition-all placeholder-zinc-500";
+    const inputClass = (error) => `w-full bg-black/40 border rounded-lg px-4 py-2.5 text-white outline-none focus:border-gym-orange transition-all placeholder-zinc-500 ${error ? 'border-red-500' : 'border-white/10'}`;
     const labelClass = "text-xs font-bold text-gym-gray uppercase mb-1 block";
 
     return (
@@ -140,7 +262,7 @@ export function StaffModal({ isOpen, onClose, staffToEdit, onSave }) {
                 <div className="px-6 py-4 border-b border-white/10 flex justify-between items-center bg-white/5 shrink-0">
                     <h3 className="text-xl font-bold text-white flex items-center gap-2">
                         <Briefcase className="text-gym-orange" size={20} />
-                        {staffToEdit ? 'Editar Staff' : 'Nuevo Colaborador'}
+                        {staffToEdit ? 'Editar Colaborador' : 'Nuevo Colaborador'}
                     </h3>
                     <button onClick={onClose} className="text-zinc-400 hover:text-white"><X /></button>
                 </div>
@@ -151,22 +273,31 @@ export function StaffModal({ isOpen, onClose, staffToEdit, onSave }) {
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <label className={labelClass}>Nombre *</label>
-                            <input className={inputClass} value={formData.nombre} onChange={e => handleChange('nombre', e.target.value)} required />
+                            <input className={inputClass(errors.nombre)} value={formData.nombre} onChange={e => handleChange('nombre', e.target.value)} required />
+                            {errors.nombre && <p className="text-red-400 text-xs mt-1">{errors.nombre}</p>}
                         </div>
                         <div>
                             <label className={labelClass}>RUT *</label>
-                            <input className={inputClass} value={formData.rut} onChange={e => handleChange('rut', e.target.value)} required />
+                            <input className={inputClass(errors.rut)} value={formData.rut} onChange={e => handleChange('rut', e.target.value)} required />
+                            {errors.rut && <p className="text-red-400 text-xs mt-1">{errors.rut}</p>}
                         </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <label className={labelClass}>Teléfono</label>
-                            <input className={inputClass} value={formData.telefono} onChange={e => handleChange('telefono', e.target.value)} placeholder="+56..." />
+                            <input
+                                className={inputClass(errors.telefono)}
+                                value={formData.telefono}
+                                onChange={e => handleChange('telefono', e.target.value)}
+                                placeholder="+56912345678"
+                                maxLength={12}
+                            />
+                            {errors.telefono && <p className="text-red-400 text-xs mt-1">{errors.telefono}</p>}
                         </div>
                         <div>
                             <label className={labelClass}>Dirección</label>
-                            <input className={inputClass} value={formData.direccion} onChange={e => handleChange('direccion', e.target.value)} />
+                            <input className={inputClass(null)} value={formData.direccion} onChange={e => handleChange('direccion', e.target.value)} />
                         </div>
                     </div>
 
@@ -174,15 +305,16 @@ export function StaffModal({ isOpen, onClose, staffToEdit, onSave }) {
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <label className={labelClass}>Cargo *</label>
-                            <select className={inputClass} value={formData.cargo} onChange={e => handleChange('cargo', e.target.value)}>
-                                <option value="Administrador">Administrador</option>
+                            <select className={inputClass(null)} value={formData.cargo} onChange={e => handleChange('cargo', e.target.value)}>
+                                <option value="Recepcionista">Recepcionista</option>
+                                <option value="Aseo">Personal de Aseo</option>
                                 <option value="Mantenimiento">Mantenimiento</option>
                                 <option value="Aseo">Personal de Aseo</option>
                             </select>
                         </div>
                         <div>
                             <label className={labelClass}>Turno *</label>
-                            <select className={inputClass} value={formData.turno} onChange={e => handleChange('turno', e.target.value)}>
+                            <select className={inputClass(null)} value={formData.turno} onChange={e => handleChange('turno', e.target.value)}>
                                 <option value="Mañana">Mañana</option>
                                 <option value="Tarde">Tarde</option>
                                 <option value="Noche">Noche</option>
@@ -195,8 +327,11 @@ export function StaffModal({ isOpen, onClose, staffToEdit, onSave }) {
                         <label className={labelClass}>Sueldo Base (CLP) *</label>
                         <div className="relative">
                             <DollarSign size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
-                            <input type="number" className={`${inputClass} pl-8 font-mono text-green-400 font-bold`} value={formData.sueldo_base} onChange={e => handleChange('sueldo_base', e.target.value)} required />
+                            <input type="text" className={`${inputClass(null)} pl-8 font-mono text-green-400 font-bold`} value={formData.sueldo_base} onChange={e => handleChange('sueldo_base', e.target.value)} required />
                         </div>
+                        <p className="text-[10px] text-zinc-500 mt-2">
+                            Mínimo legal: ${formData.turno === 'Full Time' ? '539.000 (Full Time)' : '270.000 (Media Jornada)'}
+                        </p>
                     </div>
 
                     {/* Login */}
@@ -207,10 +342,12 @@ export function StaffModal({ isOpen, onClose, staffToEdit, onSave }) {
                         </p>
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <input type="email" placeholder="Email (Usuario)" className={inputClass} value={formData.email} onChange={e => handleChange('email', e.target.value)} />
+                                <input type="email" placeholder="Email (Usuario)" className={inputClass(errors.email)} value={formData.email} onChange={e => handleChange('email', e.target.value)} />
+                                {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email}</p>}
                             </div>
                             <div>
-                                <input type="text" placeholder={staffToEdit ? "Nueva Password (o vacía)" : "Password"} className={inputClass} value={formData.password} onChange={e => handleChange('password', e.target.value)} />
+                                <input type="text" placeholder={staffToEdit ? "Nueva Password (o vacía)" : "Password"} className={inputClass(errors.password)} value={formData.password} onChange={e => handleChange('password', e.target.value)} />
+                                {errors.password && <p className="text-red-400 text-xs mt-1">{errors.password}</p>}
                             </div>
                         </div>
                         {staffToEdit && (

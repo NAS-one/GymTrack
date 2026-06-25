@@ -5,41 +5,60 @@ const INITIAL_STATE = {
   nombre: '',
   rut: '',
   email: '',
-  password: '123456',
+  password: 'Gym2026!',
   especialidad: 'Musculación',
-  telefono: '',
+  telefono: '+56',
   turno: 'Mañana',
   // Campos financieros nuevos
   modelo_contrato: 'sueldo_fijo',
-  sueldo_base: 400000,
+  sueldo_base: 270000,
   porcentaje_retencion: 0.30,
   tarifa_arriendo: 0
 };
 
 // --- UTILIDADES ---
-const formatRut = (rut) => {
-  let value = rut.replace(/[^0-9kK]/g, '');
-  if (value.length > 1) {
-    const body = value.slice(0, -1);
-    const dv = value.slice(-1).toUpperCase();
-    return `${body.replace(/\B(?=(\d{3})+(?!\d))/g, ".")}-${dv}`;
-  }
-  return value;
+const formatRut = (value) => {
+  let v = value.replace(/[^0-9kK]/g, "");
+  if (v.length > 9) v = v.slice(0, 9);
+  if (v.length <= 1) return v;
+  const dv = v.slice(-1).toUpperCase();
+  let body = v.slice(0, -1);
+  body = body.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  return `${body}-${dv}`;
 };
 
 const isValidRut = (rut) => {
-  if (!rut || rut.length < 8) return false;
-  const cleanRut = rut.replace(/[^0-9kK]/g, '');
-  const body = cleanRut.slice(0, -1);
-  const dv = cleanRut.slice(-1).toUpperCase();
-  let suma = 0; let multiplo = 2;
+  const clean = rut.replace(/[.\-]/g, "");
+  const body = clean.slice(0, -1);
+  if (/^(\d)\1+$/.test(body)) return false;
+  const dv = clean.slice(-1).toUpperCase();
+  let sum = 0, mul = 2;
   for (let i = body.length - 1; i >= 0; i--) {
-    suma += multiplo * parseInt(body.charAt(i));
-    multiplo = multiplo < 7 ? multiplo + 1 : 2;
+    sum += parseInt(body[i]) * mul;
+    mul = mul === 7 ? 2 : mul + 1;
   }
-  const dvEsperado = 11 - (suma % 11);
-  const dvFinal = (dvEsperado === 11) ? '0' : (dvEsperado === 10) ? 'K' : dvEsperado.toString();
-  return dv === dvFinal;
+  const r = 11 - (sum % 11);
+  const expected = r === 11 ? "0" : r === 10 ? "K" : r.toString();
+  return dv === expected;
+};
+
+const verifyRealRut = async (rutFormateado) => {
+  const rutLimpio = rutFormateado.replace(/[^0-9kK]/g, '');
+  try {
+      const response = await fetch(`https://api.libreapi.cl/rut/rut?rut=${rutLimpio}`);
+      if (!response.ok) {
+          console.warn("La API de RUT no respondió con éxito. Permitiendo registro por precaución.");
+          return true;
+      }
+      const data = await response.json();
+      if (data.status === 'success' || data.data) {
+          return true;
+      }
+      return false;
+  } catch (error) {
+      console.error("Error al consultar la API de RUT:", error);
+      return true;
+  }
 };
 
 export function TrainerModal({ isOpen, onClose, trainerToEdit, onSave }) {
@@ -56,12 +75,11 @@ export function TrainerModal({ isOpen, onClose, trainerToEdit, onSave }) {
           email: trainerToEdit.email || '',
           password: '',
           especialidad: trainerToEdit.especialidad || 'Musculación',
-          telefono: trainerToEdit.telefono || '',
+          telefono: trainerToEdit.telefono || '+56',
           turno: trainerToEdit.turno || 'Mañana',
-          // Cargar datos financieros
           modelo_contrato: trainerToEdit.modelo_contrato || 'sueldo_fijo',
           sueldo_base: trainerToEdit.sueldo_base || 0,
-          porcentaje_retencion: trainerToEdit.porcentaje_retencion || 0,
+          porcentaje_retencion: Number(trainerToEdit.porcentaje_retencion || 0),
           tarifa_arriendo: trainerToEdit.tarifa_arriendo || 0
         });
       } else {
@@ -75,59 +93,144 @@ export function TrainerModal({ isOpen, onClose, trainerToEdit, onSave }) {
 
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.nombre.trim()) newErrors.nombre = "Requerido";
-    if (!formData.rut.trim()) newErrors.rut = "Requerido";
-    else if (!isValidRut(formData.rut)) newErrors.rut = "Inválido";
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!formData.email) newErrors.email = "Requerido";
-    else if (!emailRegex.test(formData.email)) newErrors.email = "Inválido";
+    // --- NOMBRE (obligatorio, min 2 palabras, cada una con min 2 letras) ---
+    const nombreTrimmed = formData.nombre.trim();
+    if (!nombreTrimmed) {
+      newErrors.nombre = "El nombre es obligatorio";
+    } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/.test(nombreTrimmed)) {
+      newErrors.nombre = "Solo letras y espacios";
+    } else {
+      const words = nombreTrimmed.split(/\s+/);
+      if (words.length < 2) newErrors.nombre = "Ingresa nombre y apellido";
+      else if (words.length > 4) newErrors.nombre = "Máximo 4 palabras";
+      else if (words.some(w => w.length < 2)) newErrors.nombre = "Cada palabra debe tener al menos 2 letras";
+    }
+
+    // --- RUT ---
+    if (!formData.rut.trim()) newErrors.rut = "El RUT es obligatorio";
+    else if (!isValidRut(formData.rut)) newErrors.rut = "RUT inválido";
+
+    // --- EMAIL (validación idéntica al Register) ---
+    if (!formData.email) {
+      newErrors.email = "El correo es obligatorio";
+    } else {
+      const emailTrimmed = formData.email.trim();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(emailTrimmed)) {
+        newErrors.email = "Formato de correo inválido";
+      } else if (emailTrimmed.split("@")[0].length < 2) {
+        newErrors.email = "Usuario de correo muy corto (mínimo 2 caracteres antes del @)";
+      } else {
+        const domain = emailTrimmed.split("@")[1];
+        if (!domain || !domain.includes(".") || domain.split(".").pop().length < 2) {
+          newErrors.email = "El dominio del correo no es válido";
+        }
+      }
+    }
+
+    // --- PASSWORD (solo al crear, debe cumplir requisitos de seguridad) ---
+    if (!trainerToEdit && formData.password) {
+      const pass = formData.password;
+      if (pass.length < 8) {
+        newErrors.password = "La contraseña debe tener al menos 8 caracteres";
+      } else if (!/[A-Z]/.test(pass)) {
+        newErrors.password = "Debe contener al menos una mayúscula";
+      } else if (!/\d/.test(pass)) {
+        newErrors.password = "Debe contener al menos un número";
+      } else if (!/[@$!%*?.&\-]/.test(pass)) {
+        newErrors.password = "Debe contener al menos un símbolo (@$!%*?.&-)";
+      }
+    }
+
+    // --- TELÉFONO ---
+    const tel = formData.telefono ? formData.telefono.trim() : '';
+    if (tel && tel !== '+56') {
+      if (!/^\+\d{8,15}$/.test(tel)) {
+        newErrors.telefono = "El teléfono debe iniciar con '+' y tener entre 8 y 15 números";
+      }
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleChange = (field, value) => {
-    setGeneralError(null); // 👈 AGREGA ESTO: Limpia el error rojo al escribir
+    setGeneralError(null);
     let finalValue = value;
 
-    // 1. Formateo de RUT
-    if (field === 'rut') {
-      finalValue = formatRut(value);
+    if (field === 'turno') {
+      const minSalary = value === 'Full Time' ? 539000 : 270000;
+      setFormData(prev => ({ 
+        ...prev, 
+        turno: value,
+        sueldo_base: prev.sueldo_base < minSalary ? minSalary : prev.sueldo_base
+      }));
+      if (errors.turno) setErrors(prev => ({ ...prev, turno: null }));
+      return;
     }
 
-    // 2. CONVERSIÓN NUMÉRICA (Crítico para evitar error 400)
-    const numericFields = ['sueldo_base', 'porcentaje_retencion', 'tarifa_arriendo'];
-    if (numericFields.includes(field)) {
-      // Si está vacío es 0, si no, lo convierte a número real
-      finalValue = value === '' ? 0 : parseFloat(value);
+    if (field === 'rut') {
+      finalValue = formatRut(value);
+    } else if (field === 'nombre') {
+      finalValue = value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, '');
+    } else if (field === 'telefono') {
+      // Solo permite '+' al inicio y dígitos, máximo 12 caracteres
+      let cleaned = value.replace(/[^\d+]/g, '');
+      // El '+' solo puede estar al principio
+      if (cleaned.indexOf('+') > 0) {
+        cleaned = cleaned.replace(/\+/g, '');
+      }
+      // Solo un '+' permitido
+      const plusCount = (cleaned.match(/\+/g) || []).length;
+      if (plusCount > 1) {
+        cleaned = '+' + cleaned.replace(/\+/g, '');
+      }
+      finalValue = cleaned.slice(0, 16);
+    } else if (field === 'sueldo_base' || field === 'tarifa_arriendo') {
+      finalValue = value.toString().replace(/\D/g, '');
+    } else if (field === 'porcentaje_retencion') {
+      let clean = value.toString().replace(/[^0-9.]/g, '');
+      const parts = clean.split('.');
+      if (parts.length > 2) {
+        clean = parts[0] + '.' + parts.slice(1).join('');
+      }
+      finalValue = clean;
     }
 
     setFormData(prev => ({ ...prev, [field]: finalValue }));
 
-    // Limpiar error visual si existe
     if (errors[field]) setErrors(prev => ({ ...prev, [field]: null }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setGeneralError(null); // Limpiamos errores previos
+    setGeneralError(null);
 
     if (validateForm()) {
       try {
-        await onSave(formData);
-        // Si tienes lógica de cerrar en el padre, bien. Si no, cierra aquí:
-        // onClose(); 
+        const isRutReal = await verifyRealRut(formData.rut);
+        if (!isRutReal) {
+          setErrors(prev => ({ ...prev, rut: "RUT no real o inexistente" }));
+          setGeneralError("El RUT ingresado no existe o no pudo ser verificado.");
+          return;
+        }
+
+        const payload = {
+          ...formData,
+          telefono: formData.telefono === '+56' ? '' : formData.telefono,
+          sueldo_base: formData.sueldo_base === '' ? 0 : parseInt(formData.sueldo_base, 10),
+          tarifa_arriendo: formData.tarifa_arriendo === '' ? 0 : parseInt(formData.tarifa_arriendo, 10),
+          porcentaje_retencion: formData.porcentaje_retencion === '' ? 0 : parseFloat(formData.porcentaje_retencion)
+        };
+
+        await onSave(payload);
       } catch (err) {
         console.log("Error capturado:", err);
 
-        // 1. Verificamos si hay respuesta del servidor (Backend envió 400, 409, 500)
         if (err.response && err.response.data) {
-          // Tu backend envía { error: "mensaje" } o a veces { message: "..." }
           const serverMsg = err.response.data.error || err.response.data.message;
           setGeneralError(serverMsg || "Error desconocido del servidor");
         } else {
-          // Error de red (servidor apagado, sin internet)
           setGeneralError("No se pudo conectar con el servidor.");
         }
       }
@@ -142,7 +245,7 @@ export function TrainerModal({ isOpen, onClose, trainerToEdit, onSave }) {
       <div className="bg-gym-card border border-white/10 w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto custom-scrollbar">
 
         <div className="px-6 py-4 border-b border-white/10 flex justify-between items-center bg-white/5">
-          <h3 className="text-xl font-bold text-white">{trainerToEdit ? 'Editar Entrenador' : 'Nuevo Entrenador'}</h3>
+          <h3 className="text-xl font-bold text-white">{trainerToEdit ? 'Editar Colaborador' : 'Nuevo Entrenador'}</h3>
           <button onClick={onClose} className="text-gym-gray hover:text-white"><X size={24} /></button>
         </div>
 
@@ -169,7 +272,15 @@ export function TrainerModal({ isOpen, onClose, trainerToEdit, onSave }) {
             </div>
             <div>
               <Label text="Teléfono" />
-              <input type="text" className={inputClass()} value={formData.telefono} onChange={e => handleChange('telefono', e.target.value)} placeholder="+569..." />
+              <input
+                type="text"
+                className={inputClass(errors.telefono)}
+                value={formData.telefono}
+                onChange={e => handleChange('telefono', e.target.value)}
+                placeholder="+569..."
+                maxLength={12}
+              />
+              {errors.telefono && <p className="text-red-400 text-xs mt-1">{errors.telefono}</p>}
             </div>
           </div>
 
@@ -194,7 +305,12 @@ export function TrainerModal({ isOpen, onClose, trainerToEdit, onSave }) {
           </div>
 
           {!trainerToEdit && (
-            <div><Label text="Password Inicial" /><input type="text" className={inputClass()} value={formData.password} onChange={e => handleChange('password', e.target.value)} /></div>
+            <div>
+              <Label text="Password Inicial" />
+              <input type="text" className={inputClass(errors.password)} value={formData.password} onChange={e => handleChange('password', e.target.value)} />
+              {errors.password && <p className="text-red-400 text-xs mt-1">{errors.password}</p>}
+              <p className="text-zinc-600 text-[10px] mt-1">Mín. 8 chars, 1 mayúscula, 1 número, 1 símbolo</p>
+            </div>
           )}
 
           <hr className="border-white/5 my-2" />
@@ -229,7 +345,9 @@ export function TrainerModal({ isOpen, onClose, trainerToEdit, onSave }) {
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400">$</span>
                     <input type="number" className={`${inputClass()} pl-8`} value={formData.sueldo_base} onChange={e => handleChange('sueldo_base', e.target.value)} />
                   </div>
-                  <p className="text-[10px] text-zinc-500 mt-2">Gasto fijo mensual para el gimnasio.</p>
+                  <p className="text-[10px] text-zinc-500 mt-2">
+                    Mínimo legal: ${formData.turno === 'Full Time' ? '539.000 (Full Time)' : '270.000 (Media Jornada)'}. Gasto fijo mensual para el gimnasio.
+                  </p>
                 </div>
               )}
 

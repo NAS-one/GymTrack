@@ -3,8 +3,11 @@ import { useSearchParams } from 'react-router-dom'; // 1. Hook de URL
 import axios from '../../api/axios';
 import { Plus, Search, Edit, Trash2, Box, CheckCircle, AlertTriangle, XCircle, Wrench, Filter } from 'lucide-react';
 import { MachineModal } from '../../components/admin/Inventario/MachineModal';
+import { toast } from 'sonner';
+import { useConfirm } from '../../contexts/ConfirmContext';
 
 export function Inventario() {
+  const confirm = useConfirm();
   const [machines, setMachines] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -50,19 +53,45 @@ export function Inventario() {
       else await axios.post('/inventario', data);
       setIsModalOpen(false);
       fetchMachines();
-    } catch (e) { alert("Error al guardar"); }
+      toast.success(selectedMachine ? 'Máquina actualizada' : 'Máquina registrada', {
+        description: `"${data.nombre}" fue guardada correctamente.`
+      });
+    } catch (e) {
+      console.error(e);
+      const mensajeError = e.response?.data?.error
+        || (Array.isArray(e.response?.data) ? e.response.data[0]?.message : null)
+        || 'Error al guardar el equipo. Intenta nuevamente.';
+      toast.error('Error al guardar equipo', { description: mensajeError });
+    }
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("¿Eliminar máquina?")) return;
-    try { await axios.delete(`/inventario/${id}`); fetchMachines(); } catch (e) { alert("Error"); }
+    const isConfirmed = await confirm({
+      title: '¿Eliminar máquina?',
+      description: 'Esta acción no se puede deshacer.',
+      confirmText: 'Sí, eliminar',
+      cancelText: 'Cancelar',
+      type: 'danger'
+    });
+    if (!isConfirmed) return;
+    try {
+      await axios.delete(`/inventario/${id}`);
+      fetchMachines();
+      toast.success('Máquina eliminada correctamente');
+    } catch (e) {
+      const mensajeError = e.response?.data?.error || 'Error al eliminar el equipo.';
+      toast.error('Error', { description: mensajeError });
+    }
   };
 
   const changeStatus = async (machine, newStatus) => {
     try {
       await axios.patch(`/inventario/${machine.id}`, { estado: newStatus });
       setMachines(prev => prev.map(m => m.id === machine.id ? { ...m, estado: newStatus } : m));
-    } catch (e) { alert("No se pudo cambiar el estado"); }
+    } catch (e) {
+      const mensajeError = e.response?.data?.error || 'No se pudo cambiar el estado del equipo.';
+      toast.error('Error', { description: mensajeError });
+    }
   };
 
   // --- LÓGICA DE FILTRADO ---

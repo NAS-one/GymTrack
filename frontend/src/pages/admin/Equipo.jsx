@@ -130,14 +130,14 @@ export function Equipo() {
             {/* ENCABEZADO */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h2 className="text-2xl font-bold text-white">Gestión de Talento</h2>
-                    <p className="text-gym-gray">Administra contratos, turnos y roles del equipo.</p>
+                    <h2 className="text-2xl font-bold text-white">Gestión</h2>
+                    <p className="text-gym-gray text-sm">Administración del personal y entrenadores.</p>
                 </div>
                 <button
                     onClick={handleOpenCreate}
                     className="bg-gym-orange hover:bg-orange-600 text-white px-4 py-2.5 rounded-xl font-medium flex items-center gap-2 transition-all shadow-lg shadow-orange-500/20"
                 >
-                    <Plus size={20} /> Nuevo {activeTab === 'entrenadores' ? 'Entrenador' : 'Colaborador'}
+                    <Plus size={20} /> {activeTab === 'entrenadores' ? 'Nuevo Entrenador' : 'Nuevo Colaborador'}
                 </button>
             </div>
 
