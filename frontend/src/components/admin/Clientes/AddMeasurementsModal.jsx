@@ -36,7 +36,8 @@ export function AddMeasurementsModal({ isOpen, onClose, client, onSave }) {
         circunferencia_cintura: formData.circunferencia_cintura ? parseFloat(formData.circunferencia_cintura) : null
       };
 
-      await axios.post(`/clientes/${client.id}/medidas`, payload);
+      const resolvedId = client.id_cliente || client.id;
+      await axios.post(`/clientes/${resolvedId}/medidas`, payload);
       toast.success("Medidas Registradas", {
         description: `Nuevos datos guardados para ${client.nombre}.`,
       });

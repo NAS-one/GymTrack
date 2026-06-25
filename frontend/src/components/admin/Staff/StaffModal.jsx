@@ -7,7 +7,7 @@ const INITIAL_STATE = {
     rut: '',
     telefono: '',
     direccion: '',
-    cargo: 'Recepcionista',
+    cargo: 'Administrador',
     turno: 'Mañana',
     sueldo_base: 460000,
     email: '',
@@ -175,11 +175,9 @@ export function StaffModal({ isOpen, onClose, staffToEdit, onSave }) {
                         <div>
                             <label className={labelClass}>Cargo *</label>
                             <select className={inputClass} value={formData.cargo} onChange={e => handleChange('cargo', e.target.value)}>
-                                <option value="Recepcionista">Recepcionista</option>
-                                <option value="Aseo">Personal de Aseo</option>
+                                <option value="Administrador">Administrador</option>
                                 <option value="Mantenimiento">Mantenimiento</option>
-                                <option value="Administración">Administración</option>
-                                <option value="Ventas">Ventas</option>
+                                <option value="Aseo">Personal de Aseo</option>
                             </select>
                         </div>
                         <div>

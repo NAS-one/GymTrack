@@ -147,7 +147,7 @@ export function RutinaModal({
 
     const payload = {
       nombre: nombre.trim(),
-      id_cliente: client ? client.id : null,
+      id_cliente: client ? (client.id_cliente || client.id) : null,
       es_plantilla: isTemplate || false,
       id_entrenador: entrenadorId,
       activa: true,

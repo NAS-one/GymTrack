@@ -17,9 +17,9 @@ const pagoSchema = z.object({
 
   // Relaciones obligatorias
   id_membresia: z.string().uuid({ message: "ID de membresía inválido" }),
-  id_administrador: z
+  id_staff: z
     .string()
-    .uuid({ message: "ID de administrador inválido" }),
+    .uuid({ message: "ID de staff inválido" }),
 });
 
 // Exportamos la función para validar un registro completo (POST)

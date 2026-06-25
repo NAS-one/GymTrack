@@ -39,7 +39,7 @@ export class RutinaController {
     const { id_cliente } = req.params;
 
     try {
-      const rutinas = await this.RutinaModel.getActivaByClient({ id_cliente });
+      const rutinas = await this.RutinaModel.getActiveByClient({ id_cliente });
 
       // Devolvemos el array
       success(req, res, rutinas, 200);

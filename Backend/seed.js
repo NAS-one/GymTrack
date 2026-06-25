@@ -1,4 +1,4 @@
-﻿import postgres from "postgres";
+import postgres from "postgres";
 import bcrypt from "bcrypt";
 import "dotenv/config";
 
@@ -71,7 +71,7 @@ async function seed() {
       TRUNCATE TABLE 
       reportes, maquinas, registro_progreso, asistencia, medidas_fisicas, 
       sesiones_entrenador, detalle_rutina, rutinas, ejercicios, pagos, membresias, planes,
-      administradores, colaboradores, clientes, entrenadores, usuarios, roles
+      staff, clientes, entrenadores, usuarios, roles
       RESTART IDENTITY CASCADE
     `;
 
@@ -97,8 +97,8 @@ async function seed() {
       RETURNING id
     `;
     const [adminProfile] = await sql`
-      INSERT INTO administradores (nombre, cargo, id_usuario)
-      VALUES ('Admin Principal', 'Gerente General', ${uAdmin.id})
+      INSERT INTO staff (nombre, cargo, rut, telefono, direccion, sueldo_base, turno, id_usuario)
+      VALUES ('Admin Principal', 'Administrador', '18.234.567-K', '+56912345678', 'Av. Principal 1234, Río Bueno', 1200000, 'Full Time', ${uAdmin.id})
       RETURNING id
     `;
 
@@ -202,7 +202,7 @@ async function seed() {
       const [u] =
         await sql`INSERT INTO usuarios (username, email, password, estado, id_rol) VALUES (${username}, ${`${username}@gym.com`}, ${password}, 'active', ${roleId}) RETURNING id`;
       await sql`
-            INSERT INTO colaboradores (rut, nombre, telefono, cargo, turno, sueldo_base, id_usuario, fecha_contratacion, created_at) 
+            INSERT INTO staff (rut, nombre, telefono, cargo, turno, sueldo_base, id_usuario, fecha_contratacion, created_at) 
             VALUES (${s.rut}, ${s.nombre}, '+56911111111', ${s.cargo}, ${s.turno}, ${s.sueldo}, ${u.id}, ${getHistoricalDate(1, s.antiguedad)}, ${getHistoricalDate(1, s.antiguedad)})
         `;
       staffAttendancePool.push({ id_usuario: u.id, turno: s.turno });
@@ -393,7 +393,7 @@ async function seed() {
       RETURNING id
     `;
     await sql`
-      INSERT INTO pagos (monto, metodo_pago, id_membresia, id_administrador, fecha_pago)
+      INSERT INTO pagos (monto, metodo_pago, id_membresia, id_staff, fecha_pago)
       VALUES (${planesListDB[0].precio}, 'Tarjeta', ${memClienteDev.id}, ${adminProfile.id}, NOW() - INTERVAL '2 months')
     `;
     clientPool.push({
@@ -499,7 +499,7 @@ async function seed() {
             client.activeUntil = fechaFin;
             const [m] =
               await sql`INSERT INTO membresias (id_plan, fecha_inicio, fecha_fin, estado, id_cliente) VALUES (${planElegido.id}, ${currentDate}, ${fechaFin}, 'active', ${client.id_cliente}) RETURNING id`;
-            await sql`INSERT INTO pagos (monto, metodo_pago, id_membresia, id_administrador, fecha_pago) VALUES (${planElegido.precio}, ${metodoPagoElegido}, ${m.id}, ${adminProfile.id}, ${currentDate})`;
+            await sql`INSERT INTO pagos (monto, metodo_pago, id_membresia, id_staff, fecha_pago) VALUES (${planElegido.precio}, ${metodoPagoElegido}, ${m.id}, ${adminProfile.id}, ${currentDate})`;
           }
         }
         if (client.activeUntil >= currentDate) {
@@ -712,11 +712,11 @@ async function seed() {
           codigo_serie: `${item.brand.substring(0, 2).toUpperCase()}-${Math.floor(Math.random() * 10000)}`,
           estado: isBroken ? "en_mantencion" : "operativa",
           fecha_adquisicion: getHistoricalDate(1, 4),
-          id_administrador: adminProfile.id,
+          id_staff: adminProfile.id,
         });
       }
     }
-    await sql`INSERT INTO maquinas ${sql(machinesBuffer, "nombre", "marca", "codigo_serie", "estado", "fecha_adquisicion", "id_administrador")}`;
+    await sql`INSERT INTO maquinas ${sql(machinesBuffer, "nombre", "marca", "codigo_serie", "estado", "fecha_adquisicion", "id_staff")}`;
 
     // 9. BIBLIOTECA DE EJERCICIOS (30 ejercicios profesionales)
     console.log("ðŸ‹ï¸ Creando Biblioteca de Ejercicios profesional (30 ejercicios)...");
@@ -1116,11 +1116,11 @@ async function seed() {
           },
           estado: "Aprobado",
         }),
-        id_administrador: adminProfile.id,
+        id_staff: adminProfile.id,
         fecha_generacion: fechaGeneracion,
       });
     }
-    await sql`INSERT INTO reportes ${sql(reportesBuffer, "titulo", "tipo", "contenido", "id_administrador", "fecha_generacion")}`;
+    await sql`INSERT INTO reportes ${sql(reportesBuffer, "titulo", "tipo", "contenido", "id_staff", "fecha_generacion")}`;
 
     console.log("==========================================");
     console.log("âœ… SIEMBRA 5.0 COMPLETADA EXITOSAMENTE");

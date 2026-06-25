@@ -14,6 +14,12 @@ export const createAuthRouter = ({ UserModel }) => {
   authRouter.post("/force-password-change", authController.forcePasswordChange);
   authRouter.post("/verify-2fa", authController.verify2FA);
 
+  // RUTAS PÚBLICAS (Auto-registro)
+  authRouter.post("/self-register", authController.selfRegister);
+  authRouter.get("/plans", authController.getPublicPlans);
+  authRouter.post("/verify-registration-code", authController.verifyRegistrationCode);
+  authRouter.post("/resend-registration-code", authController.resendRegistrationCode);
+
 
   return authRouter;
 };

@@ -2,7 +2,9 @@ import { success, error } from "../Utils/responses.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { validateUser, userSchema } from "../Schemas/users.js";
-import { send2FAEmail } from "../Utils/email.js";
+import { validateSelfRegister } from "../Schemas/selfRegister.js";
+import { send2FAEmail, sendSelfRegistrationEmail, sendRegistrationCodeEmail } from "../Utils/email.js";
+import { sql } from "../bd.js";
 import z from "zod";
 
 export class AuthController {
@@ -404,6 +406,225 @@ export class AuthController {
     } catch (e) {
       console.error(e);
       error(req, res, "Error interno al verificar 2FA", 500);
+    }
+  };
+
+  // 6. AUTO-REGISTRO PÚBLICO DE CLIENTES
+  selfRegister = async (req, res) => {
+    // 1. Validar datos con schema Zod
+    const result = validateSelfRegister(req.body);
+    if (!result.success) {
+      const errors = JSON.parse(result.error.message);
+      const messages = errors.map((e) => e.message);
+      return error(req, res, messages, 400);
+    }
+
+    const {
+      nombre,
+      rut,
+      email,
+      password,
+      fecha_nacimiento,
+      direccion,
+      codigo_postal,
+      objetivo,
+      genero,
+      id_plan,
+    } = result.data;
+
+    try {
+      // 2. Verificar unicidad de RUT y limpiar pendientes si existen
+      const [existingRut] = await sql`
+        SELECT c.id as id_cliente, u.estado, u.id as id_usuario 
+        FROM clientes c 
+        JOIN usuarios u ON c.id_usuario = u.id 
+        WHERE c.rut = ${rut}
+      `;
+      if (existingRut) {
+        const isPending = existingRut.estado === 'pendiente' || existingRut.estado === 'pending';
+        if (isPending) {
+          // Si está pendiente (no validado), lo eliminamos para permitir crear uno nuevo
+          await sql`DELETE FROM membresias WHERE id_cliente = ${existingRut.id_cliente}`;
+          await sql`DELETE FROM clientes WHERE id = ${existingRut.id_cliente}`;
+          await sql`DELETE FROM usuarios WHERE id = ${existingRut.id_usuario}`;
+        } else {
+          return error(req, res, "Este RUT ya se encuentra registrado en el sistema", 409);
+        }
+      }
+
+      // 3. Verificar unicidad de email y limpiar pendientes si existen
+      const [existingEmail] = await sql`
+        SELECT id, estado FROM usuarios WHERE email = ${email}
+      `;
+      if (existingEmail) {
+        const isPending = existingEmail.estado === 'pendiente' || existingEmail.estado === 'pending';
+        if (isPending) {
+          // Si el correo está en un registro pendiente distinto, lo limpiamos también
+          const [client] = await sql`SELECT id FROM clientes WHERE id_usuario = ${existingEmail.id}`;
+          if (client) {
+             await sql`DELETE FROM membresias WHERE id_cliente = ${client.id}`;
+             await sql`DELETE FROM clientes WHERE id = ${client.id}`;
+          }
+          await sql`DELETE FROM usuarios WHERE id = ${existingEmail.id}`;
+        } else {
+          return error(req, res, "Este correo electrónico ya está registrado. Si ya tienes cuenta, inicia sesión.", 409);
+        }
+      }
+
+      // 4. Transacción: Crear usuario + cliente + membresía (si aplica)
+      const newClient = await sql.begin(async (tx) => {
+        // A. Obtener rol de cliente
+        const [role] = await tx`SELECT id FROM roles WHERE nombre = 'cliente'`;
+        if (!role) throw new Error("Rol 'cliente' no configurado en la BD");
+
+        // B. Hash de contraseña
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // C. Crear username a partir del email
+        const baseUsername = email.split("@")[0].replace(/[^a-zA-Z0-9]/g, "");
+        // Verificar si el username ya existe y agregar sufijo si es necesario
+        let finalUsername = baseUsername;
+        const [existingUsername] = await tx`SELECT id FROM usuarios WHERE username = ${baseUsername}`;
+        if (existingUsername) {
+          finalUsername = `${baseUsername}${Date.now().toString().slice(-4)}`;
+        }
+
+        // D. Crear usuario con estado 'pendiente'
+        const [newUser] = await tx`
+          INSERT INTO usuarios (username, email, password, estado, id_rol)
+          VALUES (${finalUsername}, ${email}, ${hashedPassword}, 'pendiente', ${role.id})
+          RETURNING id, username, email
+        `;
+
+        // E. Crear cliente
+        const [client] = await tx`
+          INSERT INTO clientes (rut, nombre, fecha_nacimiento, genero, direccion, objetivo, id_usuario)
+          VALUES (${rut}, ${nombre}, ${fecha_nacimiento}, ${genero || null}, ${direccion}, ${objetivo || null}, ${newUser.id})
+          RETURNING *
+        `;
+
+        // F. Si eligió plan, crear membresía (estado pendiente hasta activar cuenta)
+        let planInfo = null;
+        if (id_plan) {
+          const [plan] = await tx`SELECT * FROM planes WHERE id = ${id_plan} AND estado = 'active'`;
+          if (plan) {
+            const fechaInicio = new Date();
+            const fechaFin = new Date();
+            fechaFin.setMonth(fechaFin.getMonth() + plan.duracion_meses);
+
+            await tx`
+              INSERT INTO membresias (id_plan, fecha_inicio, fecha_fin, estado, id_cliente)
+              VALUES (${plan.id}, ${fechaInicio}, ${fechaFin}, 'pending', ${client.id})
+            `;
+            planInfo = plan;
+          }
+        }
+
+        return { user: newUser, client, planInfo };
+      });
+
+      // 5. Generar código OTP (6 dígitos)
+      const code = Math.floor(100000 + Math.random() * 900000).toString();
+      await this.UserModel.set2FACode(newClient.user.id, code);
+
+      // 6. Enviar correo en segundo plano con el código
+      sendRegistrationCodeEmail(
+        email,
+        nombre.split(" ")[0], // Solo el primer nombre
+        code,
+        newClient.planInfo
+      ).catch((err) => console.error("Error enviando correo de registro:", err));
+
+      // 8. Respuesta exitosa
+      success(
+        req,
+        res,
+        {
+          message: "Registro exitoso. Revisa tu correo electrónico para activar tu cuenta.",
+          email: newClient.user.email,
+          userId: newClient.user.id,
+        },
+        201
+      );
+    } catch (e) {
+      console.error("[SelfRegister] Error:", e);
+      if (e.code === "23505") {
+        if (e.message?.includes("rut"))
+          return error(req, res, "Este RUT ya está registrado", 409);
+        if (e.message?.includes("email"))
+          return error(req, res, "Este correo ya está registrado", 409);
+        if (e.message?.includes("username"))
+          return error(req, res, "Error de usuario duplicado, intenta nuevamente", 409);
+      }
+      error(req, res, "Error interno en el registro", 500);
+    }
+  };
+
+  // 7. OBTENER PLANES PÚBLICOS (Sin autenticación)
+  getPublicPlans = async (req, res) => {
+    try {
+      const plans = await sql`
+        SELECT id, nombre, precio, duracion_meses, descripcion
+        FROM planes
+        WHERE estado = 'active'
+        ORDER BY precio ASC
+      `;
+      success(req, res, plans, 200);
+    } catch (e) {
+      console.error(e);
+      error(req, res, "Error al obtener los planes", 500);
+    }
+  };
+
+  // 8. VERIFICAR CÓDIGO DE REGISTRO
+  verifyRegistrationCode = async (req, res) => {
+    const { userId, code } = req.body;
+    try {
+      const isValid = await this.UserModel.verify2FACode(userId, code);
+      if (!isValid) return error(req, res, "El código es incorrecto o ha expirado.", 401);
+
+      // Activar cuenta
+      await sql`
+        UPDATE usuarios 
+        SET estado = 'active', codigo_2fa = NULL, expiracion_2fa = NULL 
+        WHERE id = ${userId}
+      `;
+
+      success(req, res, { message: "Cuenta verificada y activada exitosamente." }, 200);
+    } catch (e) {
+      console.error(e);
+      error(req, res, "Error interno al verificar el código", 500);
+    }
+  };
+
+  // 9. REENVIAR CÓDIGO DE REGISTRO / ACTUALIZAR EMAIL
+  resendRegistrationCode = async (req, res) => {
+    const { userId, newEmail } = req.body;
+    try {
+      const [user] = await sql`SELECT * FROM usuarios WHERE id = ${userId}`;
+      if (!user) return error(req, res, "Usuario no encontrado", 404);
+
+      let targetEmail = user.email;
+      if (newEmail && newEmail !== user.email) {
+        const [existing] = await sql`SELECT id FROM usuarios WHERE email = ${newEmail}`;
+        if (existing) return error(req, res, "El correo ya está registrado por otro usuario", 409);
+        
+        await sql`UPDATE usuarios SET email = ${newEmail} WHERE id = ${userId}`;
+        targetEmail = newEmail;
+      }
+
+      const [client] = await sql`SELECT nombre FROM clientes WHERE id_usuario = ${userId}`;
+      const nombre = client ? client.nombre.split(" ")[0] : user.username;
+
+      const code = Math.floor(100000 + Math.random() * 900000).toString();
+      await this.UserModel.set2FACode(userId, code);
+
+      sendRegistrationCodeEmail(targetEmail, nombre, code, null).catch(err => console.error("Error re-enviando código", err));
+
+      success(req, res, { message: "Código reenviado exitosamente", email: targetEmail }, 200);
+    } catch (e) {
+      console.error(e);
+      error(req, res, "Error interno al reenviar el código", 500);
     }
   };
 }

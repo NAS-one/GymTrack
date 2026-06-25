@@ -1,9 +1,17 @@
 import { success, error } from "../Utils/responses.js";
+import { sql } from "../bd.js";
 
 export class PlanEntrenamientoController {
   constructor({ PlanEntrenamientoModel }) {
     this.Model = PlanEntrenamientoModel;
   }
+
+  // Helper: obtener el id del entrenador a partir del id del usuario
+  _getEntrenadorId = async (id_usuario) => {
+    const [entrenador] =
+      await sql`SELECT id FROM entrenadores WHERE id_usuario = ${id_usuario}`;
+    return entrenador?.id || null;
+  };
 
   create = async (req, res) => {
     try {
@@ -17,26 +25,36 @@ export class PlanEntrenamientoController {
         );
       }
 
+      const id_entrenador = await this._getEntrenadorId(req.user.id);
+      if (!id_entrenador) {
+        return error(req, res, "No se encontró perfil de entrenador", 403);
+      }
+
       const plan = await this.Model.create({
         nombre: nombre.trim(),
         objetivo: objetivo || null,
-        id_creador: req.user.id,
+        id_entrenador,
       });
 
       success(req, res, plan, 201);
     } catch (e) {
       console.error(e);
-      error(req, res, "Error al crear el plan", 500);
+      error(req, res, e.message || "Error al crear el plan", 500);
     }
   };
 
   getMisPlanes = async (req, res) => {
     try {
-      const planes = await this.Model.getByCreador({ id_creador: req.user.id });
+      const id_entrenador = await this._getEntrenadorId(req.user.id);
+      if (!id_entrenador) {
+        return error(req, res, "No se encontró perfil de entrenador", 403);
+      }
+
+      const planes = await this.Model.getByCreador({ id_entrenador });
       success(req, res, planes, 200);
     } catch (e) {
       console.error(e);
-      error(req, res, "Error al obtener los planes", 500);
+      error(req, res, e.message || "Error al obtener los planes", 500);
     }
   };
 
