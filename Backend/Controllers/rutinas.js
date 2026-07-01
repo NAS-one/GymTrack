@@ -67,7 +67,15 @@ export class RutinaController {
   update = async (req, res) => {
     try {
       const { id } = req.params;
-      await this.RutinaModel.update({ id, input: req.body });
+      
+      const { validatePartialRutina } = await import("../Schemas/rutinas.js");
+      const result = validatePartialRutina(req.body);
+      
+      if (!result.success) {
+        return error(req, res, JSON.parse(result.error.message), 400);
+      }
+      
+      await this.RutinaModel.update({ id, input: result.data });
       res.json({ message: "Rutina actualizada correctamente" });
     } catch (error) {
       console.error(error);

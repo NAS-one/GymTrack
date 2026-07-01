@@ -24,6 +24,7 @@ export function EntrenadorPlanes() {
   const [alumnos, setAlumnos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedPlan, setExpandedPlan] = useState(null);
+  const [expandedRutinaId, setExpandedRutinaId] = useState(null);
 
   // Modal crear plan
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -68,10 +69,15 @@ export function EntrenadorPlanes() {
     fetchDatos();
   }, []);
 
-  // --- CREAR PLAN ---
   const handleCreatePlan = async () => {
+    const regexSoloTexto = /^(?=.*[a-zA-ZáéíóúÁÉÍÓÚñÑ]).+$/;
+    
     if (!newPlanName.trim() || newPlanName.trim().length < 3) {
       return toast.warning("El nombre del plan debe tener al menos 3 caracteres");
+    }
+    
+    if (!regexSoloTexto.test(newPlanName.trim())) {
+      return toast.warning("El nombre del plan debe contener al menos una letra");
     }
     setCreatingPlan(true);
     try {
@@ -290,45 +296,69 @@ export function EntrenadorPlanes() {
                 {isExpanded && (
                   <div className="border-t border-white/5 bg-black/20 p-5 space-y-3 animate-fade-in">
                     {plan.rutinas && plan.rutinas.length > 0 ? (
-                      plan.rutinas.map((rutina) => (
+                      plan.rutinas.map((rutina) => {
+                        const isRutinaExpanded = expandedRutinaId === rutina.id;
+                        return (
                         <div
                           key={rutina.id}
-                          className="flex items-center justify-between bg-white/[0.02] border border-white/5 rounded-xl p-4 hover:border-orange-500/20 transition-all"
+                          className="flex flex-col bg-white/[0.02] border border-white/5 rounded-xl p-4 hover:border-orange-500/20 transition-all cursor-pointer"
+                          onClick={() => setExpandedRutinaId(isRutinaExpanded ? null : rutina.id)}
                         >
-                          <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-lg bg-zinc-800 border border-white/10 flex items-center justify-center">
-                              <Dumbbell
-                                size={16}
-                                className="text-orange-400"
-                              />
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <div className="w-9 h-9 rounded-lg bg-zinc-800 border border-white/10 flex items-center justify-center">
+                                <Dumbbell
+                                  size={16}
+                                  className="text-orange-400"
+                                />
+                              </div>
+                              <div>
+                                <p className="text-sm font-bold text-white">
+                                  {rutina.nombre}
+                                </p>
+                                <p className="text-[10px] text-zinc-500">
+                                  {rutina.total_ejercicios || 0} ejercicios
+                                </p>
+                              </div>
                             </div>
-                            <div>
-                              <p className="text-sm font-bold text-white">
-                                {rutina.nombre}
-                              </p>
-                              <p className="text-[10px] text-zinc-500">
-                                {rutina.total_ejercicios || 0} ejercicios
-                              </p>
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={(e) => { e.stopPropagation(); openEditRutina(rutina); }}
+                                className="px-3 py-1.5 text-xs font-bold text-blue-400 border border-blue-500/30 rounded-lg hover:bg-blue-500/10 transition-all"
+                              >
+                                <Edit3 size={12} className="inline mr-1" />
+                                Editar
+                              </button>
+                              <button
+                                onClick={(e) => { e.stopPropagation(); handleDeleteRutina(rutina); }}
+                                className="px-3 py-1.5 text-xs font-bold text-red-400 border border-red-500/30 rounded-lg hover:bg-red-500/10 transition-all"
+                              >
+                                <Trash2 size={12} className="inline mr-1" />
+                                Quitar
+                              </button>
+                              {isRutinaExpanded ? <ChevronUp size={16} className="text-zinc-500"/> : <ChevronDown size={16} className="text-zinc-500"/>}
                             </div>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <button
-                              onClick={() => openEditRutina(rutina)}
-                              className="px-3 py-1.5 text-xs font-bold text-blue-400 border border-blue-500/30 rounded-lg hover:bg-blue-500/10 transition-all"
-                            >
-                              <Edit3 size={12} className="inline mr-1" />
-                              Editar
-                            </button>
-                            <button
-                              onClick={() => handleDeleteRutina(rutina)}
-                              className="px-3 py-1.5 text-xs font-bold text-red-400 border border-red-500/30 rounded-lg hover:bg-red-500/10 transition-all"
-                            >
-                              <Trash2 size={12} className="inline mr-1" />
-                              Quitar
-                            </button>
-                          </div>
+                          
+                          {/* LISTA DE EJERCICIOS */}
+                          {isRutinaExpanded && (
+                            <div className="mt-4 pt-4 border-t border-white/5">
+                               {rutina.detalles && rutina.detalles.length > 0 ? (
+                                  <ul className="space-y-2">
+                                     {rutina.detalles.map(ej => (
+                                        <li key={ej.id} className="flex justify-between text-xs text-zinc-400">
+                                           <span>• {ej.nombre_ejercicio} (Día: {ej.dia})</span>
+                                           <span>{ej.series} x {ej.repeticiones}</span>
+                                        </li>
+                                     ))}
+                                  </ul>
+                               ) : (
+                                  <p className="text-xs text-zinc-500">No hay ejercicios asignados.</p>
+                               )}
+                            </div>
+                          )}
                         </div>
-                      ))
+                      )})
                     ) : (
                       <p className="text-sm text-zinc-500 text-center py-4">
                         Este plan no tiene rutinas aún.

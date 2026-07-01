@@ -114,8 +114,12 @@ export function PlanModal({ isOpen, onClose, planToEdit, onSave }) {
 
   const validate = () => {
     const newErrors = {};
-
-    if (!formData.nombre.trim()) newErrors.nombre = 'Obligatorio';
+    const regexSoloTexto = /^(?=.*[a-zA-ZáéíóúÁÉÍÓÚñÑ]).+$/;
+    if (!formData.nombre.trim()) {
+      newErrors.nombre = 'Obligatorio';
+    } else if (!regexSoloTexto.test(formData.nombre.trim())) {
+      newErrors.nombre = 'Debe contener al menos una letra';
+    }
     
     const precio = Number(formData.precio);
     if (formData.precio === '' || isNaN(precio)) {

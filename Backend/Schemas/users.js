@@ -8,7 +8,8 @@ const userSchema = z.object({
             invalid_type_error: "El usuario debe ser un texto",
         })
         .trim()
-        .min(3, "El usuario debe tener al menos 3 caracteres"),
+        .min(3, "El usuario debe tener al menos 3 caracteres")
+        .regex(/^(?=.*[a-zA-Z0-9]).+$/, "El nombre de usuario debe contener al menos una letra o número"),
 
     email: z
         .string({

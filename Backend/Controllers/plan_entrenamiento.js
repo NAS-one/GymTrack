@@ -16,11 +16,22 @@ export class PlanEntrenamientoController {
   create = async (req, res) => {
     try {
       const { nombre, objetivo } = req.body;
+      const regexSoloTexto = /^(?=.*[a-zA-ZáéíóúÁÉÍÓÚñÑ]).+$/;
+      
       if (!nombre || nombre.trim().length < 3) {
         return error(
           req,
           res,
           "El nombre del plan debe tener al menos 3 caracteres",
+          400,
+        );
+      }
+      
+      if (!regexSoloTexto.test(nombre.trim())) {
+        return error(
+          req,
+          res,
+          "El nombre del plan debe contener al menos una letra",
           400,
         );
       }
@@ -33,7 +44,7 @@ export class PlanEntrenamientoController {
       const plan = await this.Model.create({
         nombre: nombre.trim(),
         objetivo: objetivo || null,
-        id_creador: id_entrenador,
+        id_creador: req.user.id,
       });
 
       success(req, res, plan, 201);
@@ -50,7 +61,7 @@ export class PlanEntrenamientoController {
         return error(req, res, "No se encontró perfil de entrenador", 403);
       }
 
-      const planes = await this.Model.getByCreador({ id_creador: id_entrenador });
+      const planes = await this.Model.getByCreador({ id_creador: req.user.id });
       success(req, res, planes, 200);
     } catch (e) {
       console.error(e);

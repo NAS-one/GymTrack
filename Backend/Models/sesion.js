@@ -26,14 +26,33 @@ export class SesionModel {
     monto_gimnasio,
     monto_entrenador,
   }) {
+    // Validar que la fecha no esté en el pasado
+    const fechaProgramada = new Date(fecha);
+    const ahora = new Date();
+    // Resetear horas de "ahora" si fecha no tiene hora, pero en JS new Date('YYYY-MM-DD') genera medianoche UTC,
+    // que comparado con new Date() (local con hora) podría ser en el pasado incluso hoy.
+    // Usualmente `fecha` trae la hora si es para agendar. Validemos de todas formas.
+    if (fechaProgramada < ahora) {
+      throw new Error("La fecha programada no puede ser en el pasado.");
+    }
+
     //Ocupamos el ID real del entrenador en base a su usuario logeado
     const [entrenador] = await sql`
-      SELECT id
+      SELECT id, modelo_contrato
       FROM entrenadores
       WHERE id_usuario = ${id_usuario}`;
 
     if (!entrenador)
       throw new Error("No tienes un perfil de entrenador asignado.");
+
+    if (
+      entrenador.modelo_contrato !== "sueldo_fijo" &&
+      valor_cobrado !== undefined &&
+      valor_cobrado !== null &&
+      Number(valor_cobrado) < 10000
+    ) {
+      throw new Error("El valor cobrado debe ser de al menos 10000.");
+    }
 
     const [nuevaSesion] = await sql`
             INSERT INTO sesiones_entrenador 

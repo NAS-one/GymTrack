@@ -8,6 +8,8 @@ import {
   Loader2,
   Trash2,
   X,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import axios from "../../api/axios";
 import { toast } from "sonner";
@@ -21,6 +23,9 @@ export function EntrenadorRutinas() {
   // Modales
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPlantilla, setEditingPlantilla] = useState(null);
+  
+  // Acordeón de plantillas
+  const [expandedPlantillaId, setExpandedPlantillaId] = useState(null);
 
   // Modal de Asignación
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
@@ -184,7 +189,7 @@ export function EntrenadorRutinas() {
                   </div>
                 </div>
 
-                <div className="flex bg-black/40 rounded-xl p-3 mb-6 border border-white/5 divide-x divide-white/10">
+                <div className="flex bg-black/40 rounded-xl p-3 mb-4 border border-white/5 divide-x divide-white/10">
                   <div className="flex-1 flex flex-col items-center">
                     <span className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider mb-1">
                       Ejercicios
@@ -203,6 +208,45 @@ export function EntrenadorRutinas() {
                     </span>
                   </div>
                 </div>
+
+                <button
+                  onClick={() => setExpandedPlantillaId(prev => prev === p.id ? null : p.id)}
+                  className="w-full py-2 flex items-center justify-between text-xs text-zinc-400 hover:text-orange-400 transition-colors mb-4 border-t border-white/5 pt-3"
+                >
+                  <span className="font-bold tracking-wide">VER EJERCICIOS</span>
+                  {expandedPlantillaId === p.id ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                </button>
+
+                {expandedPlantillaId === p.id && (
+                  <div className="mb-4 bg-black/40 rounded-xl border border-white/5 overflow-hidden animate-fade-in">
+                    <div className="max-h-48 overflow-y-auto custom-scrollbar">
+                      {p.plan?.length > 0 ? (
+                        <table className="w-full text-left text-xs">
+                          <thead className="bg-white/5 text-zinc-500 sticky top-0 backdrop-blur-md">
+                            <tr>
+                              <th className="p-2 font-medium">Día</th>
+                              <th className="p-2 font-medium">Ejercicio</th>
+                              <th className="p-2 text-center font-medium">Series/Reps</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-white/5">
+                            {p.plan.map((row, i) => (
+                              <tr key={i} className="hover:bg-white/5 transition-colors">
+                                <td className="p-2 text-orange-400 font-bold">{row.dia}</td>
+                                <td className="p-2 text-white">{row.nombre_ejercicio || row.ejercicio?.nombre || "Ejercicio " + row.id_ejercicio}</td>
+                                <td className="p-2 text-center text-zinc-400 font-mono">
+                                  {row.series} x {row.repeticiones}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      ) : (
+                        <p className="p-4 text-center text-zinc-500 text-xs">No hay ejercicios definidos.</p>
+                      )}
+                    </div>
+                  </div>
+                )}
 
                 <div className="mt-auto grid grid-cols-2 gap-3">
                   <button

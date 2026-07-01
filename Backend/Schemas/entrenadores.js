@@ -12,7 +12,7 @@ const entrenadorSchema = z.object({
 
   // --- Perfil Básico ---
   rut: z.string().trim().min(8, "RUT inválido").optional(),
-  nombre: z.string().trim().min(2, "El nombre es obligatorio").optional(),
+  nombre: z.string().trim().min(2, "El nombre es obligatorio").regex(/^(?=.*[a-zA-Z0-9]).+$/, "El nombre debe contener al menos una letra o número").optional(),
   especialidad: z.string().trim().optional(),
   telefono: z.string().trim().optional(),
 
@@ -33,7 +33,7 @@ export function validateEntrenador(input) {
   // En creación, forzamos campos obligatorios
   const createSchema = entrenadorSchema.extend({
     email: z.string().email("Email requerido"),
-    nombre: z.string().trim().min(2, "Nombre requerido"),
+    nombre: z.string().trim().min(2, "Nombre requerido").regex(/^(?=.*[a-zA-Z0-9]).+$/, "El nombre debe contener al menos una letra o número"),
     rut: z.string().trim().min(8, "RUT requerido"),
     password: z.string().min(8, "Password requerido"), // En create el password es obligatorio
     modelo_contrato: z

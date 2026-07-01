@@ -6,12 +6,14 @@ import {
   Clock,
   User,
   CheckCircle2,
+  XCircle,
   DollarSign,
   Plus,
 } from "lucide-react";
 import axios from "../../../api/axios";
 import { AuthContext } from "../../../contexts/AuthContext";
 import { AgendarSesionModal } from "../../../components/admin/Entrenadores/AgendarSesionModal";
+import { toast } from "sonner";
 
 export function AgendaDiaria() {
   const { user } = useContext(AuthContext);
@@ -45,15 +47,17 @@ export function AgendaDiaria() {
     }
   };
 
-  const confirmarSesion = async (idSesion) => {
+  const cambiarEstadoSesion = async (idSesion, estadoNuevo, mensaje) => {
+    if (!window.confirm(mensaje)) return;
     try {
       await axios.patch(`/sesiones/${idSesion}/estado`, {
-        estado: "realizada",
+        estado: estadoNuevo,
       });
       fetchAgenda();
+      toast.success(`Clase marcada como ${estadoNuevo}`);
     } catch (error) {
-      console.error("Error confirmando la sesión:", error);
-      alert("Hubo un error al confirmar la clase.");
+      console.error("Error cambiando el estado de la sesión:", error);
+      toast.error("Hubo un error al actualizar la clase.");
     }
   };
 
@@ -188,14 +192,22 @@ export function AgendaDiaria() {
                       </span>
                     </div>
 
-                    {/* BOTON CONDICIONAL DE CONFIRMAR */}
+                    {/* BOTONES CONDICIONALES */}
                     {sesion.estado === "agendada" && (
-                      <button
-                        onClick={() => confirmarSesion(sesion.id)}
-                        className="text-xs bg-green-500/20 hover:bg-green-500/40 text-green-400 px-3 py-1.5 rounded-lg transition-colors border border-green-500/30 flex items-center gap-1 font-bold shadow-[0_0_10px_rgba(34,197,94,0.1)]"
-                      >
-                        <CheckCircle2 size={14} /> Confirmar Clase
-                      </button>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => cambiarEstadoSesion(sesion.id, "realizada", "¿Seguro que deseas confirmar esta clase?")}
+                          className="text-xs bg-green-500/20 hover:bg-green-500/40 text-green-400 px-3 py-1.5 rounded-lg transition-colors border border-green-500/30 flex items-center gap-1 font-bold shadow-[0_0_10px_rgba(34,197,94,0.1)]"
+                        >
+                          <CheckCircle2 size={14} /> Confirmar
+                        </button>
+                        <button
+                          onClick={() => cambiarEstadoSesion(sesion.id, "cancelada", "¿Estás seguro de cancelar esta clase? Esta acción es irreversible.")}
+                          className="text-xs bg-red-500/20 hover:bg-red-500/40 text-red-400 px-3 py-1.5 rounded-lg transition-colors border border-red-500/30 flex items-center gap-1 font-bold shadow-[0_0_10px_rgba(239,68,68,0.1)]"
+                        >
+                          <XCircle size={14} /> Cancelar
+                        </button>
+                      </div>
                     )}
                   </div>
                 </div>

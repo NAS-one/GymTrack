@@ -4,7 +4,8 @@ const planSchema = z.object({
   nombre: z
     .string()
     .trim()
-    .min(2, { message: "El nombre debe tener al menos 2 letras" }),
+    .min(2, { message: "El nombre debe tener al menos 2 letras" })
+    .regex(/^(?=.*[a-zA-ZáéíóúÁÉÍÓÚñÑ]).+$/, "El nombre debe contener al menos una letra"),
   precio: z.coerce
     .number()
     .min(6750, { message: "El precio mínimo es $6.750 (Máx. 85% desc.)" }),

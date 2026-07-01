@@ -113,7 +113,22 @@ export class RutinaModel {
 
   // 3. Obtener todas (para el admin/entrenador)
   static getAll = async () => {
-    return await sql`SELECT * FROM rutinas`;
+    const rutinas = await sql`SELECT * FROM rutinas WHERE activa = true ORDER BY created_at DESC`;
+    if (rutinas.length === 0) return [];
+    
+    // Cargar detalles de cada rutina
+    for (let rutina of rutinas) {
+      const detalles = await sql`
+        SELECT d.*, e.nombre as nombre_ejercicio, e.url_video, e.grupo_muscular
+        FROM detalle_rutina d
+        JOIN ejercicios e ON d.id_ejercicio = e.id
+        WHERE d.id_rutina = ${rutina.id}
+        ORDER BY d.dia, d.id
+      `;
+      rutina.plan = detalles;
+      rutina.detalles = detalles;
+    }
+    return rutinas;
   };
 
   static update = async ({ id, input }) => {
@@ -159,7 +174,7 @@ export class RutinaModel {
       SELECT r.*
       FROM rutinas r
       JOIN entrenadores e ON r.id_entrenador = e.id
-      WHERE r.es_plantilla = true AND (e.id = ${id_entrenador} OR e.id_usuario=${id_entrenador})
+      WHERE r.es_plantilla = true AND r.activa = true AND (e.id = ${id_entrenador} OR e.id_usuario=${id_entrenador})
       ORDER BY r.created_at ASC`;
 
     if (plantillas.length > 0) {
@@ -182,7 +197,8 @@ export class RutinaModel {
   static delete = async ({ id }) => {
     try {
       const result = await sql`
-      DELETE FROM rutinas
+      UPDATE rutinas
+      SET activa = false
       WHERE id = ${id}
       RETURNING id`;
 

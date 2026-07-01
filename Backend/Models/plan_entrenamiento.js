@@ -24,6 +24,17 @@ export class PlanEntrenamientoModel {
         FROM rutinas r
         WHERE r.id_plan = ${plan.id}
         ORDER BY r.created_at ASC`;
+        
+      for (let rutina of rutinas) {
+        const detalles = await sql`
+          SELECT d.*, e.nombre as nombre_ejercicio, e.grupo_muscular
+          FROM detalle_rutina d
+          JOIN ejercicios e ON d.id_ejercicio = e.id
+          WHERE d.id_rutina = ${rutina.id}
+          ORDER BY d.dia, d.id`;
+        rutina.plan = detalles;
+        rutina.detalles = detalles;
+      }
 
       plan.rutinas = rutinas;
       plan.total_rutinas = rutinas.length;
