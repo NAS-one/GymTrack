@@ -114,10 +114,10 @@ export function PlanModal({ isOpen, onClose, planToEdit, onSave }) {
 
   const validate = () => {
     const newErrors = {};
-    const regexSoloTexto = /^(?=.*[a-zA-ZáéíóúÁÉÍÓÚñÑ]).+$/;
-    if (!formData.nombre.trim()) {
+    const nombreTrimmed = formData.nombre.trim();
+    if (!nombreTrimmed) {
       newErrors.nombre = 'Obligatorio';
-    } else if (!regexSoloTexto.test(formData.nombre.trim())) {
+    } else if (!/[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]/.test(nombreTrimmed)) {
       newErrors.nombre = 'Debe contener al menos una letra';
     }
     
@@ -126,6 +126,8 @@ export function PlanModal({ isOpen, onClose, planToEdit, onSave }) {
       newErrors.precio = 'Obligatorio';
     } else if (precio < 6750) {
       newErrors.precio = `Mínimo $6.750`;
+    } else if (precio > 10000000) {
+      newErrors.precio = `Máximo $10.000.000`;
     }
 
     if (!formData.duracion_meses) newErrors.duracion_meses = 'Obligatorio';
@@ -212,7 +214,8 @@ export function PlanModal({ isOpen, onClose, planToEdit, onSave }) {
                     className={inputClass(errors.nombre)}
                     value={formData.nombre}
                     onChange={e => {
-                      setFormData({...formData, nombre: e.target.value});
+                      const val = e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ0-9\s+%\-#]/g, '');
+                      setFormData({...formData, nombre: val});
                       if (errors.nombre) setErrors(prev => ({ ...prev, nombre: null }));
                     }}
                     placeholder="Ej: Plan Anual Premium"
@@ -255,13 +258,17 @@ export function PlanModal({ isOpen, onClose, planToEdit, onSave }) {
                       </div>
                   </div>
                   <div>
-                      <label className="text-xs font-bold text-gym-gray uppercase mb-1 block">Precio Final ($)</label>
+                      <label className="text-xs font-bold text-gym-gray uppercase mb-1 flex justify-between">
+                         Precio Final ($)
+                         <span className="text-[9px] text-zinc-500 normal-case">Máx. $10M</span>
+                      </label>
                       <input
                         type="text"
                         className={inputClass(errors.precio)}
                         value={formData.precio}
                         onChange={e => {
-                           const onlyDigits = e.target.value.replace(/\D/g, '');
+                           let onlyDigits = e.target.value.replace(/\D/g, '');
+                           if (Number(onlyDigits) > 10000000) onlyDigits = '10000000';
                            setFormData({...formData, precio: onlyDigits});
                            // Si editan manual, borramos la referencia del descuento automático
                            setDescuento('');

@@ -6,6 +6,7 @@ export const createPlanRouter = ({ PlanModel }) => {
   const controller = new PlanController({ PlanModel });
 
   router.get("/", controller.getAll);
+  router.get("/archived", controller.getArchived);
   router.post("/", controller.create);
   router.patch("/:id", controller.update);
   router.delete("/:id", controller.delete);
@@ -13,3 +14,4 @@ export const createPlanRouter = ({ PlanModel }) => {
 
   return router;
 };
+

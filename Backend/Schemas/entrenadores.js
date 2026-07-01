@@ -39,6 +39,17 @@ export function validateEntrenador(input) {
     modelo_contrato: z
       .enum(["sueldo_fijo", "porcentaje"])
       .default("sueldo_fijo"),
+  }).superRefine((data, ctx) => {
+    if (data.modelo_contrato === "sueldo_fijo") {
+      const minSalary = data.turno === "Full Time" ? 539000 : 270000;
+      if (!data.sueldo_base || data.sueldo_base < minSalary) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `El sueldo base para ${data.turno || 'este turno'} no puede ser menor al mínimo legal ($${minSalary.toLocaleString('es-CL')})`,
+          path: ["sueldo_base"]
+        });
+      }
+    }
   });
 
   return createSchema.safeParse(input);
