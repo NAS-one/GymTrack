@@ -33,39 +33,40 @@ export function MachineModal({ isOpen, onClose, machine, onSave }) {
       newErrors.nombre = 'El nombre no puede superar los 50 caracteres';
     } else if (!/[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]/.test(nombreTrimmed)) {
       newErrors.nombre = 'El nombre debe contener al menos una letra';
-    } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/.test(nombreTrimmed)) {
-      newErrors.nombre = 'El nombre solo puede contener letras y espacios';
     }
 
-    // --- MARCA (opcional, solo letras y espacios, max 30) ---
+    // --- MARCA (obligatorio, solo letras y espacios, max 30) ---
     const marcaTrimmed = (formData.marca || '').trim();
-    if (marcaTrimmed) {
-      if (marcaTrimmed.length > 30) {
-        newErrors.marca = 'La marca no puede superar los 30 caracteres';
-      } else if (!/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s\-]+$/.test(marcaTrimmed)) {
-        newErrors.marca = 'La marca solo puede contener letras, números, espacios y guiones';
-      } else if (marcaTrimmed.length < 2) {
-        newErrors.marca = 'La marca debe tener al menos 2 caracteres';
-      }
+    if (!marcaTrimmed) {
+      newErrors.marca = 'La marca es obligatoria';
+    } else if (marcaTrimmed.length > 30) {
+      newErrors.marca = 'La marca no puede superar los 30 caracteres';
+    } else if (!/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s\-]+$/.test(marcaTrimmed)) {
+      newErrors.marca = 'La marca solo puede contener letras, números, espacios y guiones';
+    } else if (marcaTrimmed.length < 2) {
+      newErrors.marca = 'La marca debe tener al menos 2 caracteres';
     }
 
-    // --- CÓDIGO DE SERIE (opcional, alfanumérico + guiones, max 30) ---
+    // --- CÓDIGO DE SERIE (obligatorio, alfanumérico + guiones, max 30) ---
     const codigoTrimmed = (formData.codigo_serie || '').trim();
-    if (codigoTrimmed) {
-      if (codigoTrimmed.length > 30) {
-        newErrors.codigo_serie = 'El código no puede superar los 30 caracteres';
-      } else if (!/^[a-zA-Z0-9\-_.]+$/.test(codigoTrimmed)) {
-        newErrors.codigo_serie = 'Solo letras, números, guiones y puntos';
-      }
+    if (!codigoTrimmed) {
+      newErrors.codigo_serie = 'El código de serie es obligatorio';
+    } else if (codigoTrimmed.length > 30) {
+      newErrors.codigo_serie = 'El código no puede superar los 30 caracteres';
+    } else if (!/^[a-zA-Z0-9\-_.]+$/.test(codigoTrimmed)) {
+      newErrors.codigo_serie = 'Solo letras, números, guiones y puntos';
     }
 
-    // --- FECHA DE ADQUISICIÓN (no puede ser futura) ---
+    // --- FECHA DE ADQUISICIÓN (no puede ser futura, mínimo año 2000) ---
     if (formData.fecha_adquisicion) {
       const fechaSeleccionada = new Date(formData.fecha_adquisicion);
       const hoy = new Date();
       hoy.setHours(23, 59, 59, 999);
+      const fechaMinima = new Date('2000-01-01');
       if (fechaSeleccionada > hoy) {
         newErrors.fecha_adquisicion = 'La fecha no puede ser futura';
+      } else if (fechaSeleccionada < fechaMinima) {
+        newErrors.fecha_adquisicion = 'La fecha debe ser del año 2000 en adelante';
       }
     }
 
@@ -90,8 +91,8 @@ export function MachineModal({ isOpen, onClose, machine, onSave }) {
     let finalValue = value;
 
     if (field === 'nombre') {
-      // Solo letras y espacios
-      finalValue = value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, '').slice(0, 50);
+      // Letras, números, espacios y símbolos comunes (#, °, /)
+      finalValue = value.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s#°/\-_.]/g, '').slice(0, 50);
     } else if (field === 'marca') {
       // Letras, números, espacios y guiones
       finalValue = value.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s\-]/g, '').slice(0, 30);
@@ -133,7 +134,7 @@ export function MachineModal({ isOpen, onClose, machine, onSave }) {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-xs font-bold text-gym-gray uppercase mb-1 block">Marca</label>
+              <label className="text-xs font-bold text-gym-gray uppercase mb-1 block">Marca *</label>
               <input
                 type="text"
                 className={inputClass(errors.marca)}
@@ -145,7 +146,7 @@ export function MachineModal({ isOpen, onClose, machine, onSave }) {
               {errors.marca && <p className="text-red-400 text-xs mt-1 flex items-center gap-1"><AlertCircle size={10} /> {errors.marca}</p>}
             </div>
             <div>
-              <label className="text-xs font-bold text-gym-gray uppercase mb-1 block">Serie / ID</label>
+              <label className="text-xs font-bold text-gym-gray uppercase mb-1 block">Serie / ID *</label>
               <input
                 type="text"
                 className={inputClass(errors.codigo_serie)}

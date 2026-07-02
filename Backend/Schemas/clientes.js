@@ -2,7 +2,7 @@ import z from "zod";
 
 const clienteSchema = z.object({
     // 1. Datos obligatorios
-    nombre: z.string().trim().min(1, { message: "El nombre es requerido" }),
+    nombre: z.string().trim().min(1, { message: "El nombre es requerido" }).regex(/^(?=.*[a-zA-Z0-9]).+$/, "El nombre debe contener al menos una letra o número"),
     rut: z
         .string()
         .min(9, { message: "RUT inválido" })

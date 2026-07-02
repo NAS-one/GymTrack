@@ -1,7 +1,7 @@
 import z from "zod";
 
 const staffSchema = z.object({
-  nombre: z.string().trim().min(2, "Nombre requerido"),
+  nombre: z.string().trim().min(2, "Nombre requerido").regex(/^(?=.*[a-zA-Z0-9]).+$/, "El nombre debe contener al menos una letra o número"),
   rut: z.string().trim().min(8, "RUT inválido").optional().or(z.literal('')),
 
   // Opcionales que pueden venir vacíos

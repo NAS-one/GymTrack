@@ -114,7 +114,6 @@ export function PlanModal({ isOpen, onClose, planToEdit, onSave }) {
 
   const validate = () => {
     const newErrors = {};
-
     const nombreTrimmed = formData.nombre.trim();
     if (!nombreTrimmed) {
       newErrors.nombre = 'Obligatorio';

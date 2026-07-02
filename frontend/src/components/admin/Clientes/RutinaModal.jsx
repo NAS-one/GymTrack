@@ -55,13 +55,15 @@ export function RutinaModal({
     fetchEjercicios();
     if (rutinaExistente) {
       //MODO EDICIÓN
-      setNombre(rutinaExistente.nombre);
-      if (rutinaExistente.plan && rutinaExistente.plan.length > 0) {
-        const filasAdaptadas = rutinaExistente.plan.map((ej) => ({
-          id_ejercicio: ej.id_ejercicio,
-          dia: ej.dia,
-          series: ej.series,
-          repeticiones: ej.repeticiones,
+      setNombre(rutinaExistente.nombre || "");
+      const detallesRecibidos = rutinaExistente.plan || rutinaExistente.detalles;
+      
+      if (detallesRecibidos && detallesRecibidos.length > 0) {
+        const filasAdaptadas = detallesRecibidos.map((ej) => ({
+          id_ejercicio: ej.id_ejercicio || ej.ejercicio_id || ej.ejercicio?.id || "",
+          dia: ej.dia || "Lunes",
+          series: ej.series || 3,
+          repeticiones: ej.repeticiones || "10",
           carga_proyectada: ej.carga_proyectada || "",
         }));
         setFilas(filasAdaptadas);
@@ -127,6 +129,13 @@ export function RutinaModal({
 
     if (!nombre.trim()) {
       toast.warning("Pon un nombre a la rutina");
+      return;
+    }
+    
+    // Validación de que contenga al menos una letra
+    const regexSoloTexto = /^(?=.*[a-zA-ZáéíóúÁÉÍÓÚñÑ]).+$/;
+    if (!regexSoloTexto.test(nombre.trim())) {
+      toast.warning("El nombre de la rutina debe contener letras, no solo números o símbolos");
       return;
     }
     const invalidas = filas.filter((f) => !f.id_ejercicio);
@@ -407,10 +416,10 @@ export function RutinaModal({
                             handleFilaChange(
                               idx,
                               "carga_proyectada",
-                              e.target.value.replace(/\D/g, ''),
+                              e.target.value,
                             )
                           }
-                          placeholder="Solo números..."
+                          placeholder="Ej: 50kg, RIR 2..."
                           className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm text-white text-center outline-none focus:border-orange-500 transition-colors font-mono placeholder-zinc-600"
                         />
                       </>

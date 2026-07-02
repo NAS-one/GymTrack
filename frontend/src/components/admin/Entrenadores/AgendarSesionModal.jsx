@@ -70,6 +70,20 @@ export function AgendarSesionModal({ isOpen, onClose, onSesionAgendada }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validations
+    const todayStr = new Date().toISOString().split("T")[0];
+    if (formData.fecha < todayStr) {
+      alert("La fecha no puede ser en el pasado.");
+      return;
+    }
+
+    const esFijo = perfil?.modelo_contrato === "sueldo_fijo";
+    if (!esFijo && Number(formData.valor_cobrado) < 10000) {
+      alert("El valor cobrado debe ser al menos 10000.");
+      return;
+    }
+
     try {
       // Postgres necesita Fecha y Hora juntos
       const fechaHora = `${formData.fecha} ${formData.hora}:00`;
@@ -151,6 +165,7 @@ export function AgendarSesionModal({ isOpen, onClose, onSesionAgendada }) {
                 type="date"
                 name="fecha"
                 required
+                min={new Date().toISOString().split("T")[0]}
                 onChange={handleChange}
                 className="w-full bg-black/50 border border-white/10 rounded-xl py-3 px-4 text-white hover:border-orange-500/50 focus:border-orange-500 focus:outline-none transition-colors"
               />
@@ -178,6 +193,7 @@ export function AgendarSesionModal({ isOpen, onClose, onSesionAgendada }) {
                 <input
                   type="number"
                   name="valor_cobrado"
+                  min="10000"
                   value={formData.valor_cobrado}
                   placeholder="Ej: 20000"
                   onChange={handleChange}

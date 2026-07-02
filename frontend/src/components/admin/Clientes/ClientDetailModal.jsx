@@ -19,6 +19,8 @@ import {
   Ruler,
   Percent,
   Plus,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import {
   AreaChart,
@@ -55,6 +57,7 @@ export function ClientDetailModal({
   const [isRutinaModalOpen, setIsRutinaModalOpen] = useState(false);
   const [showMeasurementsModal, setShowMeasurementsModal] = useState(false);
   const [rutinaParaEditar, setRutinaParaEditar] = useState(null);
+  const [expandedRutinaId, setExpandedRutinaId] = useState(null);
 
   // Estado del Formulario de Pago
   const [paymentData, setPaymentData] = useState({
@@ -872,36 +875,49 @@ export function ClientDetailModal({
                             </button>
                           </div>
                         </div>
-                        {/* Tabla de ejercicios */}
+                        {/* Botón Acordeón */}
                         {rutina.plan?.length > 0 && (
-                          <table className="w-full text-left text-sm">
-                            <thead className="bg-white/5 text-gym-gray text-xs uppercase tracking-wider">
-                              <tr>
-                                <th className="p-3">Día</th>
-                                <th className="p-3">Músculo</th>
-                                <th className="p-3">Ejercicio</th>
-                                <th className="p-3 text-center">Series</th>
-                                <th className="p-3 text-center">Reps</th>
-                                <th className="p-3 text-right">Carga</th>
-                              </tr>
-                            </thead>
-                            <tbody className="divide-y divide-white/5">
-                              {rutina.plan.map((row, i) => (
-                                <tr key={i} className="hover:bg-white/5 transition-colors">
-                                  <td className="p-3 font-bold text-gym-orange text-xs">{row.dia}</td>
-                                  <td className="p-3 text-zinc-400 text-xs">{row.grupo_muscular || "--"}</td>
-                                  <td className="p-3 text-white">{row.nombre_ejercicio}</td>
-                                  <td className="p-3 text-center text-zinc-400 font-mono">{row.series}</td>
-                                  <td className="p-3 text-center text-zinc-400 font-mono">{row.repeticiones}</td>
-                                  <td className="p-3 text-right">
-                                    <span className="bg-zinc-800 text-gym-orange px-2 py-1 rounded font-mono border border-zinc-700 text-xs">
-                                      {row.carga_proyectada || "Peso Corporal"}
-                                    </span>
-                                  </td>
+                          <button
+                            onClick={() => setExpandedRutinaId(prev => prev === rutina.id ? null : rutina.id)}
+                            className="w-full flex items-center justify-between p-3 bg-black/10 hover:bg-white/5 transition-colors border-b border-white/5 text-xs text-zinc-400 font-bold tracking-wide"
+                          >
+                            <span>VER EJERCICIOS ({rutina.plan.length})</span>
+                            {expandedRutinaId === rutina.id ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                          </button>
+                        )}
+                        
+                        {/* Tabla de ejercicios */}
+                        {rutina.plan?.length > 0 && expandedRutinaId === rutina.id && (
+                          <div className="animate-fade-in max-h-64 overflow-y-auto custom-scrollbar">
+                            <table className="w-full text-left text-sm">
+                              <thead className="bg-white/5 text-gym-gray text-xs uppercase tracking-wider sticky top-0 backdrop-blur-md">
+                                <tr>
+                                  <th className="p-3">Día</th>
+                                  <th className="p-3">Músculo</th>
+                                  <th className="p-3">Ejercicio</th>
+                                  <th className="p-3 text-center">Series</th>
+                                  <th className="p-3 text-center">Reps</th>
+                                  <th className="p-3 text-right">Carga</th>
                                 </tr>
-                              ))}
-                            </tbody>
-                          </table>
+                              </thead>
+                              <tbody className="divide-y divide-white/5">
+                                {rutina.plan.map((row, i) => (
+                                  <tr key={i} className="hover:bg-white/5 transition-colors">
+                                    <td className="p-3 font-bold text-gym-orange text-xs">{row.dia}</td>
+                                    <td className="p-3 text-zinc-400 text-xs">{row.grupo_muscular || "--"}</td>
+                                    <td className="p-3 text-white">{row.nombre_ejercicio || row.ejercicio?.nombre || "Ejercicio " + row.id_ejercicio}</td>
+                                    <td className="p-3 text-center text-zinc-400 font-mono">{row.series}</td>
+                                    <td className="p-3 text-center text-zinc-400 font-mono">{row.repeticiones}</td>
+                                    <td className="p-3 text-right">
+                                      <span className="bg-zinc-800 text-gym-orange px-2 py-1 rounded font-mono border border-zinc-700 text-xs">
+                                        {row.carga_proyectada || "Peso Corporal"}
+                                      </span>
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
                         )}
                       </div>
                     ))}

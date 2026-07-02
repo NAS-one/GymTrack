@@ -62,7 +62,14 @@ export class ClienteController {
   update = async (req, res) => {
     try {
       let { id } = req.params;
-      const input = req.body;
+      
+      const result = validatePartialCliente(req.body);
+      if (!result.success) {
+        const firstError = result.error.errors[0]?.message || "Datos inválidos";
+        return res.status(400).json({ error: firstError });
+      }
+      
+      const input = result.data;
       if (input.id_entrenador === "") input.id_entrenador = null;
 
       // Resolver el id real de la tabla clientes.

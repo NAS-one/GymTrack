@@ -58,6 +58,13 @@ export class SesionController {
       res.status(201).json({ body: nuevaSesion });
     } catch (error) {
       console.error("Error agendado clase:", error);
+      if (
+        error.message === "La fecha programada no puede ser en el pasado." ||
+        error.message === "El valor cobrado debe ser de al menos 10000." ||
+        error.message === "No tienes un perfil de entrenador asignado."
+      ) {
+        return res.status(400).json({ error: error.message });
+      }
       res.status(500).json({ error: "Error en el servidor al agendar." });
     }
   };
