@@ -41,11 +41,16 @@ export function Clientes({ modoEntrenador = false }) {
   const [initialTab, setInitialTab] = useState("profile"); //Estado para controlar qué pestaña abrir en modal
   const [measurementsClient, setMeasurementsClient] = useState(null);
 
+  // Filtro especial "sin-rutina" desde EntrenadorDashboard
+  const filterSinRutina = searchParams.get("filter") === "sin-rutina";
+
   useEffect(() => {
     const statusParam = searchParams.get("estado");
     if (statusParam) setFilterStatus(statusParam);
+    // Si llega el filtro especial, forzamos vista "sin plan"
+    if (filterSinRutina) setFilterStatus("none");
     fetchData();
-  }, [searchParams, modoEntrenador]); //Agregamos el modoEntrenador a las dependencias
+  }, [searchParams, modoEntrenador]);
 
   const fetchData = async () => {
     try {
@@ -88,7 +93,7 @@ export function Clientes({ modoEntrenador = false }) {
     setFilterStatus("all");
     setSearchTerm("");
     setSortOrder("none");
-    setSearchParams({});
+    setSearchParams({}); // Limpia también el ?filter=sin-rutina
   };
 
   const handleSave = async (formData) => {
@@ -251,11 +256,20 @@ export function Clientes({ modoEntrenador = false }) {
             </div>
           </div>
           <p className="text-gym-gray mt-1">
-            {modoEntrenador
-              ? "Gestiona a tus clientes, revisa sus rutinas y monitorea su progreso."
-              : "Administra perfiles y membresías"}
-            .
+            {filterSinRutina
+              ? "Mostrando alumnos que aún no tienen rutina asignada."
+              : modoEntrenador
+                ? "Gestiona a tus clientes, revisa sus rutinas y monitorea su progreso."
+                : "Administra perfiles y membresías."}
           </p>
+          {filterSinRutina && (
+            <button
+              onClick={handleClearFilters}
+              className="mt-2 text-xs bg-purple-500/10 text-purple-400 border border-purple-500/20 px-3 py-1.5 rounded-lg hover:bg-purple-500/20 transition-colors flex items-center gap-1.5"
+            >
+              <XCircle size={14} /> Quitar filtro "Sin Rutina"
+            </button>
+          )}
         </div>
 
         {!modoEntrenador && (

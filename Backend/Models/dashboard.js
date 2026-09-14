@@ -81,8 +81,14 @@ export class DashboardModel {
         WHERE m.estado = 'active' AND m.fecha_fin >= CURRENT_DATE GROUP BY p.nombre
       `,
       sql`
-        SELECT p.nombre as name, COUNT(m.id)::int as value 
-        FROM membresias m JOIN planes p ON m.id_plan = p.id GROUP BY p.nombre
+        SELECT COUNT(*)::int as total 
+        FROM clientes c 
+        WHERE NOT EXISTS (
+          SELECT 1 FROM membresias m 
+          WHERE m.id_cliente = c.id 
+            AND m.estado = 'active' 
+            AND m.fecha_fin >= CURRENT_DATE
+        )
       `,
       sql`
         SELECT COALESCE(c.nombre, s.nombre, e.nombre, 'Usuario') as nombre, a.fecha_entrada, a.estado_acceso
@@ -132,7 +138,7 @@ export class DashboardModel {
         attendanceYear: attendanceHistoryYear,
         attendanceWeek: attendanceHistoryWeek,
         membershipActive: planesActive,
-        membershipHistory: planesHistory
+        clientesWithoutPlan: planesHistory[0]?.total || 0
       },
       recentLogs: ultimosAccesos,
       peakHours: asistenciaPorHora,

@@ -82,7 +82,18 @@ export function TrendsChart({ data }) {
     } else if (activeTab === 'attendance') {
       rawData = timeRange === 'week' ? (safeData.attendanceWeek || []) : (safeData.attendanceYear || []);
     } else if (activeTab === 'memberships') {
-      return membershipFilter === 'active' ? (safeData.membershipActive || []) : (safeData.membershipHistory || []);
+      // "Vigentes" = solo planes activos; "Completo" = activos + segmento "Sin Plan"
+      const activeData = safeData.membershipActive || [];
+      if (membershipFilter === 'active') {
+        return activeData;
+      } else {
+        // Vista completa: agregar segmento "Sin Plan" si hay clientes sin membresía vigente
+        const sinPlan = safeData.clientesWithoutPlan || 0;
+        if (sinPlan > 0) {
+          return [...activeData, { name: 'Sin Plan', value: sinPlan }];
+        }
+        return activeData;
+      }
     }
 
     if ((timeRange === 'year' || timeRange === 'month') && activeTab !== 'memberships') {
@@ -227,7 +238,9 @@ export function TrendsChart({ data }) {
             </div>
           )}
           <span className="text-[9px] text-zinc-500 mt-2 font-black uppercase tracking-[0.15em] bg-black/50 px-2.5 py-1.5 rounded-lg w-fit border border-white/5">
-            {activeTab === 'memberships' ? 'Distribución Activa' : timeRange === 'week' ? 'Dinámica de 7 días' : timeRange === 'month' ? 'Análisis Semestral' : 'Análisis Anual'}
+            {activeTab === 'memberships' 
+              ? (membershipFilter === 'active' ? 'Distribución Vigente' : 'Distribución Total') 
+              : timeRange === 'week' ? 'Dinámica de 7 días' : timeRange === 'month' ? 'Análisis Semestral' : 'Análisis Anual'}
           </span>
         </div>
 
@@ -248,8 +261,8 @@ export function TrendsChart({ data }) {
               </>
             ) : (
               <>
-                <RangeButton active={membershipFilter === 'active'} onClick={() => setMembershipFilter('active')} label="Activos" />
-                <RangeButton active={membershipFilter === 'history'} onClick={() => setMembershipFilter('history')} label="Todos" />
+                <RangeButton active={membershipFilter === 'active'} onClick={() => setMembershipFilter('active')} label="Vigentes" />
+                <RangeButton active={membershipFilter === 'history'} onClick={() => setMembershipFilter('history')} label="Completo" />
               </>
             )}
           </div>
