@@ -173,9 +173,16 @@ export function Planes() {
                                         </div>
                                     </div>
 
-                                    {/* KPI en Tarjeta */}
-                                    <div className="mb-4 flex items-center gap-2 text-sm text-green-400 font-medium bg-green-500/10 px-2 py-1 rounded w-fit">
-                                        <Users size={14} /> {plan.usuarios_activos || 0} Activos
+                                    {/* KPI en Tarjeta — Activos y Vencidos */}
+                                    <div className="mb-4 flex items-center gap-2 flex-wrap">
+                                        <div className="flex items-center gap-2 text-sm text-green-400 font-medium bg-green-500/10 px-2 py-1 rounded w-fit">
+                                            <Users size={14} /> {plan.usuarios_activos || 0} Vigentes
+                                        </div>
+                                        {(plan.usuarios_vencidos > 0) && (
+                                            <div className="flex items-center gap-2 text-sm text-amber-400 font-medium bg-amber-500/10 px-2 py-1 rounded w-fit">
+                                                {plan.usuarios_vencidos} Vencidos
+                                            </div>
+                                        )}
                                     </div>
 
                                     <p className="text-xs text-gray-400 leading-relaxed mb-3 line-clamp-2">
@@ -233,7 +240,7 @@ export function Planes() {
                             </div>
 
                             <div className="p-3 bg-white/5 rounded-xl border border-white/5 space-y-3">
-                                <span className="text-xs text-gym-gray font-bold uppercase block mb-2">Clientes Activos por Plan</span>
+                                <span className="text-xs text-gym-gray font-bold uppercase block mb-2">Clientes Vigentes por Plan</span>
 
                                 {plans.length > 0 ? plans.map(plan => (
                                     <div key={plan.id} className="flex justify-between items-center text-sm">

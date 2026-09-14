@@ -119,7 +119,7 @@ export function EntrenadorDashboard() {
             icon={<Dumbbell size={20} />}
             sparklineData={[]}
             subtitle="Se necesita acción"
-            onClick={() => navigate("/entrenador/rutinas")}
+            onClick={() => navigate("/entrenador/clientes?filter=sin-rutina")}
           />
         </section>
 

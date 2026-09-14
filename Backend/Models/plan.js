@@ -1,16 +1,24 @@
 import { sql } from "../bd.js";
 
 export class PlanModel {
-  // 1. OBTENER TODOS (Ahora con contador de usuarios activos)
+  // 1. OBTENER TODOS — con contadores corregidos (DISTINCT + fecha vigente)
   static async getAll() {
     return await sql`
       SELECT 
         p.*,
         (
-          SELECT COUNT(*)::int 
+          SELECT COUNT(DISTINCT m.id_cliente)::int 
           FROM membresias m 
-          WHERE m.id_plan = p.id AND m.estado = 'active'
-        ) as usuarios_activos
+          WHERE m.id_plan = p.id 
+            AND m.estado = 'active' 
+            AND m.fecha_fin >= CURRENT_DATE
+        ) as usuarios_activos,
+        (
+          SELECT COUNT(DISTINCT m.id_cliente)::int 
+          FROM membresias m 
+          WHERE m.id_plan = p.id 
+            AND (m.estado != 'active' OR m.fecha_fin < CURRENT_DATE)
+        ) as usuarios_vencidos
       FROM planes p
       WHERE p.estado = 'active' 
       ORDER BY p.precio ASC
@@ -65,12 +73,14 @@ export class PlanModel {
     return result.total;
   }
 
-  // 5. Contar usuarios activos en un plan
+  // 5. Contar usuarios realmente vigentes en un plan
   static async getUsersOnPlan({ id }) {
     const [result] = await sql`
-      SELECT COUNT(*)::int as total 
+      SELECT COUNT(DISTINCT m.id_cliente)::int as total 
       FROM membresias m 
-      WHERE m.id_plan = ${id} AND m.estado = 'active'
+      WHERE m.id_plan = ${id} 
+        AND m.estado = 'active' 
+        AND m.fecha_fin >= CURRENT_DATE
     `;
     return result.total;
   }

@@ -1,0 +1,318 @@
+# 🔧 GymTrack — Corrección Integral de Errores y Nuevas Funcionalidades
+
+Plan para corregir bugs y agregar features en los 4 paneles: Entrenador, Admin, Cliente y Staff.
+
+> [!IMPORTANT]
+> Este plan abarca **~15-20 archivos nuevos y ~25+ archivos modificados**. Se estima un esfuerzo de **varios días de trabajo continuo**. Recomiendo ejecutar esto en **fases** para poder testear incrementalmente.
+
+## User Review Required
+
+> [!WARNING]
+> **Hay decisiones de diseño importantes que necesitan tu aprobación antes de empezar:**
+
+1. **Fotos de perfil**: Para guardar imágenes (cara de clientes/entrenadores/staff), se necesita almacenamiento de archivos. Las opciones son:
+   - **A) Base64 en PostgreSQL** — Simple pero no escala bien. Las fotos se guardan directo en la BD.
+   - **B) Almacenamiento local en el servidor** — Crear una carpeta `/uploads` en el backend. Funcional para desarrollo y un server propio.
+   - **C) Servicio cloud (Cloudinary/S3)** — Lo más profesional pero requiere cuenta externa.
+   
+   **Mi recomendación: Opción B** para empezar (local con `/uploads`), con la estructura preparada para migrar a C más adelante.
+
+2. **Pago real de planes (cliente)**: Mencionas "pestaña de pago" y "boleta electrónica". Esto requiere integración con un proveedor real (Webpay/MercadoPago/Stripe). 
+   - ¿Quieres que cree el **flujo visual completo** (seleccionar plan → resumen → formulario de pago → confirmación) y deje el punto de integración preparado pero **sin conectar un proveedor real** todavía?
+   - ¿O prefieres que implemente una integración real con alguno? (necesitaría credenciales)
+
+3. **Comentarios/Testimonios de clientes**: Propongo:
+   - Los clientes dejan testimonios desde su panel (sección "Mi Experiencia" o en el perfil).
+   - Los testimonios se muestran en la **página de login/registro** pública como un carrusel de reviews (estilo Google Reviews).
+   - El admin los modera desde su panel (aprobar/rechazar/destacar).
+   - ¿Te parece bien esta ubicación?
+
+4. **Notificaciones**: Mencionas que las notificaciones de agenda deberían ir al correo o WhatsApp. Para correo ya tienes nodemailer configurado. Para WhatsApp se necesita la API de WhatsApp Business (~$0.05/mensaje) o Twilio. **¿Quieres solo correo por ahora?**
+
+5. **Panel Staff**: Los roles `recepcionista`, `mantenimiento` y `aseo` no tienen panel. Quieres crear uno con: contrato, liquidaciones, vacaciones, documentos laborales chilenos (Ley Karin, RIOHS, etc.). **¿La información de liquidaciones y contratos será subida manualmente por el admin (como PDFs) o quieres que el sistema calcule liquidaciones automáticamente?**
+
+---
+
+## Open Questions
+
+> [!IMPORTANT]
+> Responde estas preguntas para que pueda definir el alcance exacto:
+
+- **Q1**: ¿La descarga de rutina en PDF debe incluir el logo actual de GymTrack o tienes un logo específico? (Necesito la imagen del logo para la marca de agua)
+- **Q2**: Para el panel Staff, ¿los datos de contrato (tipo indefinido/plazo, sueldo, fechas) ya están en la tabla `staff` de la BD o hay que agregar campos nuevos?
+- **Q3**: ¿El cálculo de vacaciones acumuladas es solo informativo (basado en fecha_contratacion × 15 días/año según ley chilena) o quieres un sistema de solicitud de vacaciones con aprobación del admin?
+
+---
+
+## Propuesta de Ejecución en 5 Fases
+
+### FASE 1 — Bugs Críticos y Datos Inconsistentes (Prioridad Alta)
+
+#### 1.1 Entrenador: "Alumnos sin rutina" redirige al login
+
+**Diagnóstico:** En [`EntrenadorDashboard.jsx`](file:///c:/Users/almun/source/repos/GymTrack/frontend/src/pages/trainer/EntrenadorDashboard.jsx#L122), el onClick navega a `/entrenador/rutinas`, pero esa ruta **no existe** en [`App.jsx`](file:///c:/Users/almun/source/repos/GymTrack/frontend/src/App.jsx). Al no encontrar la ruta, el `catch-all` en línea 117 (`<Route path="*" element={<Navigate to="/" />}`) lo manda al login.
+
+**Solución:** 
+- Cambiar la navegación para ir a `/entrenador/clientes?filter=sin-rutina` (filtrar la vista de MisAlumnos por alumnos sin rutina asignada).
+- Agregar lógica de filtrado en el componente [`Clientes.jsx`](file:///c:/Users/almun/source/repos/GymTrack/frontend/src/pages/trainer/Clientes.jsx) del entrenador para soportar el query param `filter=sin-rutina`.
+
+#### [MODIFY] [`frontend/src/pages/trainer/EntrenadorDashboard.jsx`](file:///c:/Users/almun/source/repos/GymTrack/frontend/src/pages/trainer/EntrenadorDashboard.jsx)
+- Línea 122: Cambiar `navigate("/entrenador/rutinas")` → `navigate("/entrenador/clientes?filter=sin-rutina")`
+
+#### [MODIFY] [`frontend/src/pages/trainer/Clientes.jsx`](file:///c:/Users/almun/source/repos/GymTrack/frontend/src/pages/trainer/Clientes.jsx)
+- Leer `searchParams.get("filter")` y pre-filtrar por clientes sin rutina activa cuando sea `sin-rutina`
+
+---
+
+#### 1.2 Admin: Números de planes inconsistentes (508 total vs 72 activos vs 124/127/139 por plan)
+
+**Diagnóstico:** El problema está en las queries del backend:
+
+- En [`dashboard.js`](file:///c:/Users/almun/source/repos/GymTrack/Backend/Models/dashboard.js#L47): `activeMembers` cuenta `COUNT(DISTINCT id_cliente) FROM membresias WHERE estado = 'active' AND fecha_fin >= CURRENT_DATE` — Esto es correcto.
+- En [`plan.js`](file:///c:/Users/almun/source/repos/GymTrack/Backend/Models/plan.js#L6-L17): `usuarios_activos` cuenta `COUNT(*) FROM membresias WHERE id_plan = p.id AND m.estado = 'active'` — **NO filtra por `fecha_fin >= CURRENT_DATE`**. Un cliente puede tener membresía con `estado = 'active'` pero con fecha vencida. Además, un cliente con múltiples membresías históricas en el mismo plan se cuenta múltiples veces.
+- En el dashboard chart `planesHistory` (línea 83-86): Cuenta `COUNT(m.id)` **todas las membresías** (no solo activas). 508 = total de membresías históricas de todos los planes sumados.
+
+**Solución:**
+
+#### [MODIFY] [`Backend/Models/plan.js`](file:///c:/Users/almun/source/repos/GymTrack/Backend/Models/plan.js)
+- `getAll()`: Cambiar la subquery de `usuarios_activos` a: `COUNT(DISTINCT m.id_cliente) FROM membresias m WHERE m.id_plan = p.id AND m.estado = 'active' AND m.fecha_fin >= CURRENT_DATE`
+- Agregar campo `usuarios_vencidos` con: `COUNT(DISTINCT m.id_cliente) FROM membresias m WHERE m.id_plan = p.id AND (m.estado != 'active' OR m.fecha_fin < CURRENT_DATE)`
+
+#### [MODIFY] [`Backend/Models/dashboard.js`](file:///c:/Users/almun/source/repos/GymTrack/Backend/Models/dashboard.js)
+- `planesActive` (línea 78-82): Agregar `AND m.fecha_fin >= CURRENT_DATE` al filtro
+- `planesHistory` (línea 83-86): Renombrar a "Total Membresías" y aclarar en el frontend que es histórico
+- Agregar query para contar clientes **sin plan** (sin membresía activa)
+
+#### [MODIFY] [`frontend/src/pages/admin/Dashboard.jsx`](file:///c:/Users/almun/source/repos/GymTrack/frontend/src/pages/admin/Dashboard.jsx)
+- En la sección de gráficos de planes, mostrar correctamente activos vs vencidos vs sin plan
+- Verificar que los números del chart coincidan con el KPI de "Miembros Activos"
+
+#### [MODIFY] [`frontend/src/pages/admin/Planes.jsx`](file:///c:/Users/almun/source/repos/GymTrack/frontend/src/pages/admin/Planes.jsx)
+- Mostrar `usuarios_activos` y `usuarios_vencidos` por separado en cada tarjeta
+
+---
+
+### FASE 2 — Panel Entrenador (Correcciones)
+
+#### 2.1 Eliminar campana y rueda de configuración del header
+
+#### [MODIFY] [`frontend/src/layouts/EntrenadorLayout.jsx`](file:///c:/Users/almun/source/repos/GymTrack/frontend/src/layouts/EntrenadorLayout.jsx)
+- Eliminar el botón de `<Bell>` (línea 240-245)
+- Eliminar el botón de `<Settings>` (línea 246-251)
+- Eliminar el contenedor `bg-black/40` que los envuelve (línea 239-252)
+
+#### 2.2 Ajustes de Perfil del Entrenador (no funciona)
+
+**Diagnóstico:** El botón "Ajustes de Perfil" en el dropdown del entrenador (línea 289-295) no tiene `onClick` handler — es un `<button>` vacío.
+
+**Solución:** Crear una página de perfil para entrenador reutilizando la interfaz del admin.
+
+#### [NEW] `frontend/src/pages/trainer/PerfilEntrenador.jsx`
+- Reutilizar el diseño del perfil admin
+- Permitir editar: foto (de cara/medio cuerpo), correo y teléfono
+- Los cambios se reflejan en la BD y el admin los ve actualizados
+
+#### [MODIFY] [`frontend/src/App.jsx`](file:///c:/Users/almun/source/repos/GymTrack/frontend/src/App.jsx)
+- Agregar ruta `/entrenador/perfil` → `<PerfilEntrenador />`
+
+#### [MODIFY] [`frontend/src/layouts/EntrenadorLayout.jsx`](file:///c:/Users/almun/source/repos/GymTrack/frontend/src/layouts/EntrenadorLayout.jsx)
+- El botón "Ajustes de Perfil" ejecuta `navigate("/entrenador/perfil")`
+
+---
+
+### FASE 3 — Panel Cliente (Correcciones y Nuevas Funcionalidades)
+
+#### 3.1 Eliminar campana de notificación que no hace nada
+
+#### [MODIFY] [`frontend/src/layouts/ClientLayout.jsx`](file:///c:/Users/almun/source/repos/GymTrack/frontend/src/layouts/ClientLayout.jsx)
+- Eliminar el botón `<Bell>` del header (líneas 186-189)
+
+#### 3.2 Cliente NO debe poder cambiar su entrenador
+
+#### [MODIFY] [`frontend/src/pages/client/Perfil.jsx`](file:///c:/Users/almun/source/repos/GymTrack/frontend/src/pages/client/Perfil.jsx)
+- En el modal de edición: **eliminar** el campo `<select>` de entrenador
+- El entrenador asignado se muestra como **solo lectura**
+- Solo el admin o entrenador puede asignar/cambiar entrenador
+
+#### 3.3 Renovación de plan → Flujo de pago funcional
+
+#### [NEW] `frontend/src/pages/client/PagoRenovacion.jsx`
+- Pantalla completa de renovación: seleccionar plan → ver resumen con precio → formulario de pago → confirmación
+- Por ahora simulará el pago (botón "Confirmar Pago") y creará la membresía + pago en la BD
+- Estructura preparada para conectar Webpay/Stripe en el futuro
+
+#### [MODIFY] [`frontend/src/App.jsx`](file:///c:/Users/almun/source/repos/GymTrack/frontend/src/App.jsx)
+- Agregar ruta `/client/renovar/:planId` → `<PagoRenovacion />`
+
+#### [NEW] `Backend/Routes/client_payments.js` + `Backend/Controllers/clientPaymentController.js`
+- Endpoint `POST /client/pay` para procesar el pago y crear membresía
+
+#### 3.4 Descargar rutina en PDF con marca de agua
+
+#### [NEW] `frontend/src/utils/generateRoutinePDF.js`
+- Función que genera un PDF de la rutina usando una librería como `jspdf`
+- Incluye marca de agua con logo del gym
+- Si el cliente tiene entrenador, la opción de descarga se oculta (rutina privada)
+
+```bash
+npm install jspdf jspdf-autotable
+```
+
+#### [MODIFY] [`frontend/src/pages/client/Rutina.jsx`](file:///c:/Users/almun/source/repos/GymTrack/frontend/src/pages/client/Rutina.jsx)
+- Agregar botón "Descargar PDF" visible solo si el cliente NO tiene entrenador
+- Si tiene entrenador, mostrar mensaje "Rutina gestionada por tu entrenador"
+
+#### 3.5 Foto de perfil del cliente
+
+#### [MODIFY] [`frontend/src/pages/client/Perfil.jsx`](file:///c:/Users/almun/source/repos/GymTrack/frontend/src/pages/client/Perfil.jsx)
+- Reemplazar el icono `<User>` por un componente de subida de foto
+- Validar que la imagen sea de rostro (restricción por relación de aspecto y tamaño mínimo)
+- La foto se sube al backend via endpoint `/upload/profile`
+
+#### [NEW] `Backend/Routes/upload.js` + middleware de subida
+- Endpoint `POST /upload/profile` con multer para recibir la imagen
+- Guardar en `/uploads/profiles/` con nombre único
+- Actualizar `foto_perfil` en la tabla correspondiente (clientes, entrenadores, staff)
+
+---
+
+### FASE 4 — Comentarios/Testimonios + Panel Staff (NUEVAS FUNCIONALIDADES)
+
+#### 4.1 Sistema de comentarios/testimonios
+
+#### [NEW] Tabla en BD: `testimonios`
+```sql
+CREATE TABLE testimonios (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    contenido TEXT NOT NULL,
+    calificacion INT CHECK (calificacion BETWEEN 1 AND 5),
+    estado VARCHAR(20) DEFAULT 'pendiente', -- pendiente, aprobado, rechazado
+    destacado BOOLEAN DEFAULT false,
+    id_cliente UUID NOT NULL REFERENCES clientes(id) ON DELETE CASCADE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+#### [NEW] `Backend/Models/testimonio.js` + Routes + Controller
+- CRUD de testimonios
+- Endpoint público `GET /testimonios/public` (solo aprobados)
+- Endpoint admin `GET /testimonios/admin` (todos, con filtros)
+
+#### [NEW] `frontend/src/components/client/TestimonioForm.jsx`
+- Formulario simple: texto + estrellas (1-5)
+
+#### [MODIFY] `frontend/src/pages/client/Perfil.jsx` o nuevo componente
+- Sección "Mi Experiencia" donde el cliente puede dejar su opinión
+
+#### [NEW] `frontend/src/components/Auth/TestimonialCarousel.jsx`
+- Carrusel de testimonios aprobados mostrado en la página de Login/Registro
+
+#### [MODIFY] [`frontend/src/pages/auth/Login.jsx`](file:///c:/Users/almun/source/repos/GymTrack/frontend/src/pages/auth/Login.jsx) y [`Register.jsx`](file:///c:/Users/almun/source/repos/GymTrack/frontend/src/pages/auth/Register.jsx)
+- Integrar el carrusel de testimonios
+
+#### [NEW] `frontend/src/pages/admin/Testimonios.jsx`
+- Panel de moderación: aprobar/rechazar/destacar testimonios
+
+---
+
+#### 4.2 Panel Staff Completo (recepcionista, mantenimiento, aseo)
+
+Este es el componente más grande. Necesita:
+
+#### [NEW] Migración SQL para agregar campos a `staff`:
+```sql
+ALTER TABLE staff ADD COLUMN tipo_contrato VARCHAR(20) DEFAULT 'indefinido'; -- indefinido, plazo_fijo
+ALTER TABLE staff ADD COLUMN fecha_fin_contrato DATE;
+ALTER TABLE staff ADD COLUMN dias_vacaciones_usados INT DEFAULT 0;
+ALTER TABLE staff ADD COLUMN documentos JSONB DEFAULT '[]'::jsonb;
+```
+
+#### [NEW] `frontend/src/layouts/StaffLayout.jsx`
+- Layout propio para staff, mismo diseño visual que EntrenadorLayout
+- Sidebar con secciones: Mi Panel, Mi Información, Documentos, Asistencia
+
+#### [NEW] `frontend/src/pages/staff/StaffDashboard.jsx`
+- Dashboard personal del trabajador:
+  - Información de contrato (tipo, fecha inicio, antigüedad calculada)
+  - Sueldo base
+  - Vacaciones acumuladas (cálculo: `años × 15 días - días usados`)
+  - Próximas obligaciones
+  - Resumen de asistencia del mes
+
+#### [NEW] `frontend/src/pages/staff/MiInformacion.jsx`
+- Datos personales (nombre, RUT, cargo, turno, dirección)
+- Foto de perfil editable
+- Contrato (tipo, fecha inicio, antigüedad)
+
+#### [NEW] `frontend/src/pages/staff/MisDocumentos.jsx`
+- Lista de documentos laborales:
+  - Contrato de trabajo (PDF subido por admin)
+  - Anexos de contrato
+  - Liquidaciones de sueldo (por mes)
+  - Comprobantes de cotizaciones
+  - RIOHS
+  - Protocolos Ley Karin
+  - Finiquito (si corresponde)
+- Cada documento es un enlace a un PDF descargable
+- El admin sube los documentos desde su panel de Staff
+
+#### [NEW] `frontend/src/pages/staff/MiAsistencia.jsx`
+- Historial de asistencia propio del trabajador
+- Calendario visual con días trabajados
+
+#### [MODIFY] [`frontend/src/App.jsx`](file:///c:/Users/almun/source/repos/GymTrack/frontend/src/App.jsx)
+- Agregar bloque de rutas protegidas para roles `recepcionista`, `mantenimiento`, `aseo`
+- Rutas: `/staff/dashboard`, `/staff/info`, `/staff/documentos`, `/staff/asistencia`
+
+#### [MODIFY] [`frontend/src/routes/ProtectedRoute.jsx`](file:///c:/Users/almun/source/repos/GymTrack/frontend/src/routes/ProtectedRoute.jsx)
+- Agregar redirección para roles staff → `/staff/dashboard`
+
+#### [MODIFY] [`frontend/src/pages/auth/Login.jsx`](file:///c:/Users/almun/source/repos/GymTrack/frontend/src/pages/auth/Login.jsx)
+- Agregar redirección post-login para roles staff
+
+#### [NEW] Backend endpoints para staff personal:
+- `GET /staff/me` — Información personal del trabajador logueado
+- `GET /staff/me/documents` — Documentos del trabajador
+- `GET /staff/me/attendance` — Asistencia propia
+
+---
+
+### FASE 5 — Fotos de Perfil y Pulido General
+
+#### 5.1 Sistema de subida de fotos (compartido entre todos los roles)
+
+#### [NEW] `Backend/middleware/upload.js`
+- Configuración de `multer` para subida de imágenes
+- Validación: solo JPEG/PNG, máximo 5MB
+- Almacenamiento en `/uploads/profiles/`
+
+#### [NEW] `Backend/Routes/upload.js`
+- `POST /upload/profile` — Sube foto y actualiza `foto_perfil` en la tabla correspondiente
+- `GET /uploads/:filename` — Sirve archivos estáticos
+
+#### [MODIFY] [`Backend/app.js`](file:///c:/Users/almun/source/repos/GymTrack/Backend/app.js)
+- Agregar `app.use('/uploads', express.static('uploads'))` para servir fotos
+- Montar router de upload
+
+#### 5.2 Ajustes de perfil unificados
+
+- Admin: ya funciona, agregar foto ✅
+- Entrenador: nueva página de perfil con foto, correo, teléfono
+- Cliente: actualizar perfil existente con foto, quitar selector de entrenador
+- Staff: nueva página de info con foto
+
+---
+
+## Verificación
+
+### Automated Tests
+- No hay framework de testing configurado actualmente. La verificación será manual.
+
+### Manual Verification
+1. **Entrenador**: Login como `entrenador_dev` → Click "Alumnos sin Rutina" → Debe ir a `/entrenador/clientes?filter=sin-rutina`, NO al login
+2. **Admin**: Login como `admin` → Dashboard → Verificar que números de planes coincidan con Comunidad
+3. **Admin**: Ir a Planes → Los "Activos" deben sumar ≤ 72 (no 124/127/139)
+4. **Cliente**: Login como `cliente_dev` → Perfil → No debe poder cambiar entrenador
+5. **Cliente**: Perfil → Renovar → Debe abrir flujo de pago, no quedarse sin acción
+6. **Staff**: Login como `maria_rec` → Debe redirigir a `/staff/dashboard` (no quedarse en blanco)
+7. **Campanas eliminadas**: Verificar que no aparezcan en layouts de Entrenador ni Cliente
