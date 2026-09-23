@@ -7,19 +7,19 @@
 - [x] 1.4 Fix: Frontend admin Planes.jsx mostrar activos/vencidos correctos
 - [x] 1.5 Fix: Dashboard TrendsChart — gráfico de planes coherente
 
-## FASE 2 — Panel Entrenador
-- [ ] 2.1 Eliminar campana y settings del header EntrenadorLayout
-- [ ] 2.2 Crear página PerfilEntrenador.jsx funcional
-- [ ] 2.3 Agregar ruta /entrenador/perfil en App.jsx
-- [ ] 2.4 Conectar botón "Ajustes de Perfil" al navigate
+## FASE 2 — Panel Entrenador ✅
+- [x] 2.1 Eliminar campana y settings del header EntrenadorLayout
+- [x] 2.2 Crear página PerfilEntrenador.jsx funcional
+- [x] 2.3 Agregar ruta /entrenador/perfil en App.jsx
+- [x] 2.4 Conectar botón "Ajustes de Perfil" al navigate
 
-## FASE 3 — Panel Cliente
-- [ ] 3.1 Eliminar campana del header ClientLayout
-- [ ] 3.2 Bloquear edición de entrenador en Perfil.jsx
-- [ ] 3.3 Crear flujo de pago/renovación PagoRenovacion.jsx
-- [ ] 3.4 Backend endpoint para procesar pago simulado
-- [ ] 3.5 Descarga de rutina en PDF con marca de agua
-- [ ] 3.6 Ocultar descarga PDF si tiene entrenador (rutina privada)
+## FASE 3 — Panel Cliente ✅
+- [x] 3.1 Eliminar campana del header ClientLayout
+- [x] 3.2 Bloquear edición de entrenador en Perfil.jsx
+- [x] 3.3 Crear flujo de pago/renovación PagoRenovacion.jsx
+- [x] 3.4 Backend endpoint para procesar pago simulado (ya existía POST /pagos/renovar)
+- [x] 3.5 Descarga de rutina en PDF con marca de agua
+- [x] 3.6 Ocultar descarga PDF si tiene entrenador (rutina privada)
 
 ## FASE 4 — Nuevas Funcionalidades
 - [ ] 4.1 Migración SQL: tabla testimonios + campos staff + tabla vacaciones
