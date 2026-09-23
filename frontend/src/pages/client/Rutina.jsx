@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Dumbbell, Clock, Info, Plus, Edit, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
+import { Dumbbell, Clock, Info, Plus, Edit, Trash2, ChevronDown, ChevronUp, FileDown, Lock } from 'lucide-react';
 import { useAuth } from '../../contexts/useAuth';
 import axios from '../../api/axios';
 import { toast } from 'sonner';
 import { RutinaModal } from '../../components/admin/Clientes/RutinaModal';
 import { useConfirm } from '../../contexts/ConfirmContext';
+import { generateRoutinePDF } from '../../utils/generateRoutinePDF';
 
 export const Rutina = () => {
     const { user } = useAuth();
@@ -21,6 +22,9 @@ export const Rutina = () => {
 
     // Acordeón: qué rutina está expandida en la lista
     const [expandedRutinaId, setExpandedRutinaId] = useState(null);
+
+    // Tiene entrenador asignado? (para ocultar descarga PDF)
+    const [hasEntrenador, setHasEntrenador] = useState(false);
 
     // Objeto "cliente" que pasamos al RutinaModal (el propio usuario)
     const clienteSelf = user ? { id: user.id || user.id_usuario, nombre: user.nombre || user.username } : null;
@@ -71,6 +75,16 @@ export const Rutina = () => {
 
     useEffect(() => {
         fetchRutinas();
+        // Check if client has trainer
+        const checkEntrenador = async () => {
+            try {
+                const res = await axios.get(`/clientes/${user?.id || user?.id_usuario}/stats?t=${Date.now()}`);
+                let data = res.data.body || res.data;
+                if (data?.body) data = data.body;
+                setHasEntrenador(!!data?.infoPersonal?.id_entrenador);
+            } catch { /* ignore */ }
+        };
+        checkEntrenador();
     }, [user?.id, user?.id_usuario]);
 
     const handleDeleteRutina = async (rutina) => {
@@ -126,6 +140,35 @@ export const Rutina = () => {
                     <Dumbbell size={28} className="text-gym-orange" />
                 </div>
             </div>
+
+            {/* ── DESCARGA PDF / INFO ENTRENADOR ── */}
+            {rutinasActivas.length > 0 && (
+                hasEntrenador ? (
+                    <div className="bg-blue-500/5 border border-blue-500/15 rounded-xl px-4 py-3 text-xs text-blue-400/80 flex items-center gap-2">
+                        <Lock size={14} className="shrink-0" />
+                        <span>Tu rutina es gestionada por tu entrenador. La descarga en PDF no está disponible para rutinas privadas.</span>
+                    </div>
+                ) : (
+                    <button
+                        onClick={() => {
+                            try {
+                                if (rutinaDelDia) {
+                                    generateRoutinePDF(rutinaDelDia, user?.nombre || user?.username || 'Cliente');
+                                    toast.success('PDF descargado', { description: 'Tu rutina ha sido exportada correctamente.' });
+                                } else {
+                                    toast.error('No hay rutina disponible para descargar');
+                                }
+                            } catch (err) {
+                                console.error('Error al generar PDF:', err);
+                                toast.error('Error al generar el PDF', { description: err.message });
+                            }
+                        }}
+                        className="w-full py-3 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-bold text-sm rounded-xl hover:bg-emerald-500/20 transition-colors flex items-center justify-center gap-2"
+                    >
+                        <FileDown size={16} /> Descargar Rutina en PDF
+                    </button>
+                )
+            )}
 
             {/* ── SECCIÓN: GESTIÓN DE RUTINAS PROPIAS ── */}
             <div className="bg-zinc-900/60 border border-white/5 rounded-2xl overflow-hidden">

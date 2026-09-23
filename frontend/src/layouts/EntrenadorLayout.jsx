@@ -13,8 +13,6 @@ import {
   LogOut,
   Menu,
   ChevronLeft,
-  Bell,
-  Settings,
   Zap,
   Clock,
   User,
@@ -236,22 +234,6 @@ export function EntrenadorLayout() {
 
             {/* Acciones (Notificaciones + Perfil + Logout) */}
             <div className="flex items-center gap-6">
-              <div className="flex items-center gap-4 bg-black/40 p-1.5 rounded-2xl border border-white/5 shadow-inner">
-                <button
-                  className="relative p-2.5 text-zinc-500 hover:text-white hover:bg-white/5 rounded-xl transition-all group"
-                  title="Notificaciones"
-                >
-                  <Bell size={18} strokeWidth={2} />
-                </button>
-                <button
-                  className="p-2.5 text-zinc-500 hover:text-white hover:bg-white/5 rounded-xl transition-all"
-                  title="Configuración"
-                >
-                  <Settings size={18} strokeWidth={2} />
-                </button>
-              </div>
-
-              <div className="w-px h-8 bg-white/10"></div>
 
               {/* Perfil del Entrenador */}
               <div className="relative" ref={profileRef}>
@@ -286,7 +268,10 @@ export function EntrenadorLayout() {
                       </p>
                     </div>
                     <div className="p-2 space-y-1 relative z-10">
-                      <button className="w-full flex items-center gap-3 px-3 py-2.5 text-xs font-bold text-zinc-400 hover:text-white hover:bg-white/5 rounded-xl transition-all text-left group">
+                      <button
+                        onClick={() => { setIsProfileMenuOpen(false); navigate("/entrenador/perfil"); }}
+                        className="w-full flex items-center gap-3 px-3 py-2.5 text-xs font-bold text-zinc-400 hover:text-white hover:bg-white/5 rounded-xl transition-all text-left group"
+                      >
                         <UserCog
                           size={16}
                           className="group-hover:text-gym-orange transition-colors"

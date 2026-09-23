@@ -35,6 +35,10 @@ import { MisAlumnos } from "./pages/trainer/MisAlumnos";
 import { AgendaDiaria } from "./components/admin/Entrenadores/AgendaDiaria";
 import { EntrenadorPlanes } from "./pages/trainer/EntrenadorPlanes";
 import { EntrenadorFinanzas } from "./pages/trainer/EntrenadorFinanzas";
+import { PerfilEntrenador } from "./pages/trainer/PerfilEntrenador";
+
+// Páginas de Cliente (extras)
+import { PagoRenovacion } from "./pages/client/PagoRenovacion";
 
 function App() {
   return (
@@ -78,6 +82,7 @@ function App() {
                 <Route path="/client/acceso" element={<ClientAcceso />} />
                 <Route path="/client/progreso" element={<Progreso />} />
                 <Route path="/client/perfil" element={<Perfil />} />
+                <Route path="/client/renovar" element={<PagoRenovacion />} />
               </Route>
             </Route>
 
@@ -109,6 +114,10 @@ function App() {
                 <Route
                   path="/entrenador/comisiones"
                   element={<EntrenadorFinanzas />}
+                />
+                <Route
+                  path="/entrenador/perfil"
+                  element={<PerfilEntrenador />}
                 />
               </Route>
             </Route>

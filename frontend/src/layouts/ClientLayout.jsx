@@ -10,8 +10,6 @@ import {
   LogOut,
   Menu,
   ChevronLeft,
-  Bell,
-  Settings,
   Zap,
 } from "lucide-react";
 
@@ -180,14 +178,8 @@ export function ClientLayout() {
       <main className="flex-1 relative z-10 flex flex-col bg-black">
         {/* Contenedor con bordes ultra suaves */}
         <div className="flex-1 bg-[#0c0c0e] my-2 mr-2 rounded-[3.5rem] border border-white/[0.03] flex flex-col overflow-hidden shadow-[0_0_60px_rgba(0,0,0,0.8)]">
-          {/* TOP HEADER (Minimalista - Sin Títulos ni Buscadores redundantes) */}
+          {/* TOP HEADER (Minimalista) */}
           <header className="h-14 flex items-center justify-end px-12 shrink-0">
-            <div className="flex items-center gap-5">
-              <button onClick={() => alert('Bandeja de Entrada Próximamente')} className="text-zinc-600 hover:text-white transition-all hover:scale-110 relative">
-                <Bell size={18} />
-                <span className="absolute -top-1 -right-1 w-2 h-2 bg-gym-orange rounded-full shadow-[0_0_5px_rgba(249,115,22,1)]"></span>
-              </button>
-            </div>
           </header>
 
           {/* ÁREA DE CONTENIDO */}

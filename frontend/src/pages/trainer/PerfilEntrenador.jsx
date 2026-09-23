@@ -1,59 +1,45 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/useAuth';
 import {
-    User, LogOut, Settings, Key, Heart, X, CreditCard,
-    Edit, Save, Dumbbell, Mail, Target, Loader2, AlertCircle
+    User, LogOut, Key, Heart, X, Edit, Save,
+    Mail, Phone, Loader2, AlertCircle, Shield, Dumbbell, Briefcase
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import axios from '../../api/axios';
 import { toast } from 'sonner';
+import { useConfirm } from '../../contexts/ConfirmContext';
 
-export const Perfil = () => {
-    const { user, login } = useAuth();
+export const PerfilEntrenador = () => {
+    const { user, logout } = useAuth();
     const navigate = useNavigate();
+    const confirm = useConfirm();
 
-    const [isPasswordModalOpen, setPasswordModalOpen] = useState(false);
-    const [isEditModalOpen, setEditModalOpen] = useState(false);
-    const [passwords, setPasswords] = useState({ currentPassword: '', newPassword: '' });
-    const [msg, setMsg] = useState({ text: '', isError: false });
-
-    // Data del perfil
-    const [infoData, setInfoData] = useState(null);
+    const [perfil, setPerfil] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [coaches, setCoaches] = useState([]);
 
-    // Formulario de edición
-    const [editForm, setEditForm] = useState({ email: '', objetivo: '' });
+    // Modal edición
+    const [isEditModalOpen, setEditModalOpen] = useState(false);
+    const [editForm, setEditForm] = useState({ email: '', telefono: '' });
     const [editErrors, setEditErrors] = useState({});
     const [isSaving, setIsSaving] = useState(false);
 
+    // Modal contraseña
+    const [isPasswordModalOpen, setPasswordModalOpen] = useState(false);
+    const [passwords, setPasswords] = useState({ currentPassword: '', newPassword: '' });
+    const [msg, setMsg] = useState({ text: '', isError: false });
+
     const fetchPerfil = async () => {
-        if (!user?.id) return;
         try {
-            const [resPerfil, resCoaches] = await Promise.all([
-                axios.get(`/clientes/${user.id}/stats?t=${Date.now()}`),
-                axios.get('/entrenadores').catch(() => ({ data: { body: [] } }))
-            ]);
-
-            let data = resPerfil.data.body || resPerfil.data;
-            if (data && data.body) data = data.body;
-
-            setInfoData({
-                infoPersonal: data.infoPersonal || {},
-                planes: data.planesDisponibles || []
-            });
-
-            // Pre-cargar formulario de edición
+            const res = await axios.get(`/entrenadores/mi-perfil?t=${Date.now()}`);
+            const data = res.data.body || res.data;
+            setPerfil(data);
             setEditForm({
-                email: data.infoPersonal?.email || user?.email || '',
-                objetivo: data.infoPersonal?.objetivo || ''
+                email: data.email || user?.email || '',
+                telefono: data.telefono || ''
             });
-
-            let coachesData = resCoaches.data.body || resCoaches.data || [];
-            if (coachesData.body) coachesData = coachesData.body;
-            setCoaches(Array.isArray(coachesData) ? coachesData : []);
         } catch (err) {
-            console.error("Error al obtener perfil", err);
+            console.error("Error al obtener perfil entrenador:", err);
+            toast.error("Error al cargar el perfil");
         } finally {
             setIsLoading(false);
         }
@@ -61,8 +47,47 @@ export const Perfil = () => {
 
     useEffect(() => { fetchPerfil(); }, [user?.id]);
 
-    const doLogout = () => { logout(); navigate('/'); };
-    const { logout } = useAuth();
+    const handleLogout = async () => {
+        const isConfirmed = await confirm({
+            title: '¿Cerrar Sesión?',
+            description: 'Tendrás que volver a ingresar tus credenciales para acceder al panel.',
+            confirmText: 'Sí, salir',
+            cancelText: 'Cancelar',
+            type: 'logout',
+        });
+        if (isConfirmed) {
+            logout();
+            navigate('/login');
+        }
+    };
+
+    const handleEditSubmit = async (e) => {
+        e.preventDefault();
+        const errs = {};
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!editForm.email) errs.email = 'El email es obligatorio';
+        else if (!emailRegex.test(editForm.email)) errs.email = 'Formato de email inválido';
+        setEditErrors(errs);
+        if (Object.keys(errs).length > 0) return;
+
+        setIsSaving(true);
+        try {
+            await axios.patch(`/entrenadores/${perfil.id}`, {
+                email: editForm.email,
+                telefono: editForm.telefono || null
+            });
+            toast.success('Perfil actualizado', {
+                description: 'Tus datos han sido guardados correctamente.'
+            });
+            setEditModalOpen(false);
+            fetchPerfil();
+        } catch (err) {
+            const msg = err.response?.data?.error || 'Error al guardar los cambios';
+            toast.error('Error al actualizar', { description: msg });
+        } finally {
+            setIsSaving(false);
+        }
+    };
 
     const handleChangePassword = async (e) => {
         e.preventDefault();
@@ -84,80 +109,36 @@ export const Perfil = () => {
         }
     };
 
-    const handleEditSubmit = async (e) => {
-        e.preventDefault();
-        const errs = {};
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!editForm.email) errs.email = 'El email es obligatorio';
-        else if (!emailRegex.test(editForm.email)) errs.email = 'Formato de email inválido';
-        setEditErrors(errs);
-        if (Object.keys(errs).length > 0) return;
-
-        setIsSaving(true);
-        try {
-            const payload = {
-                email: editForm.email,
-                objetivo: editForm.objetivo || null
-            };
-            await axios.patch(`/clientes/${user.id}`, payload);
-            toast.success('Perfil actualizado', {
-                description: 'Tus datos han sido guardados correctamente.'
-            });
-            setEditModalOpen(false);
-            fetchPerfil();
-        } catch (err) {
-            const msg = err.response?.data?.error || 'Error al guardar los cambios';
-            toast.error('Error al actualizar', { description: msg });
-        } finally {
-            setIsSaving(false);
-        }
-    };
-
-    const calculateAge = (dateString) => {
-        if (!dateString) return "No definido";
-        try {
-            const today = new Date();
-            const birthDate = new Date(dateString);
-            let age = today.getFullYear() - birthDate.getFullYear();
-            if (
-                today.getMonth() < birthDate.getMonth() ||
-                (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate())
-            ) age--;
-            return `${age} años`;
-        } catch { return "No definido"; }
-    };
-
     if (isLoading) {
         return (
             <div className="flex items-center justify-center h-full">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gym-orange"></div>
             </div>
         );
     }
 
-    const { infoPersonal, planes } = infoData || {};
-    const entrenadorAsignado = coaches.find(c => String(c.id) === String(infoPersonal?.id_entrenador));
+    const trainerName = perfil?.nombre || user?.nombre || user?.username || 'Entrenador';
 
     return (
-        <div className="flex flex-col gap-6 animate-fade-in pb-12 h-full relative">
+        <div className="flex flex-col gap-6 animate-fade-in pb-12 max-w-3xl mx-auto">
 
             {/* ── AVATAR + NOMBRE ── */}
             <div className="mt-2 text-center flex flex-col items-center">
-                <div className="w-24 h-24 bg-gradient-to-br from-zinc-700 to-zinc-900 rounded-full flex items-center justify-center border-4 border-zinc-800 shadow-2xl relative mb-4">
-                    <User size={40} className="text-gray-400" />
+                <div className="w-24 h-24 bg-gradient-to-br from-orange-500/20 to-orange-700/10 rounded-full flex items-center justify-center border-4 border-zinc-800 shadow-2xl relative mb-4">
+                    <User size={40} className="text-gym-orange" />
                     <div className="absolute bottom-0 right-0 w-6 h-6 bg-emerald-500 rounded-full border-2 border-zinc-900"></div>
                 </div>
-                <h1 className="text-2xl font-bold text-white tracking-tight">
-                    {infoPersonal?.nombre || user?.nombre || user?.username || 'Mi Perfil'}
-                </h1>
-                <p className="text-gym-orange text-sm font-medium mt-1">Miembro Activo</p>
+                <h1 className="text-2xl font-bold text-white tracking-tight">{trainerName}</h1>
+                <p className="text-gym-orange text-sm font-medium mt-1 flex items-center gap-1">
+                    <Shield size={12} /> Entrenador Personal
+                </p>
             </div>
 
             {/* ── INFORMACIÓN PERSONAL ── */}
             <div className="bg-zinc-900 border border-white/5 rounded-3xl overflow-hidden mt-4">
                 <div className="p-4 border-b border-white/5 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="bg-white/5 p-2 rounded-lg"><Settings size={18} className="text-gray-300" /></div>
+                        <div className="bg-white/5 p-2 rounded-lg"><Briefcase size={18} className="text-gray-300" /></div>
                         <span className="text-white font-medium">Información Personal</span>
                     </div>
                     <button
@@ -171,93 +152,41 @@ export const Perfil = () => {
                     <div>
                         <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Nombre Completo</p>
                         <p className="text-white bg-zinc-800/50 p-3 rounded-xl border border-white/5">
-                            {infoPersonal?.nombre || user?.nombre || 'No definido'}
+                            {perfil?.nombre || 'No definido'}
                         </p>
                     </div>
-                    <div>
+                    <div className="min-w-0">
                         <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Correo Electrónico</p>
-                        <p className="text-white bg-zinc-800/50 p-3 rounded-xl border border-white/5 flex items-center gap-2">
+                        <p className="text-white bg-zinc-800/50 p-3 rounded-xl border border-white/5 flex items-center gap-2 overflow-hidden">
                             <Mail size={14} className="text-gym-orange shrink-0" />
-                            {infoPersonal?.email || user?.email || 'No definido'}
+                            <span className="truncate">{perfil?.email || user?.email || 'No definido'}</span>
                         </p>
                     </div>
                     <div>
-                        <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Edad</p>
+                        <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Teléfono</p>
+                        <p className="text-white bg-zinc-800/50 p-3 rounded-xl border border-white/5 flex items-center gap-2">
+                            <Phone size={14} className="text-gym-orange shrink-0" />
+                            {perfil?.telefono || 'No definido'}
+                        </p>
+                    </div>
+                    <div>
+                        <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Especialidad</p>
+                        <p className="text-gym-orange bg-gym-orange/10 p-3 rounded-xl border border-gym-orange/20 font-medium flex items-center gap-2">
+                            <Dumbbell size={14} className="shrink-0" />
+                            {perfil?.especialidad || 'General'}
+                        </p>
+                    </div>
+                    <div>
+                        <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">RUT</p>
                         <p className="text-white bg-zinc-800/50 p-3 rounded-xl border border-white/5">
-                            {calculateAge(infoPersonal?.fecha_nacimiento)}
+                            {perfil?.rut || 'No definido'}
                         </p>
                     </div>
                     <div>
-                        <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Género</p>
+                        <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Turno</p>
                         <p className="text-white bg-zinc-800/50 p-3 rounded-xl border border-white/5">
-                            {infoPersonal?.genero || 'No definido'}
+                            {perfil?.turno || 'No definido'}
                         </p>
-                    </div>
-                    <div>
-                        <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Dirección</p>
-                        <p className="text-white bg-zinc-800/50 p-3 rounded-xl border border-white/5">
-                            {infoPersonal?.direccion || 'Sin dirección registrada'}
-                        </p>
-                    </div>
-                    <div>
-                        <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Objetivo de Entrenamiento</p>
-                        <p className="text-gym-orange bg-gym-orange/10 p-3 rounded-xl border border-gym-orange/20 font-medium">
-                            {infoPersonal?.objetivo || 'Sin objetivo definido'}
-                        </p>
-                    </div>
-                </div>
-
-                {/* Entrenador asignado */}
-                <div className="px-5 pb-5">
-                    <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Entrenador Asignado</p>
-                    {entrenadorAsignado ? (
-                        <div className="bg-zinc-800/50 p-3 rounded-xl border border-white/5 flex items-center gap-3">
-                            <div className="w-8 h-8 bg-orange-500/10 border border-orange-500/20 rounded-lg flex items-center justify-center shrink-0">
-                                <Dumbbell size={15} className="text-gym-orange" />
-                            </div>
-                            <div>
-                                <p className="text-white font-medium text-sm">{entrenadorAsignado.nombre}</p>
-                                {entrenadorAsignado.especialidad && (
-                                    <p className="text-xs text-zinc-500">{entrenadorAsignado.especialidad}</p>
-                                )}
-                            </div>
-                        </div>
-                    ) : (
-                        <p className="text-zinc-500 italic bg-zinc-800/50 p-3 rounded-xl border border-white/5 text-sm">
-                            Sin entrenador asignado
-                        </p>
-                    )}
-                </div>
-            </div>
-
-            {/* ── PLAN VIGENTE ── */}
-            <div className="bg-zinc-900 border border-white/5 rounded-3xl overflow-hidden">
-                <div className="p-4 border-b border-white/5 flex items-center gap-3">
-                    <div className="bg-white/5 p-2 rounded-lg"><CreditCard size={18} className="text-gray-300" /></div>
-                    <span className="text-white font-medium">Gestionar Mi Plan</span>
-                </div>
-                <div className="p-5 space-y-4">
-                    <p className="text-sm text-gray-400 leading-relaxed mb-4">
-                        Accede a las opciones de renovación o cambio de tu membresía activa actual.
-                    </p>
-                    <div className="space-y-2">
-                        {planes?.map((plan) => (
-                            <div key={plan.id} className="bg-zinc-800/80 hover:bg-zinc-800 border border-white/5 rounded-2xl p-4 flex justify-between items-center transition-colors">
-                                <div>
-                                    <h4 className="text-white font-bold">{plan.nombre}</h4>
-                                    <p className="text-xs text-emerald-400 mt-0.5">{plan.duracion_meses} Meses</p>
-                                </div>
-                                <div className="text-right flex items-center gap-4">
-                                    <span className="text-gym-orange font-bold">${Number(plan.precio).toLocaleString()}</span>
-                                    <button
-                                        onClick={() => navigate('/client/renovar')}
-                                        className="bg-gym-orange text-black font-semibold text-xs py-1.5 px-3 rounded-lg hover:bg-orange-500 active:scale-95 transition-transform"
-                                    >
-                                        Renovar
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
                     </div>
                 </div>
             </div>
@@ -276,16 +205,12 @@ export const Perfil = () => {
                         Cambiar Contraseña
                         <ChevronRightIcon />
                     </button>
-                    <button className="w-full text-left p-3 hover:bg-white/5 rounded-xl transition-colors flex justify-between items-center text-sm text-gray-300 opacity-50 cursor-not-allowed">
-                        Configurar Autenticación 2FA (Pronto)
-                        <ChevronRightIcon />
-                    </button>
                 </div>
             </div>
 
             {/* ── CERRAR SESIÓN ── */}
             <button
-                onClick={doLogout}
+                onClick={handleLogout}
                 className="mt-4 w-full bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-500 font-bold py-4 rounded-2xl transition-colors flex justify-center items-center gap-2"
             >
                 <LogOut size={20} />
@@ -349,25 +274,23 @@ export const Perfil = () => {
                                 )}
                             </div>
 
-                            {/* Objetivo */}
+                            {/* Teléfono */}
                             <div>
                                 <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-1.5 block flex items-center gap-1">
-                                    <Target size={11} /> Objetivo de Entrenamiento
+                                    <Phone size={11} /> Teléfono
                                 </label>
                                 <input
-                                    type="text"
-                                    value={editForm.objetivo}
-                                    onChange={e => setEditForm(p => ({ ...p, objetivo: e.target.value }))}
-                                    placeholder="Ej: Bajar de peso, ganar músculo..."
+                                    type="tel"
+                                    value={editForm.telefono}
+                                    onChange={e => setEditForm(p => ({ ...p, telefono: e.target.value }))}
+                                    placeholder="+56 9 1234 5678"
                                     className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white text-sm outline-none focus:border-gym-orange focus:ring-1 focus:ring-orange-500/20 transition-all placeholder-zinc-600"
                                 />
                             </div>
 
-
-
                             {/* Nota */}
                             <div className="bg-blue-500/5 border border-blue-500/15 rounded-xl px-4 py-3 text-xs text-blue-400/80">
-                                ℹ️ Los cambios de nombre, RUT, fecha de nacimiento, dirección y entrenador asignado deben solicitarse al administrador del gimnasio.
+                                ℹ️ Para cambiar nombre, RUT, especialidad o turno, contacta al administrador del gimnasio.
                             </div>
 
                             {/* Botones */}
@@ -429,7 +352,7 @@ export const Perfil = () => {
                             {msg.text && (
                                 <p className={`text-sm ${msg.isError ? 'text-red-400' : 'text-emerald-400'}`}>{msg.text}</p>
                             )}
-                            <button type="submit" className="w-full bg-emerald-500 hover:bg-emerald-600 text-black font-bold py-3 rounded-xl mt-4">
+                            <button type="submit" className="w-full bg-gym-orange hover:bg-orange-600 text-white font-bold py-3 rounded-xl mt-4 transition-colors">
                                 Confirmar Cambio
                             </button>
                         </form>
